@@ -1,0 +1,3 @@
+target remote localhost:5555
+load fw/laminator.elf
+continue

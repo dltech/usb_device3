@@ -1,0 +1,8 @@
+make -C fw clean
+make -C fw
+st-flash erase
+xfce4-terminal -e "st-util -p 5555 -n" --tab -e "gdb-multiarch --init-command="lib/init_gdb" fw/laminator.elf"
+
+
+
+
