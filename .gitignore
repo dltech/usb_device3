@@ -1,0 +1,14 @@
+*cache*
+*.o
+*.d
+*.ld
+*.bin
+*.elf
+core
+
+sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
+sch/heater_dir_ctrl/heater_dir_ctrl.sch-bak
+sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
+sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
+sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
+sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak

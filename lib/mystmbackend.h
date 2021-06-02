@@ -6,7 +6,7 @@
 #define SCL 9
 #define SDA 10
 
-#define I2C_ADD_NE_ADD 0x00
+#define I2C_ADD_NE_ADD  0x00
 #define TIMEOUT_CLKS    10000
 
 void clkInit(void);
