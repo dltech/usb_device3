@@ -717,10 +717,6 @@ Wire Wire Line
 	7700 5600 7700 5550
 Wire Wire Line
 	7700 5550 7750 5550
-Wire Wire Line
-	6200 5000 6450 5000
-Entry Wire Line
-	6450 5000 6550 5100
 $Comp
 L local:STM32F103C8Tx_usb U1
 U 1 1 60B9067D
@@ -818,6 +814,8 @@ Wire Wire Line
 	4950 5050 4950 5000
 Wire Wire Line
 	4950 5000 5100 5000
+NoConn ~ 5100 4900
+NoConn ~ 6200 5000
 Wire Bus Line
 	4850 5750 7050 5750
 Wire Bus Line
