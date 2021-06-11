@@ -46,15 +46,6 @@ void sysClk()
     while( ((RCC_CFGR & RCC_CFGR_SWS) != (RCC_CFGR_SWS_SYSCLKSEL_PLLCLK << RCC_CFGR_SWS_SHIFT)) && (--timeout > 1) );
 }
 
-void usbOn()
-{
-    // лапки к usb подключаются сами (трогать их не надо), тактирование,
-    // я надеюсь, включено выше и больше там никаких приколов не будет
-    (*USB_CNTR_REG) &= ((uint32_t)(~USB_CNTR_PWDN));
-    rough_delay_us(1);
-    (*USB_ISTR_REG) = ((uint32_t)0);
-    (*USB_CNTR_REG) &= ((uint32_t)(~USB_CNTR_FRES));
-}
 
 void delay_s(uint16_t s)
 {
