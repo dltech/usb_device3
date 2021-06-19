@@ -59,6 +59,8 @@ int usbHostEndpointInit()
 {
     OTG_FS_DIEPCTL0 |= OTG_DIEPCTL0_SNAK;
 
+
+
 }
 
 void usbInit()

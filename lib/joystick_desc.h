@@ -72,7 +72,7 @@ uint8_t gamepadHidDesc[gamepadHidDescSize] =
     0x33,       // country code SU
     0x01,       // bNumDescriptors
     0x22,       // bDescriptorType, report descriptor
-    0x00, 0x37  // wDescriptorLenght
+    gamepadreportDescSize,0x00  // wDescriptorLenght
 };
 
 // report descriptor for gamepad w d-pad and two buttons
