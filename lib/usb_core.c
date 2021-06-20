@@ -10,7 +10,8 @@ void usbClockInit()
 }
 
 
-void usbInit()
+void usbReset()
 {
     USB_DADDR_REG |= USB_DADDR_EF;
+
 }
