@@ -15,3 +15,8 @@ void usbReset()
     USB_DADDR_REG |= USB_DADDR_EF;
 
 }
+
+void usbHidEndpInit()
+{
+    USB_EP_REG(USB_EP0) = 
+}
