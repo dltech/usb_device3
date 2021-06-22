@@ -19,7 +19,7 @@ uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
     0x03,       // bDeviceClass, HID
     0x00,       // bDeviceSubclass, not used
     0x00,       // bDeviceProtocol, not used
-    0x40,       // bMaxPacketSize0, maximum size
+    0x40,       // bMaxPacketSize0, maximum size 64 byte
     0xC4,0x10,  // idVendor, SiLabs
     0x00,0x00,  // idProduct
     0x00,0x01,  // bcdDevice
@@ -60,7 +60,7 @@ uint8_t gamepadInEndpDesc[gamepadInEndpDescSize] =
     0x05,       // bDescriptorType, endpoint descriptor
     0x81,       // bEndpointAddress, IN endpoint 1
     0x03,       // bMattributes, interrupt endpoint
-    0x04,0x00,  // MaxPacketSize
+    0x04,0x00,  // MaxPacketSize, 4 bytes
     0x20        // bInterval 32 ms
 };
 
