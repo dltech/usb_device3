@@ -1,22 +1,25 @@
+#include "usb_device_regs.h"
 
 void usbClockInit()
 {
     RCC_AHBENR |= RCC_AHBENR_OTGFSEN;
     // usb on
-    (*USB_CNTR_REG) &= ((uint32_t)(~USB_CNTR_PWDN));
+    USB_CNTR_REG &= ~PDWN;
     rough_delay_us(1);
-    (*USB_ISTR_REG) = ((uint32_t)0);
-    (*USB_CNTR_REG) &= ((uint32_t)(~USB_CNTR_FRES));
+    USB_ISTR_REG = 0;
+    // reset usb
+    USB_CNTR_REG &= ~FRES;
 }
 
 
 void usbReset()
 {
+    USB_BTABLE = USB_TABLE_ADDR;
     USB_DADDR_REG |= USB_DADDR_EF;
 
 }
 
 void usbHidEndpInit()
 {
-    USB_EP_REG(USB_EP0) = 
+    USB_EP_REG(USB_EP0) =
 }
