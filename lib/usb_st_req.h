@@ -1,4 +1,3 @@
-
 /* request tables */
 // bmRequestType
 #define DEVICE_GET          0x80
@@ -32,9 +31,11 @@
 #define INTERFACE_STATUS    0x0000
 // for endpoint
 #define ENDP_HALT_STATUS    0x0001
+#define ENDP_ACTIVE_STATUS  0x0000
 
 #define REQUEST_SIZE        9
 
+// standard request package
 typedef struct
 {
     uint8_t     bmRequestType;
@@ -43,3 +44,6 @@ typedef struct
     uint16_t    wIndex;
     uint16_t    wLength;
 } requestTyp;
+
+int isRequest(void);
+int reqHandler(void);

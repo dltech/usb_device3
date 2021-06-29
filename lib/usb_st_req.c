@@ -1,4 +1,12 @@
 #include "usb_st_req.h"
+#include "usb_core.h"
+
+extern volatile epProp epPrors[NUM_OF_EP];
+
+void reqCopy(requestTyp *request);
+int getStatusReqHandler();
+int setAddressReqHandler();
+
 
 int isRequest()
 {
@@ -18,7 +26,11 @@ int reqHandler()
             ret = getStatusReqHandler();
             brake;
         case CLEAR_FEATURE:
+            brake;
 
+        case SET_ADDRESS:
+            ret = setAddressReqHandler();
+            brake;
     }
 }
 
@@ -44,26 +56,44 @@ void reqCopy(requestTyp *request)
 
 int getStatusReqHandler()
 {
-    if( (request->wValue != 0) && (request->wLength != 2) ) {
+    // error check
+    if( (request->wValue != 0) || (request->wLength != 2) ) {
         return -1;
     }
-    switch ( request.bRequest ) {
+    if( (request->bRequest == DEVICE_GET) && (request->wIndex != 0) ) {
+        return -1;
+    }
+    if( (request->wIndex >= NUM_OF_EP) && (request->bRequest == ENDPOINT_GET) ) {
+        return -1;
+    }
+    // request handler
+    switch ( request->bRequest ) {
         case DEVICE_GET: {
-            reqResponse();
+            reqResponse(BUS_POWERED);
+            brake;
         }
         case INTERFACE_GET: {
             reqResponse(INTERFACE_STATUS);
+            brake;
         }
         case ENDPOINT_GET: {
-            reqResponse(ENDP_HALT_STATUS);
+            if(epPrors[request->wIndex].isHalt > 0) {
+                reqResponse(ENDP_HALT_STATUS);
+            } else {
+                reqResponse(ENDP_ACTIVE_STATUS);
+            }
+            brake;
         }
+        default:
+            return -1;
     }
-
+    return 0;
 }
 
-int getStatusReqHandler()
+int setAddressReqHandler()
 {
-    if( (request->wValue != 0) && (request->wLength != 2) ) {
+    if( (request->wIndex != 0) && (request->wLength != 0) && \
+        (request->wValue > 127) ) {
         return -1;
     }
 
