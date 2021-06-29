@@ -16,8 +16,6 @@ void usbClockInit()
 void usbReset()
 {
 
-
-
     USB_DADDR_REG |= USB_DADDR_EF;
 }
 
@@ -32,5 +30,5 @@ void usbHidEndpInit()
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endp
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
-    
+
 }
