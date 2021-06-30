@@ -8,8 +8,23 @@
 // endpoints
 #define NUM_OF_EP   2
 
+
+
 typedef struct {
     int isHalt;
 } epProp;
 
-volatile epProp epPrors[NUM_OF_EP];
+enum deviceStates {
+    RESET = 0,
+    DEFAULT,
+    ADDRESS,
+    CONFIGURED
+};
+
+typedef struct {
+    epProp epPrors[NUM_OF_EP];
+    int deviceStaste = DEFAULT;
+    const uint8_t configValue 0x01;
+} usbPropStruct;
+
+volatile usbPropStruct usbProp;

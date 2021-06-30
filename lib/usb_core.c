@@ -15,8 +15,8 @@ void usbClockInit()
 
 void usbReset()
 {
-
-    USB_DADDR_REG |= USB_DADDR_EF;
+    USB_DADDR_REG = USB_DADDR_EF | 0x00;
+    
 }
 
 void usbHidEndpInit()

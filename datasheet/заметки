@@ -1,18 +1,17 @@
 
 /**********Реквесты****************/
 те что реализованы в st lib
-Get Configuration
-Set Configuration
-Get Interface
-Set Interface
-Get Status
+Get Configuration*
+Set Configuration*
+Get Interface*
+Set Interface*
+Get Status*
 Clear Feature
 Set Endpoint Feature
 Set Device Feature
-Set Device Address
+Set Device Address*
 А еще наябедничаю, у них там есть ебучий гоуту, кажись намудрили малость
 
-вуу немного не оч, но кажется в моем скромном случае я обойдусь стандартными реквестами без поля данных
 научился считать до девяти, надеюсь грамотно копирую запрос
 если определен ленторотяг, воооо хозяин к нам идет
-getstatus веселый
+написать заглушку поверх несуществующих фич сложнее чем поверх несуществующих интерфейсов
