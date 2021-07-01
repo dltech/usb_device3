@@ -1,12 +1,24 @@
+#include "usb_hid.h"
 #include "usb_st_req.h"
 #include "usb_core.h"
+
+
 
 extern volatile usbPropStruct usbProp;
 
 
 void reqCopy(requestTyp *request);
-int getStatusReqHandler();
-int setAddressReqHandler();
+/* this functions are implemented with assumption that request eror state and
+   STALL state are the same. In both cases request handler returns -1. */
+int getStatusReqHandler(requestTyp *request);
+int clearFeatureReqHandler(requestTyp *request);
+int setFeatureReqHandler(requestTyp *request);
+int setAddressReqHandler(requestTyp *request);
+int getDescriptorReqHandler(requestTyp *request);
+int getConfigurationReqHandler(requestTyp *request);
+int setConfigurationReqHandler(requestTyp *request);
+int getInterfaceReqHandler(requestTyp *request);
+int setInterfaceReqHandler(requestTyp *request);
 
 
 int isRequest()
@@ -20,21 +32,47 @@ int isRequest()
 int reqHandler()
 {
     requestTyp request;
-    reqCopy(request);
-    int ret;
+    reqCopy(&request);
+    int ret = 5;
     switch ( request.bRequest ) {
         case GET_STATUS:
-            ret = getStatusReqHandler();
+            ret = getStatusReqHandler(&request);
             brake;
         case CLEAR_FEATURE:
+            ret = clearFeatureReqHandler(&request);
             brake;
-
+        case SET_FEATURE:
+            ret = setFeatureReqHandler(&request);
+            brake;
         case SET_ADDRESS:
-            ret = setAddressReqHandler();
+            ret = setAddressReqHandler(&request);
+            brake;
+        case GET_DESCRIPTOR:
+            ret = getDescriptorReqHandler(&request);
+            brake;
+        case GET_CONFIGURATION:
+            ret = getConfigurationReqHandler(&request);
+            brake;
+        case SET_CONFIGURATION:
+            ret = setConfigurationReqHandler(&request);
+            brake;
+        case GET_INTERFACE:
+            ret = getInterfaceReqHandler(&request);
+            brake;
+        case SET_INTERFACE:
+            ret = setInterfaceReqHandler(&request);
+            brake;
+        default:
+            ret = -2;
             brake;
     }
+    if( ret == -2 ) {
+        hidReqHandler(&request)
+    }
+    if( ret < 0 ) {
+        // STALL send
+    }
 }
-
 
 // Сopies request for control endpoint 0 from rx buffer
 void reqCopy(requestTyp *request)
@@ -55,7 +93,20 @@ void reqCopy(requestTyp *request)
     // requests with data do not understood
 }
 
-int getStatusReqHandler()
+// method overloading imitation one byte and two byte variants
+void reqResponse2(uint16_t data)
+{
+
+}
+
+void reqResponse1(uint8_t data)
+{
+
+}
+
+/* Request handlers */
+
+int getStatusReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wValue != 0) || (request->wLength != 2) ) {
@@ -91,7 +142,7 @@ int getStatusReqHandler()
     return 0;
 }
 
-int setAddressReqHandler()
+int setAddressReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
@@ -129,7 +180,7 @@ int setAddressReqHandler()
     return 0;
 }
 
-int setConfigurationReqHandler()
+int setConfigurationReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
@@ -167,7 +218,7 @@ int setConfigurationReqHandler()
     return 0;
 }
 
-int getConfigurationReqHandler()
+int getConfigurationReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
@@ -195,15 +246,20 @@ int getConfigurationReqHandler()
 }
 
 // that is cup functions for the standard compability
-// because this is devise with default interface
-int getInterfaceReqHandler()
+// because this is devise with only one default interface
+int setInterfaceReqHandler(requestTyp *request)
+{
+    return -1;
+}
+
+int getInterfaceReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
         (request->wValue != 0) ) {
         return -1;
     }
-    // main case, return the null interface
+    // main case which returns the null interface
     switch ( usbProp.deviceStaste ) {
         case DEFAULT: {
             return -1;
@@ -223,18 +279,72 @@ int getInterfaceReqHandler()
     return 0;
 }
 
-// method overloading imitation one byte and two byte variants
-void reqResponse2(uint16_t data)
+int setFeatureReqHandler(requestTyp *request)
 {
+    // error check
+    if( (request->wLength != 0) ) {
+        return -1;
+    }
+    // exceptions first
+    // checks is there requested endpoint
+    if( (request->bmRequestType != ENDPOINT_SET) && \
+       ((request->wIndex & 0x00ff) >= NUM_OF_EP) ) {
+        return -1;
+    }
+    // default endpoint halt is not avaliable too
+    if( (request->bmRequestType == ENDPOINT_SET) && \
+       ((request->wIndex & 0x00ff) == 0) ) {
+        return -1;
+    }
+    // there is nothing to do with device except tests
+    if( (request->bmRequestType == DEVICE_SET) && (request->wValue != TEST_MODE) ) {
+        return -1;
+    }
+    // check test selector
+    if( ((request->wIndex & 0x00ff) != 0) || \
+         (request->wIndex < TEST_J) && (request->wIndex > TEST_FORCE_ENABLE) ) {
+        return -1;
+    }
 
+    // here is main code
+    // there is no features for interfaces
+    if( (request->bmRequestType == INTERFACE_SET) ) {
+        return -1;
+    }
+    // device side
+    if( (request->bmRequestType == DEVICE_SET) && (request->wValue == TEST_MODE) ) {
+        testEnable(request->wIndex);
+    }
+    // endpoint side
+    // it may halt any endpoint except default
+    if( (request->bmRequestType == ENDPOINT_SET) && \
+        (usbProp.deviceStaste == CONFIGURED) && \
+        (request->wValue == ENDPOINT_HALT) ) {
+        epHaltSet(request->wIndex & 0x00ff);
+    } else {
+        return -1;
+    }
+    return 0;
 }
 
-void reqResponse1(uint8_t data)
+int clearFeatureReqHandler(requestTyp *request)
 {
-
+    // error check
+    if( (request->wLength != 0) ) {
+        return -1;
+    }
+    // everything except reset halt ep n are errors
+    if( (request->bmRequestType == ENDPOINT_SET) && \
+        (usbProp.deviceStaste == CONFIGURED) && \
+        (request->wValue == ENDPOINT_HALT) ) {
+        epHaltClear(request->wIndex & 0x00ff);
+    } else {
+        return -1;
+    }
+    return 0;
 }
 
-void hidReqHandler()
+int getDescriptorReqHandler(requestTyp *request)
 {
 
 }

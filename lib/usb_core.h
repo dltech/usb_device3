@@ -8,8 +8,6 @@
 // endpoints
 #define NUM_OF_EP   2
 
-
-
 typedef struct {
     int isHalt;
 } epProp;
@@ -28,3 +26,7 @@ typedef struct {
 } usbPropStruct;
 
 volatile usbPropStruct usbProp;
+
+// functions for request handler
+void epHaltSet(int nEndpoint);
+void epHaltClear(int nEndpoint);

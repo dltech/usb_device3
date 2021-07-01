@@ -16,7 +16,7 @@ void usbClockInit()
 void usbReset()
 {
     USB_DADDR_REG = USB_DADDR_EF | 0x00;
-    
+
 }
 
 void usbHidEndpInit()
@@ -32,4 +32,9 @@ void usbHidEndpInit()
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
 
     epPrors[0].isHalt = 0;
+}
+
+void epHaltUpdate()
+{
+
 }

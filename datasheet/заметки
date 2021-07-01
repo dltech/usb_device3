@@ -6,12 +6,13 @@ Set Configuration*
 Get Interface*
 Set Interface*
 Get Status*
-Clear Feature
-Set Endpoint Feature
-Set Device Feature
+Clear Feature*
+Set Endpoint Feature*
+Set Device Feature*
 Set Device Address*
 А еще наябедничаю, у них там есть ебучий гоуту, кажись намудрили малость
 
 научился считать до девяти, надеюсь грамотно копирую запрос
 если определен ленторотяг, воооо хозяин к нам идет
 написать заглушку поверх несуществующих фич сложнее чем поверх несуществующих интерфейсов
+что такое тест кондишон 
