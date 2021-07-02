@@ -2,12 +2,13 @@
 #include "usb_st_req.h"
 #include "usb_core.h"
 
-
-
 extern volatile usbPropStruct usbProp;
 
-
+// some subfunctions
 void reqCopy(requestTyp *request);
+void reqResponse1(uint8_t data);
+void reqResponse2(uint16_t data);
+void reqResponseN(uint8_t* data, int size);
 /* this functions are implemented with assumption that request eror state and
    STALL state are the same. In both cases request handler returns -1. */
 int getStatusReqHandler(requestTyp *request);
@@ -33,7 +34,7 @@ int reqHandler()
 {
     requestTyp request;
     reqCopy(&request);
-    int ret = 5;
+    int ret = 0;
     switch ( request.bRequest ) {
         case GET_STATUS:
             ret = getStatusReqHandler(&request);
@@ -67,7 +68,7 @@ int reqHandler()
             brake;
     }
     if( ret == -2 ) {
-        hidReqHandler(&request)
+        ret = hidReqHandler(&request);
     }
     if( ret < 0 ) {
         // STALL send
@@ -94,12 +95,17 @@ void reqCopy(requestTyp *request)
 }
 
 // method overloading imitation one byte and two byte variants
+void reqResponse1(uint8_t data)
+{
+
+}
+
 void reqResponse2(uint16_t data)
 {
 
 }
 
-void reqResponse1(uint8_t data)
+void reqResponseDesc(uint8_t *desc, int descSize, int wLength)
 {
 
 }
@@ -346,5 +352,68 @@ int clearFeatureReqHandler(requestTyp *request)
 
 int getDescriptorReqHandler(requestTyp *request)
 {
+    // error check
+    if( (request->bmRequestType != DEVICE_GET) ) {
+        return -1;
+    }
+    int i=0;
+    uint8_t tmp[request->wLength];
+    uint8_t indexOffs = 0;
 
+    switch(request->wValue << 8)
+    {
+        case DEVICE_TYP:
+            reqResponseDesc(gamepadDeviseDesc, gamepadDeviseDescSize, request->wLength);
+            break;
+        case CONFIGURATION_TYP:
+            for( ; (i<request->wLength) && (i<gamepadConfigurationDescSize) ; ++i) {
+                tmp[i] = gamepadConfigurationDesc[i];
+            }
+            indexOffs = i;
+            for( ; (i<request->wLength) && (i<(indexOffs + gamepadInterfaceDescSize)) ; ++i) {
+                tmp[i] = gamepadInterfaceDesc[i - indexOffs];
+            }
+            indexOffs = i;
+            for( ; (i<request->wLength) && (i<(indexOffs + gamepadHidDescSize)) ; ++i) {
+                tmp[i] = gamepadHidDesc[i - indexOffs];
+            }
+            indexOffs = i;
+            for( ; (i<request->wLength) && (i<(indexOffs + gamepadInEndpDescSize)) ; ++i) {
+                tmp[i] = gamepadInEndpDesc[i - indexOffs];
+            }
+            reqResponseDesc(tmp, i, request->wLength);
+            break;
+        case STRING_TYP:
+            for( ; (i<request->wLength) && (i<stringLangIdSize) ; ++i) {
+                tmp[i] = stringLangId[i];
+            }
+            indexOffs = i;
+            for( ; (i<request->wLength) && (i<(indexOffs + gamepadStringVendorSize)) ; ++i) {
+                tmp[i] = gamepadStringVendor[i - indexOffs];
+            }
+            indexOffs = i;
+            for( ; (i<request->wLength) && (i<(indexOffs + gamepadStringProductSize)) ; ++i) {
+                tmp[i] = gamepadStringProduct[i - indexOffs];
+            }
+            reqResponseDesc(tmp, i, request->wLength);
+            break;
+        case INTERFACE_TYP:
+            reqResponseDesc(gamepadInterfaceDesc, gamepadInterfaceDescSize, request->wLength);
+            break;
+        case ENDPOINT_TYP:
+            reqResponseDesc(gamepadInEndpDesc, gamepadInEndpDescSize, request->wLength);
+            break;
+        case DEVICE_QUALIFIER_TYP:
+            break;
+        case HID_TYP:
+            reqResponseDesc(gamepadHidDesc, gamepadHidDescSize, request->wLength);
+            break;
+        case REPORT_TYP:
+            reqResponseDesc(gamepadReportDesc, gamepadReportDescSize, request->wLength);
+            break;
+        default
+            return -1;
+            break;
+    }
+    return 0;
 }

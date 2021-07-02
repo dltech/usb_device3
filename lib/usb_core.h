@@ -23,6 +23,7 @@ typedef struct {
     epProp epPrors[NUM_OF_EP];
     int deviceStaste = DEFAULT;
     const uint8_t configValue 0x01;
+    int reportDuration;
 } usbPropStruct;
 
 volatile usbPropStruct usbProp;

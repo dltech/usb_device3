@@ -11,7 +11,7 @@
 #define gamepadStringProductSize 6
 
 
-uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
+const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
 {
     gamepadDeviseDescSize,       // bLenght
     0x01,       // bDescriptorType, Device descriptor
@@ -29,7 +29,7 @@ uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
     0x01        // bNumConfigurations
 };
 
-uint8_t gamepadConfigurationDesc[gamepadConfigurationDescSize] =
+const uint8_t gamepadConfigurationDesc[gamepadConfigurationDescSize] =
 {
     gamepadConfigurationDescSize,       // bLenght
     0x02,       // bDescriptorType, Configuration descriptor
@@ -41,7 +41,7 @@ uint8_t gamepadConfigurationDesc[gamepadConfigurationDescSize] =
     0x32        // maxPower, 100mA
 };
 
-uint8_t gamepadInterfaceDesc[gamepadInterfaceDescSize] =
+const uint8_t gamepadInterfaceDesc[gamepadInterfaceDescSize] =
 {
     gamepadInterfaceDescSize,       // bLenght
     0x04,       // bDescriptorType, Interface descriptor
@@ -54,7 +54,7 @@ uint8_t gamepadInterfaceDesc[gamepadInterfaceDescSize] =
     0x00        // bInterface
 };
 
-uint8_t gamepadInEndpDesc[gamepadInEndpDescSize] =
+const uint8_t gamepadInEndpDesc[gamepadInEndpDescSize] =
 {
     gamepadInEndpDescSize,       // bLenght
     0x05,       // bDescriptorType, endpoint descriptor
@@ -64,7 +64,7 @@ uint8_t gamepadInEndpDesc[gamepadInEndpDescSize] =
     0x20        // bInterval 32 ms
 };
 
-uint8_t gamepadHidDesc[gamepadHidDescSize] =
+const uint8_t gamepadHidDesc[gamepadHidDescSize] =
 {
     0x09,       // bLenght
     0x21,       // bDescriptorType, HID descriptor
@@ -76,7 +76,7 @@ uint8_t gamepadHidDesc[gamepadHidDescSize] =
 };
 
 // report descriptor for gamepad w d-pad and two buttons
-uint8_t gamepadReportDesc[gamepadreportDescSize] =
+const uint8_t gamepadReportDesc[gamepadreportDescSize] =
 {
     0x05, 0x01,         // usage_page(Generic Desctop)
     0x09, 0x05,         // usage(Game pad)
@@ -107,7 +107,7 @@ uint8_t gamepadReportDesc[gamepadreportDescSize] =
     0xc0                // end_collection
 };
 
-uint8_t stringLangId[stringLangIdSize] =
+const uint8_t stringLangId[stringLangIdSize] =
 {
     stringLangIdSize,
     0x03,
@@ -115,14 +115,14 @@ uint8_t stringLangId[stringLangIdSize] =
     0x04
 };
 
-uint8_t gamepadStringVendor[gamepadStringVendorSize] =
+const uint8_t gamepadStringVendor[gamepadStringVendorSize] =
 {
     gamepadStringVendorSize,
     0x03,
     'z',0,'x',0
 };
 
-uint8_t gamepadStringProduct[gamepadStringProductSize] =
+const uint8_t gamepadStringProduct[gamepadStringProductSize] =
 {
     gamepadStringProductSize,
     0x03,
