@@ -3,6 +3,8 @@
 
 #include "inttypes.h"
 
+#define SYS_CLK 72000000
+
 #define SCL 9
 #define SDA 10
 
