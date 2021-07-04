@@ -28,6 +28,8 @@ typedef struct {
 
 volatile usbPropStruct usbProp;
 
+void usbCoreInit(void);
+
 // functions for request handler
 void epHaltSet(int nEndpoint);
 void epHaltClear(int nEndpoint);

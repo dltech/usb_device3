@@ -18,7 +18,7 @@
 #define FEATURE_REP     0x0300
 // report duration formula, return interal in ms from Set_Idle parameter
 #define REPORT_DURATION(wvalue) ((wvalue*4) >> 8)
-// vice wersa for Get_Idle
+// vice versa for Get_Idle
 #define DURATION_TO_PARAM(ms)   ((uint8_t)(ms/4))
 
 
