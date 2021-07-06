@@ -1,3 +1,22 @@
+/*
+ * Part of USB HID gamepad STM32 based solution.
+ * All standard USB2.0 requests are implemented here.
+ *
+ * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "usb_hid.h"
 #include "usb_st_req.h"
 #include "usb_core.h"
@@ -91,7 +110,6 @@ void reqCopy(requestTyp *request)
     request->wIndex = *pBuf.w++;
     pBuf.w++;
     request->wLength = *pBuf.w++;
-    // requests with data do not understood
 }
 
 // method overloading imitation one byte and two byte variants
@@ -356,9 +374,9 @@ int getDescriptorReqHandler(requestTyp *request)
     if( (request->bmRequestType != DEVICE_GET) ) {
         return -1;
     }
-    int i=0;
+    // concatenation buffer init
     uint8_t tmp[request->wLength];
-    uint8_t indexOffs = 0;
+    uint8_t prev = 0;
 
     switch(request->wValue << 8)
     {
@@ -366,36 +384,17 @@ int getDescriptorReqHandler(requestTyp *request)
             reqResponseDesc(gamepadDeviseDesc, gamepadDeviseDescSize, request->wLength);
             break;
         case CONFIGURATION_TYP:
-            for( ; (i<request->wLength) && (i<gamepadConfigurationDescSize) ; ++i) {
-                tmp[i] = gamepadConfigurationDesc[i];
-            }
-            indexOffs = i;
-            for( ; (i<request->wLength) && (i<(indexOffs + gamepadInterfaceDescSize)) ; ++i) {
-                tmp[i] = gamepadInterfaceDesc[i - indexOffs];
-            }
-            indexOffs = i;
-            for( ; (i<request->wLength) && (i<(indexOffs + gamepadHidDescSize)) ; ++i) {
-                tmp[i] = gamepadHidDesc[i - indexOffs];
-            }
-            indexOffs = i;
-            for( ; (i<request->wLength) && (i<(indexOffs + gamepadInEndpDescSize)) ; ++i) {
-                tmp[i] = gamepadInEndpDesc[i - indexOffs];
-            }
-            reqResponseDesc(tmp, i, request->wLength);
+            prev = descCat(gamepadConfigurationDesc, tmp, 0, gamepadConfigurationDescSize, request->wLength);
+            prev = descCat(gamepadInterfaceDesc, tmp, prev, gamepadInterfaceDescSize, request->wLength);
+            prev = descCat(gamepadHidDesc, tmp, prev, gamepadHidDescSize, request->wLength);
+            prev = descCat(gamepadInEndpDesc, tmp, prev, gamepadInEndpDescSize, request->wLength);
+            reqResponseDesc(tmp, prev, request->wLength);
             break;
         case STRING_TYP:
-            for( ; (i<request->wLength) && (i<stringLangIdSize) ; ++i) {
-                tmp[i] = stringLangId[i];
-            }
-            indexOffs = i;
-            for( ; (i<request->wLength) && (i<(indexOffs + gamepadStringVendorSize)) ; ++i) {
-                tmp[i] = gamepadStringVendor[i - indexOffs];
-            }
-            indexOffs = i;
-            for( ; (i<request->wLength) && (i<(indexOffs + gamepadStringProductSize)) ; ++i) {
-                tmp[i] = gamepadStringProduct[i - indexOffs];
-            }
-            reqResponseDesc(tmp, i, request->wLength);
+            prev = descCat(stringLangId, tmp, 0, stringLangIdSize, request->wLength);
+            prev = descCat(gamepadStringVendor, tmp, prev, gamepadStringVendorSize, request->wLength);
+            prev = descCat(gamepadStringProduct, tmp, prev, gamepadStringProductSize, request->wLength);
+            reqResponseDesc(tmp, prev, request->wLength);
             break;
         case INTERFACE_TYP:
             reqResponseDesc(gamepadInterfaceDesc, gamepadInterfaceDescSize, request->wLength);

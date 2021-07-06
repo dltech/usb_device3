@@ -1,5 +1,5 @@
 /*
- * Main file of USB HID gamepad STM32 based solution.
+ * Part of USB HID gamepad STM32 based solution.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -62,9 +62,10 @@ typedef struct {
     int button1Cnt = 0;
     int button2Cnt = 0;
     const int cntPressed = READ_RATE / POLLRATE;
+    const int reportSize = 1;
     int report = 0;
 } gamepadParamStruct;
 volatile gamepadParamStruct gamepadPar;
 
-// main init function, just call this and device will work
-void gamepadInit(void);
+// call this to init port poll
+void portInit(void);

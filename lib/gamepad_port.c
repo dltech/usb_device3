@@ -1,6 +1,8 @@
 /*
- * Main file of USB HID gamepad STM32 based solution.
+ * Part of USB HID gamepad STM32 based solution.
  * Detects and collects buttons press. Automatically using interrupt.
+ * And forms USB report at maximally accesible speed, which described in
+ * HID standard.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -25,11 +27,12 @@
 
 
 void portInit(void);
+void gpioInit(void);
 void pollIrqInit(void);
 void portPoll(void);
 void reportUpdate(void);
 
-void portInit()
+void gpioInit()
 {
     // GPIO input mode with 3.3 pullup (0 if button pressed)
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
@@ -58,11 +61,10 @@ void pollIrqInit()
     nvic_set_priority(NVIC_TIM6_IRQ, 0x00);
 }
 
-void gamepadInit()
+void portInit()
 {
-    portInit();
+    gpioInit();
     portIrqInit();
-    usbCoreInit();
 }
 
 // Information about pressed buttons is obtained by sum of consecutive polls

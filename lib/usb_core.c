@@ -31,7 +31,6 @@ void usbHidEndpInit()
     // endp
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     epPrors[0].isHalt = 0;
-    
 }
 
 void usbCoreInit()

@@ -1,3 +1,22 @@
+/*
+ * Part of USB HID gamepad STM32 based solution.
+ * All descriptors for simplest USB 2.0 HID gamepad with D-pad and two buttons
+ *
+ * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// descriptor size
 #define gamepadDeviseDescSize 18
 #define gamepadConfigurationDescSize 9
 #define gamepadInterfaceDescSize 9
@@ -10,7 +29,10 @@
 #define gamepadStringVendorSize 8
 #define gamepadStringProductSize 6
 
+// descriptor concatenator (a part of GetDescr request)
+int descCat(uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);
 
+// descriptors
 const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
 {
     gamepadDeviseDescSize,       // bLenght
@@ -88,7 +110,7 @@ const uint8_t gamepadReportDesc[gamepadreportDescSize] =
     0x15, 0x00,         //   logical minimum(0)
     0x25, 0x07,         //   logical maximum(7)
     0x35, 0x00,         //   physical minimum(0)
-    0x46, 0x0e, 0x01,   //   physical maximum(315)
+    0x46, 0x3b, 0x01,   //   physical maximum(315)
     0x65, 0x14,         //   unit(Eng Rot:Angular Pos)
     0x95, 0x01,         //   report_count(1)
     0x75, 0x04,         //   report_size(4)
