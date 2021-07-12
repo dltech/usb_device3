@@ -90,7 +90,7 @@ int reqHandler()
         ret = hidReqHandler(&request);
     }
     if( ret < 0 ) {
-        // STALL send
+        controlEpStall();
     }
 }
 
@@ -183,15 +183,9 @@ int setAddressReqHandler(requestTyp *request)
     }
     // main case, which applies address to the device
     switch ( usbProp.deviceStaste ) {
-        case DEFAULT: {
-            USB_DADDR_REG &= ~ADD_MASK;
-            USB_DADDR_REG |= request->wValue & ADD_MASK;
-            usbProp.deviceStaste = ADDRESS;
-            brake;
-        }
+        case DEFAULT:
         case ADDRESS: {
-            USB_DADDR_REG &= ~ADD_MASK;
-            USB_DADDR_REG |= request->wValue & ADD_MASK;
+            setAddr((uint8_t)request->wValue);
             brake;
         }
         case CONFIGURED: {

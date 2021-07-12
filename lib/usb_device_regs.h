@@ -112,6 +112,7 @@
 #define USB_EP5R	(MMIO32(USB_DEVICE_FS_BASE + 0x14))
 #define USB_EP6R	(MMIO32(USB_DEVICE_FS_BASE + 0x18))
 #define USB_EP7R	(MMIO32(USB_DEVICE_FS_BASE + 0x1c))
+#define USB_EPNR(n) (MMIO32(USB_DEVICE_FS_BASE + 0x04*n))
 // correct transfer for reception (rc_w0)
 #define CTR_RX              0x8000
 // data toggle for reception transfers (t)
@@ -121,6 +122,8 @@
 #define STAT_RX_STALL       0x1000
 #define STAT_RX_NAK         0x2000
 #define STAT_RX_VALID       0x3000
+#define STAT_RX_OFFS        12
+#define STAT_RX_MASK        0x3000
 // setup transaction completed (r)
 #define SETUP               0x0800
 // endpoint type (rw)
@@ -139,9 +142,13 @@
 #define STAT_TX_STALL       0x0010
 #define STAT_TX_NAK         0x0020
 #define STAT_TX_VALID       0x0030
+#define STAT_TX_OFFS        4
+#define STAT_TX_MASK        0x0030
 // endpoint address (rw)
 #define EA_MASK             0x000f
 #define EA_OFFS             0
+// mask for safe modyfying
+#define USB_EP_RCWO_MASK    0x8080
 
 /* USB RAM table */
 /* Transmission buffer address 0 */
