@@ -211,3 +211,8 @@
 #define USB_COUNT7_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3a)*2)
 #define USB_ADDR7_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3c)*2)
 #define USB_COUNT7_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3e)*2)
+// addresses of endpoint n
+#define USB_ADDRN_TX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x00 + 0x08*n)*2)
+#define USB_COUNTN_TX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x02 + 0x08*n)*2)
+#define USB_ADDRN_RX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x04 + 0x08*n)*2)
+#define USB_COUNTN_RX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x06 + 0x08*n)*2)

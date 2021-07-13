@@ -24,8 +24,8 @@
 void epTxStatusSet(int ep, uint16_t status);
 void epRxStatusSet(int ep, uint16_t status);
 void usbClockInit(void);
+void usbItInit(void);
 void usbReset(void);
-
 
 void usbClockInit()
 {
@@ -41,7 +41,25 @@ void usbClockInit()
 void usbReset()
 {
     USB_DADDR_REG = USB_DADDR_EF | 0x00;
-
+    USB_CNTR_REG &= ~(RESETM);
+    USB_CNTR_REG |= FRES;
+    // clear all endpoint related registers
+    for(int i=0 ; i<NUM_OF_EP ; ++i) {
+        epTxStatusSet(i, STAT_TX_DISABLED);
+        epRxStatusSet(i, STAT_RX_DISABLED);
+        USB_EPNR(i) = 0;
+        USB_ADDRN_TX(i) = 0;
+        USB_COUNTN_TX(i) = 0;
+        USB_ADDRN_RX(i) = 0;
+        USB_COUNTN_RX(i) = 0;
+    }
+    USB_DADDR_REG = 0;
+    USB_CNTR_REG = 0;
+    USB_ISTR = 0;
+    rough_delay_us(100);
+    // init again
+    usbHidEndpInit();
+    usbItInit();
 }
 
 void usbHidEndpInit()
@@ -58,17 +76,30 @@ void usbHidEndpInit()
     epPrors[0].isHalt = 0;
 }
 
+void usbReportEndpInit()
+{
+    // endpoint 0 rx/tx buffers
+    USB_ADDR1_TX  = USB_TABLE_END & ADDR_TX_MASK;
+    USB_ADDR1_RX  = (((uint16_t)*USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
+    USB_COUNT1_RX = BL_SIZE_32B | \
+                    (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
+    // endp
+    USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
+    epPrors[0].isHalt = 0;
+}
 
-
-
+void usbItInit()
+{
+    USB_CNTR_REG |= CTRM | WKUPM | SUSPM | RESETM;
+    nvic_enable_irq(NVIC_USB_HP_CAN_TX_IRQ);
+    nvic_set_priority(NVIC_USB_HP_CAN_TX_IRQ, 0x00);
+}
 
 void usbCoreInit()
 {
-
-    // all nterupts are enabled
-    USB_CNTR_REG |= CTRM | PMAOVRM | WKUPM | SUSPM | RESETM;
-    nvic_enable_irq(NVIC_USB_HP_CAN_TX_IRQ);
-    nvic_set_priority(NVIC_USB_HP_CAN_TX_IRQ, 0x00);
+    usbClockInit();
+    usbHidEndpInit();
+    usbItInit();
 }
 
 void epHaltUpdate()
@@ -78,9 +109,16 @@ void epHaltUpdate()
 
 void usbCore()
 {
-    if(USB_ISTR & ERR) {
+    if( ((USB_ISTR & CTR) != 0) && isRequest() ) {
+        reqHandler();
+    }
+    if( ((USB_ISTR & CTR) != 0) && (isRequest() == 0) ) {
 
     }
+    if(USB_ISTR & RESET) {
+        usbReset();
+    }
+    USB_ISTR = 0;
 }
 
 void setAddr(uint8_t addr)
@@ -117,7 +155,6 @@ int epHaltClear(int ep)
     epTxStatusSet(ep, STAT_TX_NAK);
     return 0;
 }
-
 
 // work with status bits
 void epTxStatusSet(int ep, uint16_t status)
