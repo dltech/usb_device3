@@ -26,6 +26,9 @@ void epRxStatusSet(int ep, uint16_t status);
 void usbClockInit(void);
 void usbItInit(void);
 void usbReset(void);
+void usbSuspend(void);
+void usbWakeup(void);
+
 
 void usbClockInit()
 {
@@ -62,30 +65,38 @@ void usbReset()
     usbItInit();
 }
 
+void usbSuspend()
+{
+
+}
+
+void usbWakeup()
+{
+
+}
+
 void usbHidEndpInit()
 {
     // buffer config
     USB_BTABLE    = USB_TABLE_ADDR;
     // endpoint 0 rx/tx buffers
+
     USB_ADDR0_TX  = USB_TABLE_END & ADDR_TX_MASK;
-    USB_ADDR0_RX  = (((uint16_t)*USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
+    USB_ADDR0_RX  = (((uint16_t)USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_RX_MASK;
     USB_COUNT0_RX = BL_SIZE_32B | \
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
-    // endp
+    // endpoint 0 address 0, type control endpoint
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     epPrors[0].isHalt = 0;
 }
 
 void usbReportEndpInit()
 {
-    // endpoint 0 rx/tx buffers
-    USB_ADDR1_TX  = USB_TABLE_END & ADDR_TX_MASK;
-    USB_ADDR1_RX  = (((uint16_t)*USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
-    USB_COUNT1_RX = BL_SIZE_32B | \
-                    (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
-    // endp
+    // endpoint 1 tx buffer
+    USB_ADDR1_TX  = (USB_TABLE_END + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
+    // endpoint 1 address 1, type interrupt endpoint
     USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
-    epPrors[0].isHalt = 0;
+    epPrors[1].isHalt = 0;
 }
 
 void usbItInit()
@@ -114,6 +125,12 @@ void usbCore()
     }
     if( ((USB_ISTR & CTR) != 0) && (isRequest() == 0) ) {
 
+    }
+    if(USB_ISTR & WKUPM) {
+        usbWkup();
+    }
+    if(USB_ISTR & SUSPM) {
+        usbSusp();
     }
     if(USB_ISTR & RESET) {
         usbReset();
