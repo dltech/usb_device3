@@ -17,18 +17,25 @@
  * limitations under the License.
  */
 
+#include "mysys.h"
 #include "usb_device_regs.h"
 #include "usb_core.h"
+#include "gamepad_port.h"
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
 
-void epTxStatusSet(int ep, uint16_t status);
-void epRxStatusSet(int ep, uint16_t status);
+// init functions
 void usbClockInit(void);
 void usbItInit(void);
+// endpoints init
+void usbHidEndpInit(void);
+void usbReportEndpInit(void);
+// peripherial states
 void usbReset(void);
 void usbSuspend(void);
 void usbWakeup(void);
-
+// ep ass-tricky register, control functions
+void epTxStatusSet(int ep, uint16_t status);
+void epRxStatusSet(int ep, uint16_t status);
 
 void usbClockInit()
 {
@@ -41,8 +48,48 @@ void usbClockInit()
     USB_CNTR_REG &= ~FRES;
 }
 
+void usbItInit()
+{
+    USB_CNTR_REG |= CTRM | WKUPM | SUSPM | RESETM;
+    nvic_enable_irq(NVIC_USB_HP_CAN_TX_IRQ);
+    nvic_set_priority(NVIC_USB_HP_CAN_TX_IRQ, 0x00);
+}
+
+void usbCoreInit()
+{
+    usbClockInit();
+    usbHidEndpInit();
+    usbReportEndpInit();
+    usbItInit();
+    gamepadPar.deviceStaste = DEFAULT;
+}
+
+void usbHidEndpInit()
+{
+    // buffer init
+    USB_BTABLE    = USB_TABLE_ADDR;
+    // endpoint 0 rx/tx buffers
+    USB_ADDR0_TX  = USB_TABLE_END & ADDR_TX_MASK;
+    USB_ADDR0_RX  = (((uint16_t)USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_RX_MASK;
+    USB_COUNT0_RX = BL_SIZE_32B | \
+                    (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
+    // endpoint 0 address 0, type control endpoint
+    USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
+    epPrors[0].isHalt = 0;
+}
+
+void usbReportEndpInit()
+{
+    // endpoint 1 tx buffer
+    USB_ADDR1_TX  = (USB_TABLE_END + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
+    // endpoint 1 address 1, type interrupt endpoint
+    USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
+    epPrors[1].isHalt = 0;
+}
+
 void usbReset()
 {
+    gamepadPar.deviceStaste = RESET;
     USB_DADDR_REG = USB_DADDR_EF | 0x00;
     USB_CNTR_REG &= ~(RESETM);
     USB_CNTR_REG |= FRES;
@@ -62,55 +109,42 @@ void usbReset()
     rough_delay_us(100);
     // init again
     usbHidEndpInit();
+    usbReportEndpInit();
     usbItInit();
+    gamepadPar.deviceStaste = DEFAULT;
 }
 
+// I don't know how it works. It's just the shadow of MCD team code.
 void usbSuspend()
 {
-
+    gamepadPar.isSusp = 1;
+    // instanteous reset
+    // unmask interrupts
+    USB_CNTR_REG &= ~((uint32_t)(RESETM));
+    // and reset
+    USB_CNTR_REG |= FRES;
+    USB_CNTR_REG &= ~((uint32_t)(FRES));
+    // wait this reaction
+    uint32_t timeout = 1e5;
+    while( ((USB_ISTR & RESET) == 0) && (--timeout < 0) );
+    USB_ISTR = 0;
+    // after which we need to restore endp registers only (why endpoints only?)
+    USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
+    USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
+    // then we may enter suspend mode safely
+    USB_CNTR_REG |= FSUSP;
+    // USB low power mode and slow clock
+    USB_CNTR_REG |= LP_MODE;
+    suspSysClk();
 }
 
 void usbWakeup()
 {
-
-}
-
-void usbHidEndpInit()
-{
-    // buffer config
-    USB_BTABLE    = USB_TABLE_ADDR;
-    // endpoint 0 rx/tx buffers
-
-    USB_ADDR0_TX  = USB_TABLE_END & ADDR_TX_MASK;
-    USB_ADDR0_RX  = (((uint16_t)USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_RX_MASK;
-    USB_COUNT0_RX = BL_SIZE_32B | \
-                    (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
-    // endpoint 0 address 0, type control endpoint
-    USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
-    epPrors[0].isHalt = 0;
-}
-
-void usbReportEndpInit()
-{
-    // endpoint 1 tx buffer
-    USB_ADDR1_TX  = (USB_TABLE_END + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
-    // endpoint 1 address 1, type interrupt endpoint
-    USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
-    epPrors[1].isHalt = 0;
-}
-
-void usbItInit()
-{
-    USB_CNTR_REG |= CTRM | WKUPM | SUSPM | RESETM;
-    nvic_enable_irq(NVIC_USB_HP_CAN_TX_IRQ);
-    nvic_set_priority(NVIC_USB_HP_CAN_TX_IRQ, 0x00);
-}
-
-void usbCoreInit()
-{
-    usbClockInit();
-    usbHidEndpInit();
-    usbItInit();
+    gamepadPar.isSusp = 0;
+    sysClk();
+    USB_CNTR_REG &= ~((uint32_t)(LP_MODE | FSUSP));
+    USB_ISTR = 0;
+    USB_CNTR_REG |= RESETM;
 }
 
 void epHaltUpdate()
@@ -138,41 +172,6 @@ void usbCore()
     USB_ISTR = 0;
 }
 
-void setAddr(uint8_t addr)
-{
-    USB_DADDR_REG &= ~ADD_MASK;
-    USB_DADDR_REG |= addr & ADD_MASK;
-    usbProp.deviceStaste = ADDRESS;
-}
-
-void controlEpStall()
-{
-    epRxStatusSet(0, STAT_RX_STALL);
-    epTxStatusSet(0, STAT_TX_STALL);
-}
-
-int epHaltSet(int ep)
-{
-    if( (ep == 0) || (ep >= NUM_OF_EP) ) {
-        return -1;
-    }
-    usbProp.epProp[ep].isHalt = 1;
-    epRxStatusSet(ep, STAT_RX_STALL);
-    epTxStatusSet(ep, STAT_TX_STALL);
-    return 0;
-}
-
-int epHaltClear(int ep)
-{
-    if( (ep == 0) || (ep >= NUM_OF_EP) ) {
-        return -1;
-    }
-    usbProp.epProp[ep].isHalt = 0;
-    epRxStatusSet(ep, STAT_RX_NAK);
-    epTxStatusSet(ep, STAT_TX_NAK);
-    return 0;
-}
-
 // work with status bits
 void epTxStatusSet(int ep, uint16_t status)
 {
@@ -196,4 +195,36 @@ void epRxStatusSet(int ep, uint16_t status)
     if( (USB_EP1R & (1<<(STAT_RX_OFFS+1))) != (status & (1<<(STAT_RX_OFFS+1))) ) {
         USB_EPNR(ep) = (1<<(STAT_RX_OFFS+1)) | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
     }
+}
+
+// core functions which called by requests
+void setAddr(uint8_t addr)
+{
+    USB_DADDR_REG &= ~ADD_MASK;
+    USB_DADDR_REG |= addr & ADD_MASK;
+    usbProp.deviceStaste = ADDRESS;
+}
+
+void controlEpStall()
+{
+    epRxStatusSet(0, STAT_RX_STALL);
+    epTxStatusSet(0, STAT_TX_STALL);
+}
+
+int epHaltSet(int ep)
+{
+    if( (ep == 0) || (ep >= NUM_OF_EP) ) return -1;
+    usbProp.epProp[ep].isHalt = 1;
+    epRxStatusSet(ep, STAT_RX_STALL);
+    epTxStatusSet(ep, STAT_TX_STALL);
+    return 0;
+}
+
+int epHaltClear(int ep)
+{
+    if( (ep == 0) || (ep >= NUM_OF_EP) ) return -1;
+    usbProp.epProp[ep].isHalt = 0;
+    epRxStatusSet(ep, STAT_RX_NAK);
+    epTxStatusSet(ep, STAT_TX_NAK);
+    return 0;
 }

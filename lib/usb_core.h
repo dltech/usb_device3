@@ -41,6 +41,7 @@ typedef struct {
     int epType;
 } epProp;
 typedef struct {
+    int isSusp = 0;
     epProp epPrors[NUM_OF_EP];
     int deviceStaste = DEFAULT;
     const uint8_t configValue 0x01;

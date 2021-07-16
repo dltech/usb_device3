@@ -31,6 +31,8 @@ void gpioInit(void);
 void pollIrqInit(void);
 void portPoll(void);
 void reportUpdate(void);
+// wakeup from suspend mode by pressed button (not used)
+void wkupByPress(void);
 
 void gpioInit()
 {
@@ -149,4 +151,17 @@ void tim6_isr()
     TIM6_SR = 0;
     portPoll();
     reportUpdate();
+//    wkupByPress();
+}
+
+void wkupByPress()
+{
+    static uint8_t prevReport = 0;
+    if( gamepadPar.isSusp == 0 ) {
+        return;
+    }
+    if(gamepadPar.report != prevReport) {
+        usbWakeup();
+    }
+    prevReport = gamepadPar.report;
 }

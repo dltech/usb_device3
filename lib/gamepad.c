@@ -16,12 +16,14 @@
  * limitations under the License.
  */
 
+#include "mysys.h"
 #include "gamepad.h"
 #include "usb_core.h"
 #include "gamepad_port.h"
 
 void gamepadInit()
 {
+    sysClk();
     portInit();
     usbCoreInit();
 }

@@ -5,13 +5,12 @@
 
 #define SYS_CLK 72000000
 
-#define SCL 9
-#define SDA 10
-
-#define I2C_ADD_NE_ADD  0x00
 #define TIMEOUT_CLKS    10000
 
 void clkInit(void);
+// clock source in usb suspend mode
+void suspSysClk(void);
+// cyclic delays
 void rough_delay_us(uint16_t us);
 void delay_ms(uint16_t ms);
 void delay_s(uint16_t s);
