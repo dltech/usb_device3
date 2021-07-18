@@ -52,6 +52,8 @@ int isRequest()
 int reqHandler()
 {
     requestTyp request;
+    // set to NAK first, cause USB device is busy while handle requests
+    controlEpNak();
     reqCopy(&request);
     int ret = 0;
     switch ( request.bRequest ) {
@@ -90,7 +92,9 @@ int reqHandler()
         ret = hidReqHandler(&request);
     }
     if( ret < 0 ) {
+        // in case of error return to the idle state but with stall status
         controlEpStall();
+        controlDtogInit();
     }
 }
 

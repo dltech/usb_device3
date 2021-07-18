@@ -24,18 +24,26 @@
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
 
 // init functions
+// basic init
 void usbClockInit(void);
 void usbItInit(void);
 // endpoints init
 void usbHidEndpInit(void);
 void usbReportEndpInit(void);
+// usb states
 // peripherial states
 void usbReset(void);
 void usbSuspend(void);
 void usbWakeup(void);
+// the core
+void ctrF(void);
+void controlEpHandler(void);
+void interruptEpHandler(void);
 // ep ass-tricky register, control functions
 void epTxStatusSet(int ep, uint16_t status);
 void epRxStatusSet(int ep, uint16_t status);
+void controlDtogInit(int nep);
+void defaultDtogInit(void);
 
 void usbClockInit()
 {
@@ -60,7 +68,6 @@ void usbCoreInit()
     usbClockInit();
     usbHidEndpInit();
     usbReportEndpInit();
-    usbItInit();
     gamepadPar.deviceStaste = DEFAULT;
 }
 
@@ -76,6 +83,8 @@ void usbHidEndpInit()
     // endpoint 0 address 0, type control endpoint
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     epPrors[0].isHalt = 0;
+    controlDtogInit();
+    controlEpNak();
 }
 
 void usbReportEndpInit()
@@ -84,6 +93,9 @@ void usbReportEndpInit()
     USB_ADDR1_TX  = (USB_TABLE_END + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
+    epRxStatusSet(1, STAT_RX_DISABLED);
+    epRxStatusSet(1, STAT_TX_NAK);
+    defaultDtogInit(1);
     epPrors[1].isHalt = 0;
 }
 
@@ -147,7 +159,25 @@ void usbWakeup()
     USB_CNTR_REG |= RESETM;
 }
 
-void epHaltUpdate()
+void ctrF()
+{
+    switch(USB_ISTR & EP_ID_MASK)
+    {
+        case 0:
+            controlEpHandler();
+            break;
+        case 1:
+            interruptEpHandler();
+            break;
+    }
+}
+
+void controlEpHandler()
+{
+
+}
+
+void interruptEpHandler()
 {
 
 }
@@ -158,7 +188,7 @@ void usbCore()
         reqHandler();
     }
     if( ((USB_ISTR & CTR) != 0) && (isRequest() == 0) ) {
-
+        ctrF();
     }
     if(USB_ISTR & WKUPM) {
         usbWkup();
@@ -205,10 +235,38 @@ void setAddr(uint8_t addr)
     usbProp.deviceStaste = ADDRESS;
 }
 
+void controlDtogInit()
+{
+    // set dtog_tx = 1, dtog_rx = 0
+    if( (USB_EP0R & DTOG_TX) == 0 ) {
+        USB_EPNR0 = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+    }
+    if( (USB_EP0R & DTOG_RX) != 0 ) {
+        USB_EPNR0 = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+    }
+}
+
+void defaultDtogInit(int nep)
+{
+    // set dtog_tx = 0, dtog_rx = 0
+    if( (USB_EPNR(nep) & DTOG_TX) != 0 ) {
+        USB_EPNR(nep) = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+    }
+    if( (USB_EPNR(nep) & DTOG_RX) != 0 ) {
+        USB_EPNR(nep) = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+    }
+}
+
 void controlEpStall()
 {
     epRxStatusSet(0, STAT_RX_STALL);
     epTxStatusSet(0, STAT_TX_STALL);
+}
+
+void controlEpNak()
+{
+    epRxStatusSet(0, STAT_RX_NAK);
+    epTxStatusSet(0, STAT_TX_NAK);
 }
 
 int epHaltSet(int ep)

@@ -58,3 +58,4 @@ void setAddr(uint8_t addr);
 int epHaltSet(int ep);
 int epHaltClear(int ep);
 void controlEpStall(void);
+void controlEpNak(void);
