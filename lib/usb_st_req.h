@@ -70,7 +70,6 @@
 
 // standard request package
 #define REQUEST_SIZE        9
-
 typedef struct
 {
     uint8_t     bmRequestType;
@@ -79,6 +78,13 @@ typedef struct
     uint16_t    wIndex;
     uint16_t    wLength;
 } requestTyp;
+
+enum reqType {
+    REQ_ERROR = -1
+    NULL_REQ = 0,
+    DATA_STAGE = 1,
+    NOT_ST_REQ
+};
 
 int isRequest(void);
 int reqHandler(void);

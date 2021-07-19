@@ -85,16 +85,19 @@ int reqHandler()
             ret = setInterfaceReqHandler(&request);
             brake;
         default:
-            ret = -2;
+            ret = NOT_ST_REQ;
             brake;
     }
-    if( ret == -2 ) {
+    if( ret == NOT_ST_REQ ) {
         ret = hidReqHandler(&request);
     }
     if( ret < 0 ) {
         // in case of error return to the idle state but with stall status
         controlEpStall();
         controlDtogInit();
+    }
+    if( ret == NULL_REQ ) {
+        controlTxData0();
     }
 }
 
@@ -116,21 +119,6 @@ void reqCopy(requestTyp *request)
     request->wLength = *pBuf.w++;
 }
 
-// method overloading imitation one byte and two byte variants
-void reqResponse1(uint8_t data)
-{
-
-}
-
-void reqResponse2(uint16_t data)
-{
-
-}
-
-void reqResponseDesc(uint8_t *desc, int descSize, int wLength)
-{
-
-}
 
 /* Request handlers */
 
@@ -138,36 +126,36 @@ int getStatusReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wValue != 0) || (request->wLength != 2) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     if( (request->bRequest == DEVICE_GET) && (request->wIndex != 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     if( (request->wIndex >= NUM_OF_EP) && (request->bRequest == ENDPOINT_GET) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // request handler
     switch ( request->bRequest ) {
         case DEVICE_GET: {
-            reqResponse2(BUS_POWERED);
+            controlTxData2(BUS_POWERED);
             brake;
         }
         case INTERFACE_GET: {
-            reqResponse2(INTERFACE_STATUS);
+            controlTxData2(INTERFACE_STATUS);
             brake;
         }
         case ENDPOINT_GET: {
             if(epPrors[request->wIndex].isHalt > 0) {
-                reqResponse2(ENDP_HALT_STATUS);
+                controlTxData2(ENDP_HALT_STATUS);
             } else {
-                reqResponse2(ENDP_ACTIVE_STATUS);
+                controlTxData2(ENDP_ACTIVE_STATUS);
             }
             brake;
         }
         default:
-            return -1;
+            return ST_REQ_ERROR;
     }
-    return 0;
+    return DATA_STAGE;
 }
 
 int setAddressReqHandler(requestTyp *request)
@@ -175,15 +163,15 @@ int setAddressReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
        (request->wValue > 127) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // null address exception
     if( (request->wValue == 0) && (usbProp.deviceStaste == DEFAULT) ) {
-        return 0;
+        return NULL_REQ;
     }
     if( (request->wValue == 0) && (usbProp.deviceStaste == ADDRESS) ) {
         usbProp.deviceStaste = DEFAULT;
-        return 0;
+        return NULL_REQ;
     }
     // main case, which applies address to the device
     switch ( usbProp.deviceStaste ) {
@@ -193,13 +181,13 @@ int setAddressReqHandler(requestTyp *request)
             brake;
         }
         case CONFIGURED: {
-            return -1;
+            return ST_REQ_ERROR;
             brake;
         }
         default:
-            return -1;
+            return ST_REQ_ERROR;
     }
-    return 0;
+    return NULL_REQ;
 }
 
 int setConfigurationReqHandler(requestTyp *request)
@@ -207,24 +195,24 @@ int setConfigurationReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
         (request->wValue > 0xff) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // null configuration value exception
     if( (request->wValue == 0) && (usbProp.deviceStaste == ADDRESS) ) {
-        return 0;
+        return NULL_REQ;
     }
     if( (request->wValue == 0) && (usbProp.deviceStaste == CONFIGURED) ) {
         usbProp.deviceStaste = ADDRESS;
-        return 0;
+        return NULL_REQ;
     }
     // check the configuration (if there requested)
     if( request->wValue != usbProp.configValue ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // main case, which applies the configuration to the device
     switch ( usbProp.deviceStaste ) {
         case DEFAULT: {
-            return -1;
+            return ST_REQ_ERROR;
             brake;
         }
         case ADDRESS: {
@@ -235,9 +223,9 @@ int setConfigurationReqHandler(requestTyp *request)
             brake;
         }
         default:
-            return -1;
+            return ST_REQ_ERROR;
     }
-    return 0;
+    return NULL_REQ;
 }
 
 int getConfigurationReqHandler(requestTyp *request)
@@ -245,33 +233,33 @@ int getConfigurationReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
         (request->wValue != 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // main case, return the configuration
     switch ( usbProp.deviceStaste ) {
         case DEFAULT: {
-            return -1;
+            return ST_REQ_ERROR;
             brake;
         }
         case ADDRESS: {
-            reqResponse1(0x00);
+            controlTxData1(0x00);
             brake;
         }
         case CONFIGURED: {
-            reqResponse1(usbProp.configValue);
+            controlTxData1(usbProp.configValue);
             brake;
         }
         default:
-            return -1;
+            return ST_REQ_ERROR;
     }
-    return 0;
+    return DATA_STAGE;
 }
 
 // that is cup functions for the standard compability
 // because this is devise with only one default interface
 int setInterfaceReqHandler(requestTyp *request)
 {
-    return -1;
+    return ST_REQ_ERROR;
 }
 
 int getInterfaceReqHandler(requestTyp *request)
@@ -279,63 +267,64 @@ int getInterfaceReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
         (request->wValue != 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // main case which returns the null interface
     switch ( usbProp.deviceStaste ) {
         case DEFAULT: {
-            return -1;
+            return ST_REQ_ERROR;
             brake;
         }
         case ADDRESS: {
-            return -1;
+            return ST_REQ_ERROR;
             brake;
         }
         case CONFIGURED: {
-            reqResponse1(0);
+            controlTxData1(0);
             brake;
         }
         default:
-            return -1;
+            return ST_REQ_ERROR;
     }
-    return 0;
+    return DATA_STAGE;
 }
 
 int setFeatureReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wLength != 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // exceptions first
     // checks is there requested endpoint
     if( (request->bmRequestType != ENDPOINT_SET) && \
        ((request->wIndex & 0x00ff) >= NUM_OF_EP) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // default endpoint halt is not avaliable too
     if( (request->bmRequestType == ENDPOINT_SET) && \
        ((request->wIndex & 0x00ff) == 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // there is nothing to do with device except tests
     if( (request->bmRequestType == DEVICE_SET) && (request->wValue != TEST_MODE) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // check test selector
     if( ((request->wIndex & 0x00ff) != 0) || \
          (request->wIndex < TEST_J) && (request->wIndex > TEST_FORCE_ENABLE) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
 
     // here is main code
     // there is no features for interfaces
     if( (request->bmRequestType == INTERFACE_SET) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // device side
     if( (request->bmRequestType == DEVICE_SET) && (request->wValue == TEST_MODE) ) {
-        testEnable(request->wIndex);
+        return ST_REQ_ERROR;
+//        testEnable(request->wIndex);
     }
     // endpoint side
     // it may halt any endpoint except default
@@ -344,16 +333,16 @@ int setFeatureReqHandler(requestTyp *request)
         (request->wValue == ENDPOINT_HALT) ) {
         epHaltSet(request->wIndex & 0x00ff);
     } else {
-        return -1;
+        return ST_REQ_ERROR;
     }
-    return 0;
+    return NULL_REQ;
 }
 
 int clearFeatureReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wLength != 0) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // everything except reset halt ep n are errors
     if( (request->bmRequestType == ENDPOINT_SET) && \
@@ -361,16 +350,16 @@ int clearFeatureReqHandler(requestTyp *request)
         (request->wValue == ENDPOINT_HALT) ) {
         epHaltClear(request->wIndex & 0x00ff);
     } else {
-        return -1;
+        return ST_REQ_ERROR;
     }
-    return 0;
+    return NULL_REQ;
 }
 
 int getDescriptorReqHandler(requestTyp *request)
 {
     // error check
     if( (request->bmRequestType != DEVICE_GET) ) {
-        return -1;
+        return ST_REQ_ERROR;
     }
     // concatenation buffer init
     uint8_t tmp[request->wLength];
@@ -379,38 +368,43 @@ int getDescriptorReqHandler(requestTyp *request)
     switch(request->wValue << 8)
     {
         case DEVICE_TYP:
-            reqResponseDesc(gamepadDeviseDesc, gamepadDeviseDescSize, request->wLength);
+            prev = descCat(gamepadDeviseDesc, tmp, 0, gamepadDeviseDescSize, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case CONFIGURATION_TYP:
             prev = descCat(gamepadConfigurationDesc, tmp, 0, gamepadConfigurationDescSize, request->wLength);
             prev = descCat(gamepadInterfaceDesc, tmp, prev, gamepadInterfaceDescSize, request->wLength);
             prev = descCat(gamepadHidDesc, tmp, prev, gamepadHidDescSize, request->wLength);
             prev = descCat(gamepadInEndpDesc, tmp, prev, gamepadInEndpDescSize, request->wLength);
-            reqResponseDesc(tmp, prev, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case STRING_TYP:
             prev = descCat(stringLangId, tmp, 0, stringLangIdSize, request->wLength);
             prev = descCat(gamepadStringVendor, tmp, prev, gamepadStringVendorSize, request->wLength);
             prev = descCat(gamepadStringProduct, tmp, prev, gamepadStringProductSize, request->wLength);
-            reqResponseDesc(tmp, prev, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case INTERFACE_TYP:
-            reqResponseDesc(gamepadInterfaceDesc, gamepadInterfaceDescSize, request->wLength);
+            prev = descCat(gamepadInterfaceDesc, tmp, 0, gamepadInterfaceDescSize, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case ENDPOINT_TYP:
-            reqResponseDesc(gamepadInEndpDesc, gamepadInEndpDescSize, request->wLength);
+            prev = descCat(gamepadInEndpDesc, tmp, 0, gamepadInEndpDescSize, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case DEVICE_QUALIFIER_TYP:
             break;
         case HID_TYP:
-            reqResponseDesc(gamepadHidDesc, gamepadHidDescSize, request->wLength);
+            prev = descCat(gamepadHidDesc, tmp, 0, gamepadHidDescSize, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         case REPORT_TYP:
-            reqResponseDesc(gamepadReportDesc, gamepadReportDescSize, request->wLength);
+            prev = descCat(gamepadReportDesc, tmp, 0, gamepadReportDescSize, request->wLength);
+            controlTxDataN(tmp, prev);
             break;
         default
-            return -1;
+            return ST_REQ_ERROR;
             break;
     }
-    return 0;
+    return DATA_STAGE;
 }

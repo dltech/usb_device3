@@ -76,21 +76,21 @@ void usbHidEndpInit()
     // buffer init
     USB_BTABLE    = USB_TABLE_ADDR;
     // endpoint 0 rx/tx buffers
-    USB_ADDR0_TX  = USB_TABLE_END & ADDR_TX_MASK;
-    USB_ADDR0_RX  = (((uint16_t)USB_ADDR0_TX) + EP0_BUFFER_SIZE) & ADDR_RX_MASK;
+    USB_ADDR0_TX  = EP0_TX_START & ADDR_TX_MASK;
+    USB_ADDR0_RX  = EP0_RX_START & ADDR_RX_MASK;
     USB_COUNT0_RX = BL_SIZE_32B | \
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endpoint 0 address 0, type control endpoint
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
-    epPrors[0].isHalt = 0;
     controlDtogInit();
     controlEpNak();
+    epPrors[0].isHalt = 0;
 }
 
 void usbReportEndpInit()
 {
     // endpoint 1 tx buffer
-    USB_ADDR1_TX  = (USB_TABLE_END + EP0_BUFFER_SIZE) & ADDR_TX_MASK;
+    USB_ADDR1_TX  = EP1_TX_START & ADDR_TX_MASK;
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
     epRxStatusSet(1, STAT_RX_DISABLED);
@@ -174,12 +174,18 @@ void ctrF()
 
 void controlEpHandler()
 {
-
+    USB_ISTR = 0;
+    // I think that ACK is received, com back again in the idle state
+    // Cause only data sequence in my core consists of only one packet
+    controlEpNak();
+    controlDtogInit();
 }
 
 void interruptEpHandler()
 {
-
+    USB_ISTR = 0;
+    // all right, wait for the next timer interrupt
+    epRxStatusSet(1, STAT_TX_NAK);
 }
 
 void usbCore()
@@ -200,6 +206,57 @@ void usbCore()
         usbReset();
     }
     USB_ISTR = 0;
+}
+
+void sendReport(uint8_t report)
+{
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2) + (uint16_t*)USB_CAN_SRAM_BASE;
+    *bufferPtr = (uint16_t)report;
+    USB_COUNT1_TX = 2 & COUNT_TX_MASK;
+    epTxStatusSet(1, STAT_TX_VALID);
+}
+
+// method overloading imitation for control endpoint tx functions
+void controlTxData0()
+{
+    USB_COUNT0_TX = 0;
+    epTxStatusSet(0, STAT_TX_VALID);
+    epRxStatusSet(0, STAT_RX_STALL);
+}
+
+void controlTxData1(uint8_t data)
+{
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2) + (uint16_t*)USB_CAN_SRAM_BASE;
+    *bufferPtr = (uint16_t)data;
+    USB_COUNT0_TX = 2 & COUNT_TX_MASK;
+    epTxStatusSet(0, STAT_TX_VALID);
+    epRxStatusSet(0, STAT_RX_STALL);
+}
+
+void controlTxData2(uint16_t data)
+{
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2) + (uint16_t*)USB_CAN_SRAM_BASE;
+    *bufferPtr = data;
+    USB_COUNT0_TX = 2 & COUNT_TX_MASK;
+    epTxStatusSet(0, STAT_TX_VALID);
+    epRxStatusSet(0, STAT_RX_STALL);
+}
+
+void controlTxDataN(uint8_t *data, int size)
+{
+    if(size <= 2) return;
+    // byte alingment
+    uint16_t *input = (uint16_t)data;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2) + (uint16_t*)USB_CAN_SRAM_BASE;
+    int i=0;
+    for(i=0 ; i<(size/2) ; ++i) {
+        bufferPtr[i] = input[i];
+    }
+    // last byte to 16 bit
+    if( (size%2) > 0 ) *(bufferPtr+i) = (uint16_t)data[size-1];
+    USB_COUNT0_TX = size & COUNT_TX_MASK;
+    epTxStatusSet(0, STAT_TX_VALID);
+    epRxStatusSet(0, STAT_RX_STALL);
 }
 
 // work with status bits
@@ -239,10 +296,10 @@ void controlDtogInit()
 {
     // set dtog_tx = 1, dtog_rx = 0
     if( (USB_EP0R & DTOG_TX) == 0 ) {
-        USB_EPNR0 = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+        USB_EPNR0 = DTOG_TX | USB_EP_RCWO_MASK | (USB_EP0R&EA_MASK);
     }
     if( (USB_EP0R & DTOG_RX) != 0 ) {
-        USB_EPNR0 = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+        USB_EPNR0 = DTOG_RX | USB_EP_RCWO_MASK | (USB_EP0R&EA_MASK);
     }
 }
 
@@ -250,10 +307,10 @@ void defaultDtogInit(int nep)
 {
     // set dtog_tx = 0, dtog_rx = 0
     if( (USB_EPNR(nep) & DTOG_TX) != 0 ) {
-        USB_EPNR(nep) = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+        USB_EPNR(nep) = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(nep)&EA_MASK);
     }
     if( (USB_EPNR(nep) & DTOG_RX) != 0 ) {
-        USB_EPNR(nep) = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
+        USB_EPNR(nep) = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(nep)&EA_MASK);
     }
 }
 

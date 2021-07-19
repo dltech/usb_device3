@@ -17,11 +17,14 @@
  * limitations under the License.
  */
 
-// buffer table
-#define USB_TABLE_ADDR          0
-#define USB_TABLE_END           USB_BTABLE_ADDR + 0x40
 #define EP0_BUFFER_SIZE         64*2
 #define EP1_BUFFER_SIZE         4
+// buffer table
+#define USB_TABLE_ADDR          0
+#define USB_TABLE_END           USB_TABLE_ADDR + 0x40
+#define EP0_TX_START            USB_TABLE_END
+#define EP0_RX_START            EP0_TX_START + EP0_BUFFER_SIZE
+#define EP1_TX_START            EP0_RX_START
 // endpoints
 #define NUM_OF_EP   2
 
@@ -59,3 +62,10 @@ int epHaltSet(int ep);
 int epHaltClear(int ep);
 void controlEpStall(void);
 void controlEpNak(void);
+void controlEpNullData(void);
+void controlTxData0(void);
+void controlTxData1(uint8_t data);
+void controlTxData2(uint16_t data);
+void controlTxDataN(uint8_t *data, int size);
+// for gamepad port poll function
+void sendReport(uint8_t report);

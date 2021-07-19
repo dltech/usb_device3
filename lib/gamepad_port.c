@@ -148,9 +148,13 @@ void reportUpdate()
 
 void tim6_isr()
 {
+    static int cnt=0;
     TIM6_SR = 0;
     portPoll();
     reportUpdate();
+    if(cnt++ > gamepadPar.reportDuration) {
+        sendReport(gamepadPar.report);
+    }
 //    wkupByPress();
 }
 

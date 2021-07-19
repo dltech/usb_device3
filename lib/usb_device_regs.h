@@ -137,7 +137,7 @@
 #define CTR_TX              0x0080
 // data toggle for transmission transfers (t)
 #define DTOG_TX             0x0040
-// status bits for transmission tranbsfers (t)
+// status bits for transmission transfers (t)
 #define STAT_TX_DISABLED    0x0000
 #define STAT_TX_STALL       0x0010
 #define STAT_TX_NAK         0x0020
