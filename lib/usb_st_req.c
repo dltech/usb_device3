@@ -18,18 +18,12 @@
  */
 
 #include "usb_hid.h"
-#include "usb_st_req.h"
 #include "usb_core.h"
+#include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;
 
-// some subfunctions
-void reqCopy(requestTyp *request);
-void reqResponse1(uint8_t data);
-void reqResponse2(uint16_t data);
-void reqResponseN(uint8_t* data, int size);
-/* this functions are implemented with assumption that request eror state and
-   STALL state are the same. In both cases request handler returns -1. */
+// requests
 int getStatusReqHandler(requestTyp *request);
 int clearFeatureReqHandler(requestTyp *request);
 int setFeatureReqHandler(requestTyp *request);
@@ -40,85 +34,33 @@ int setConfigurationReqHandler(requestTyp *request);
 int getInterfaceReqHandler(requestTyp *request);
 int setInterfaceReqHandler(requestTyp *request);
 
-
-int isRequest()
+// handler of mandatory standard requests
+int stReqHandler(requestTyp *request)
 {
-    if( (USB_EP0R & SETUP) > 0 ) {
-        return 1;
-    }
-    return 0;
-}
-
-int reqHandler()
-{
-    requestTyp request;
-    // set to NAK first, cause USB device is busy while handle requests
-    controlEpNak();
-    reqCopy(&request);
-    int ret = 0;
-    switch ( request.bRequest ) {
+    switch ( request->bRequest ) {
         case GET_STATUS:
-            ret = getStatusReqHandler(&request);
-            brake;
+            return getStatusReqHandler(request);
         case CLEAR_FEATURE:
-            ret = clearFeatureReqHandler(&request);
-            brake;
+            return clearFeatureReqHandler(request);
         case SET_FEATURE:
-            ret = setFeatureReqHandler(&request);
-            brake;
+            return setFeatureReqHandler(request);
         case SET_ADDRESS:
-            ret = setAddressReqHandler(&request);
-            brake;
+            return setAddressReqHandler(request);
         case GET_DESCRIPTOR:
-            ret = getDescriptorReqHandler(&request);
-            brake;
+            return getDescriptorReqHandler(request);
         case GET_CONFIGURATION:
-            ret = getConfigurationReqHandler(&request);
-            brake;
+            return getConfigurationReqHandler(request);
         case SET_CONFIGURATION:
-            ret = setConfigurationReqHandler(&request);
-            brake;
+            return setConfigurationReqHandler(request);
         case GET_INTERFACE:
-            ret = getInterfaceReqHandler(&request);
-            brake;
+            return getInterfaceReqHandler(request);
         case SET_INTERFACE:
-            ret = setInterfaceReqHandler(&request);
-            brake;
+            return setInterfaceReqHandler(request);
         default:
-            ret = NOT_ST_REQ;
-            brake;
+            return NOT_ST_REQ;
     }
-    if( ret == NOT_ST_REQ ) {
-        ret = hidReqHandler(&request);
-    }
-    if( ret < 0 ) {
-        // in case of error return to the idle state but with stall status
-        controlEpStall();
-        controlDtogInit();
-    }
-    if( ret == NULL_REQ ) {
-        controlTxData0();
-    }
+    return REQ_ERROR;
 }
-
-// Сopies request for control endpoint 0 from rx buffer
-void reqCopy(requestTyp *request)
-{
-    union {
-      uint8_t* b;
-      uint16_t* w;
-    } pBuf;
-    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2) + (uint8_t*)USB_CAN_SRAM_BASE;
-    request->bmRequestType = *pBuf.b++;
-    request->bRequest = *pBuf.b++;
-    pBuf.w++;
-    request->wValue = *pBuf.w++;
-    pBuf.w++;
-    request->wIndex = *pBuf.w++;
-    pBuf.w++;
-    request->wLength = *pBuf.w++;
-}
-
 
 /* Request handlers */
 
@@ -206,7 +148,7 @@ int setConfigurationReqHandler(requestTyp *request)
         return NULL_REQ;
     }
     // check the configuration (if there requested)
-    if( request->wValue != usbProp.configValue ) {
+    if( request->wValue != configValue ) {
         return ST_REQ_ERROR;
     }
     // main case, which applies the configuration to the device
@@ -246,7 +188,7 @@ int getConfigurationReqHandler(requestTyp *request)
             brake;
         }
         case CONFIGURED: {
-            controlTxData1(usbProp.configValue);
+            controlTxData1(configValue);
             brake;
         }
         default:

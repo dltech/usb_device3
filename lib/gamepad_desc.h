@@ -1,3 +1,5 @@
+#ifndef H_GAMEPAD_DESC
+#define H_GAMEPAD_DESC
 /*
  * Part of USB HID gamepad STM32 based solution.
  * All descriptors for simplest USB 2.0 HID gamepad with D-pad and two buttons
@@ -16,6 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ #include <inttypes.h>
+
 // descriptor size
 #define gamepadDeviseDescSize 18
 #define gamepadConfigurationDescSize 9
@@ -26,8 +30,8 @@
     gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
 #define gamepadreportDescSize   55
 #define stringLangIdSize 4
-#define gamepadStringVendorSize 8
-#define gamepadStringProductSize 6
+#define gamepadStringVendorSize 6
+#define gamepadStringProductSize 8
 
 // descriptor concatenator (a part of GetDescr request)
 int descCat(uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);
@@ -150,3 +154,5 @@ const uint8_t gamepadStringProduct[gamepadStringProductSize] =
     0x03,
     'j',0,'o',0,'y',0
 };
+
+#endif

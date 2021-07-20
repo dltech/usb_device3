@@ -1,3 +1,5 @@
+#ifndef H_GAMEPAD_PORT
+#define H_GAMEPAD_PORT
 /*
  * Part of USB HID gamepad STM32 based solution.
  *
@@ -17,6 +19,7 @@
  */
 
 #include "../libopencm3/include/libopencm3/stm32/gpio.h"
+#include "mysys.h"
 
 // port poll frequency in ms
 #define POLLRATE    1
@@ -53,19 +56,22 @@
 #define BUTTON1ON   0x10
 #define BUTTON2ON   0x20
 
+#define cntPressed  READ_RATE / POLLRATE
+#define reportSize  1
+
 // buttons condition data
 typedef struct {
-    int upCnt = 0;
-    int dnCnt = 0;
-    int leftCnt = 0;
-    int rightCnt = 0;
-    int button1Cnt = 0;
-    int button2Cnt = 0;
-    const int cntPressed = READ_RATE / POLLRATE;
-    const int reportSize = 1;
-    int report = 0;
+    int upCnt;
+    int dnCnt;
+    int leftCnt;
+    int rightCnt;
+    int button1Cnt;
+    int button2Cnt;
+    uint8_t report;
 } gamepadParamStruct;
 volatile gamepadParamStruct gamepadPar;
 
 // call this to init port poll
 void portInit(void);
+
+#endif

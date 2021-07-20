@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "usb_hid.h"
 #include "gamepad_port.h"
-
-extern volatile gamepadParamStruct gamepadPar;
+#include "usb_core.h"
+#include "usb_st_req.h"
+#include "usb_hid.h"
 
 int getReportReqHandler(requestTyp *request);
 int getIdleReqHandler(requestTyp *request);
@@ -28,53 +27,62 @@ int setIdleReqHandler(requestTyp *request);
 
 int hidReqHandler(requestTyp *request)
 {
-    int ret = 0;
     switch (request->bRequest) {
         case GET_REPORT:
             return getReportReqHandler(request);
-            brake;
         case GET_IDLE:
             return getIdleReqHandler(request);
-            brake;
         case SET_IDLE:
             return setIdleReqHandler(request);
-            brake;
         default:
-            return -1;
+            return REQ_ERROR;
     }
-    return -1;
+    return REQ_ERROR;
 }
 
-int getReportReqHandler(requestTyp *request)
+int getReportReqHandler(requestTyp *req)
 {
     // error check
-    if( (request->bmRequestType != HID_GET) || (usbProp.state != CONFIGURED) ) {
-        return -1;
+    if( (req->bmRequestType != HID_GET) || (usbProp.deviceState != CONFIGURED) ) {
+        return REQ_ERROR;
     }
     // only one report is supported by this device
-    if( (request->wValue == INPUT_REP) && \
-        (request->wLength == gamepadPar.reportSize) ) {
-        reqResponse1(gamepadPar.report);
+    if( (req->wValue == INPUT_REP) && \
+        (req->wLength == reportSize) ) {
+        controlTxData1(gamepadPar.report);
+        return DATA_STAGE;
     }
-    return 0;
+    return NULL_REQ;
 }
 
-int getIdleReqHandler(requestTyp *request)
+int getIdleReqHandler(requestTyp *req)
 {
-    if( (request->bmRequestType != HID_GET) || (request->wLength != 1) \
-        (request->wValue != 0) || (usbProp.state != CONFIGURED) {
-        return -1;
+    if( (req->bmRequestType != HID_GET) || (((uint16_t)req->wLength) != ((uint16_t)1)) \
+        (req->wValue != 0) || (usbProp.deviceState != CONFIGURED) ) {
+        return REQ_ERROR;
     }
-    reqResponse1(DURATION_TO_PARAM(usbProp.reportDuration));
-    return 0;
+    controlTxData1(DURATION_TO_PARAM(usbProp.reportDuration));
+    return DATA_STAGE;
 }
 
-int setIdleReqHandler(requestTyp *request)
+int setIdleReqHandler(requestTyp *req)
 {
-    if( (request->bmRequestType != HID_SET) || (request->wLength != 0) \
-       ((request->wValue&0x00ff) != 0) || (usbProp.state != CONFIGURED) {
-        return -1;
+    if( (req->bmRequestType != HID_SET) || (((uint16_t)req->wLength) != ((uint16_t)0)) \
+       ((req->wValue&0x00ff) != 0) || (usbProp.deviceState != CONFIGURED) ) {
+        return REQ_ERROR;
     }
-    usbProp.reportDuration = REPORT_DURATION(request->wValue);
-    return 0;
+    usbProp.reportDuration = REPORT_DURATION(req->wValue);
+    return NULL_REQ;
+}
+
+void sendReport(uint8_t report, int *ms)
+{
+    static uint8_t prevReport;
+    if( (usbProp.reportDuration == 0) && (prevReport != report) ) {
+        reportTx(report);
+        *ms = 0;
+    } else if(*ms > usbProp.reportDuration) {
+        reportTx(report);
+        *ms = 0;
+    }
 }

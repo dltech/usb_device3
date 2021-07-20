@@ -22,17 +22,17 @@
 #include "../libopencm3/include/libopencm3/stm32/rcc.h"
 #include "../libopencm3/include/libopencm3/stm32/timer.h"
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
-#include "gamepad.h"
+//#include "gamepad.h"
 #include "usb_core.h"
+#include "usb_hid.h"
+#include "gamepad_port.h"
 
-
-void portInit(void);
 void gpioInit(void);
 void pollIrqInit(void);
 void portPoll(void);
 void reportUpdate(void);
 // wakeup from suspend mode by pressed button (not used)
-void wkupByPress(void);
+//void wkupByPress(void);
 
 void gpioInit()
 {
@@ -66,7 +66,14 @@ void pollIrqInit()
 void portInit()
 {
     gpioInit();
-    portIrqInit();
+    pollIrqInit();
+    gamepadPar.upCnt;
+    gamepadPar.dnCnt;
+    gamepadPar.leftCnt;
+    gamepadPar.rightCnt;
+    gamepadPar.button1Cnt;
+    gamepadPar.button2Cnt;
+    gamepadPar.report;
 }
 
 // Information about pressed buttons is obtained by sum of consecutive polls
@@ -109,39 +116,39 @@ void reportUpdate()
 {
     gamepadPar.report = 0;
     // angles of d-pad including two buttons pressed simulateously
-    if( gamepadPar.rightCnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.rightCnt >= cntPressed ) {
         gamepadPar.report = HAT0DEG;
     }
-    if( (gamepadPar.rightCnt >= gamepadPar.cntPressed) && \
-        (gamepadPar.dnCnt >= gamepadPar.cntPressed) ) {
+    if( (gamepadPar.rightCnt >= cntPressed) && \
+        (gamepadPar.dnCnt >= cntPressed) ) {
         gamepadPar.report = HAT45DEG;
     }
-    if( gamepadPar.dnCnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.dnCnt >= cntPressed ) {
         gamepadPar.report = HAT90DEG;
     }
-    if( (gamepadPar.dnCnt >= gamepadPar.cntPressed) && \
-        (gamepadPar.leftCnt >= gamepadPar.cntPressed) ) {
+    if( (gamepadPar.dnCnt >= cntPressed) && \
+        (gamepadPar.leftCnt >= cntPressed) ) {
         gamepadPar.report = HAT135DEG;
     }
-    if( gamepadPar.leftCnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.leftCnt >= cntPressed ) {
         gamepadPar.report = HAT180DEG;
     }
-    if( (gamepadPar.leftCnt >= gamepadPar.cntPressed) && \
-        (gamepadPar.upCnt >= gamepadPar.cntPressed) ) {
+    if( (gamepadPar.leftCnt >= cntPressed) && \
+        (gamepadPar.upCnt >= cntPressed) ) {
         gamepadPar.report = HAT225DEG;
     }
-    if( gamepadPar.upCnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.upCnt >= cntPressed ) {
         gamepadPar.report = HAT270DEG;
     }
-    if( (gamepadPar.upCnt >= gamepadPar.cntPressed) && \
-        (gamepadPar.rightCnt >= gamepadPar.cntPressed) ) {
+    if( (gamepadPar.upCnt >= cntPressed) && \
+        (gamepadPar.rightCnt >= cntPressed) ) {
         gamepadPar.report = HAT315DEG;
     }
     // buttons
-    if( gamepadPar.button1Cnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.button1Cnt >= cntPressed ) {
         gamepadPar.report |= BUTTON1ON;
     }
-    if( gamepadPar.button2Cnt >= gamepadPar.cntPressed ) {
+    if( gamepadPar.button2Cnt >= cntPressed ) {
         gamepadPar.report |= BUTTON2ON;
     }
 }
@@ -152,20 +159,19 @@ void tim6_isr()
     TIM6_SR = 0;
     portPoll();
     reportUpdate();
-    if(cnt++ > gamepadPar.reportDuration) {
-        sendReport(gamepadPar.report);
-    }
+    ++cnt;
+    sendReport(gamepadPar.report, &cnt);
 //    wkupByPress();
 }
 
-void wkupByPress()
-{
-    static uint8_t prevReport = 0;
-    if( gamepadPar.isSusp == 0 ) {
-        return;
-    }
-    if(gamepadPar.report != prevReport) {
-        usbWakeup();
-    }
-    prevReport = gamepadPar.report;
-}
+//void wkupByPress()
+//{
+//    static uint8_t prevReport = 0;
+//    if( gamepadPar.isSusp == 0 ) {
+//        return;
+//    }
+//    if(gamepadPar.report != prevReport) {
+//        usbWakeup();
+//    }
+//    prevReport = gamepadPar.report;
+//}

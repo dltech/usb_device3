@@ -1,3 +1,5 @@
+#ifndef H_GAMEPAD
+#define H_GAMEPAD
 /*
  * USB HID gamepad STM32 based solution. Call init, enjoy.
  *
@@ -17,3 +19,5 @@
  */
 
 void gamepadInit(void);
+
+#endif

@@ -21,8 +21,9 @@
 
 // Concatenation to make descriptors in request readable form
 int descCat(uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen) {
-    for( int index = prev ; (index<mainLen) && (index<size) ; ++index) {
-        out[index] = in[index - prev];
+    int i = prev;
+    for( ; (i<mainLen) && (i<size) ; ++i) {
+        out[i] = in[i - prev];
     }
-    return index;
+    return i;
 }

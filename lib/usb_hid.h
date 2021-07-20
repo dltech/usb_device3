@@ -1,3 +1,5 @@
+#ifndef H_USB_HID
+#define H_USB_HID
 /*
  * Part of USB HID gamepad STM32 based solution.
  * Here are HID related request handlers. There are only 3 in simplest case.
@@ -16,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "usb_st_req.h"
 
 // bRequest
 #define GET_REPORT      0x01
@@ -42,3 +45,6 @@
 
 // this function is just a part of main request handler
 int hidReqHandler(requestTyp *request);
+void sendReport(uint8_t report, int *ms);
+
+#endif

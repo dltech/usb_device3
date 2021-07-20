@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
+#include "../libopencm3/include/libopencm3/cm3/nvic.h"
 #include "mysys.h"
-#include "gamepad.h"
 #include "usb_core.h"
 #include "gamepad_port.h"
+#include "gamepad.h"
 
 void gamepadInit()
 {

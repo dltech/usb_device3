@@ -1,16 +1,18 @@
-PROJECT = usb_device1
+PROJECT = usb_device3
 BUILD_DIR = bin
 
 SHARED_DIR = ../lib
 CFILES = main.c
-CFILES += mystmbackend.c
-CFILES += printf7.c
-CFILES += tm1637.c
-CFILES += freq_dr.c
-CFILES += cmsis_sin.c
-CFILES += ds18b20.c
+CFILES += mysys.c
+CFILES += gamepad_desc.c
+CFILES += gamepad_port.c
+CFILES += gamepad.c
+CFILES += usb_core.c
+CFILES += usb_hid.c
+CFILES += usb_st_req.c
 
-DEVICE=stm32f030K6T6
+
+DEVICE=stm32f103C8T6
 OOCD_FILE = board/stm32f0discovery.cfg
 
 # You shouldn't have to edit anything below here.

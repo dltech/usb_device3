@@ -7,7 +7,7 @@
 
 #define TIMEOUT_CLKS    10000
 
-void clkInit(void);
+void sysClk(void);
 // clock source in usb suspend mode
 void suspSysClk(void);
 // cyclic delays

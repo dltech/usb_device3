@@ -1,3 +1,5 @@
+#ifndef H_USB_ST_REQ
+#define H_USB_ST_REQ
 /*
  * Part of USB HID gamepad STM32 based solution.
  * Just call reqHandler in your USB interrupt.
@@ -16,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "usb_core.h"
 
 /* request tables */
 // bmRequestType
@@ -25,7 +28,6 @@
 #define DEVICE_GET          0x80
 #define INTERFACE_GET       0x81
 #define ENDPOINT_GET        0x82
-
 // bRequest
 #define GET_STATUS          0x00
 #define CLEAR_FEATURE       0x01
@@ -37,7 +39,6 @@
 #define SET_CONFIGURATION   0x09
 #define GET_INTERFASE       0x0a
 #define SET_INTERFACE       0x0b
-
 // descriptor type
 #define DEVICE_TYP           0x01
 #define CONFIGURATION_TYP    0x02
@@ -45,7 +46,6 @@
 #define INTERFACE_TYP        0x04
 #define ENDPOINT_TYP         0x05
 #define DEVICE_QUALIFIER_TYP 0x06
-
 // getStatus defs
 // for device
 #define REMOTE_WAKEUP       0x0002
@@ -56,7 +56,6 @@
 // for endpoint
 #define ENDP_HALT_STATUS    0x0001
 #define ENDP_ACTIVE_STATUS  0x0000
-
 // standard features
 #define ENDPOINT_HALT        0x00
 #define DEVICE_REMOTE_WAKEUP 0x01
@@ -68,23 +67,6 @@
 #define TEST_PACKET         0x0400
 #define TEST_FORCE_ENABLE   0x0500
 
-// standard request package
-#define REQUEST_SIZE        9
-typedef struct
-{
-    uint8_t     bmRequestType;
-    uint8_t     bRequest;
-    uint16_t    wValue;
-    uint16_t    wIndex;
-    uint16_t    wLength;
-} requestTyp;
+int stReqHandler(requestTyp *request);
 
-enum reqType {
-    REQ_ERROR = -1
-    NULL_REQ = 0,
-    DATA_STAGE = 1,
-    NOT_ST_REQ
-};
-
-int isRequest(void);
-int reqHandler(void);
+#endif
