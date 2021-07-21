@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 #include "usb_core.h"
+#include "gamepad_desc.h"
 #include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;
@@ -66,34 +67,31 @@ int getStatusReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wValue != 0) || (request->wLength != 2) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     if( (request->bRequest == DEVICE_GET) && (request->wIndex != 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     if( (request->wIndex >= NUM_OF_EP) && (request->bRequest == ENDPOINT_GET) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // request handler
-    switch ( request->bRequest ) {
-        case DEVICE_GET: {
+    switch( (uint8_t)request->bRequest ) {
+        case DEVICE_GET:
             controlTxData2(BUS_POWERED);
-            brake;
-        }
-        case INTERFACE_GET: {
+            return DATA_STAGE;
+        case INTERFACE_GET:
             controlTxData2(INTERFACE_STATUS);
-            brake;
-        }
-        case ENDPOINT_GET: {
-            if(epPrors[request->wIndex].isHalt > 0) {
+            return DATA_STAGE;
+        case ENDPOINT_GET:
+            if(usbProp.epProps[request->wIndex].isHalt > 0) {
                 controlTxData2(ENDP_HALT_STATUS);
             } else {
                 controlTxData2(ENDP_ACTIVE_STATUS);
             }
-            brake;
-        }
+            return DATA_STAGE;
         default:
-            return ST_REQ_ERROR;
+            return REQ_ERROR;
     }
     return DATA_STAGE;
 }
@@ -103,31 +101,28 @@ int setAddressReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
        (request->wValue > 127) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // null address exception
-    if( (request->wValue == 0) && (usbProp.deviceStaste == DEFAULT) ) {
+    if( (request->wValue == 0) && (usbProp.deviceState == DEFAULT) ) {
         return NULL_REQ;
     }
-    if( (request->wValue == 0) && (usbProp.deviceStaste == ADDRESS) ) {
-        usbProp.deviceStaste = DEFAULT;
+    if( (request->wValue == 0) && (usbProp.deviceState == ADDRESS) ) {
+        usbProp.deviceState = DEFAULT;
         return NULL_REQ;
     }
     // main case, which applies address to the device
-    switch ( usbProp.deviceStaste ) {
+    switch ( usbProp.deviceState ) {
         case DEFAULT:
-        case ADDRESS: {
+        case ADDRESS:
             setAddr((uint8_t)request->wValue);
-            brake;
-        }
-        case CONFIGURED: {
-            return ST_REQ_ERROR;
-            brake;
-        }
+            return NULL_REQ;
+        case CONFIGURED:
+            return REQ_ERROR;
         default:
-            return ST_REQ_ERROR;
+            return REQ_ERROR;
     }
-    return NULL_REQ;
+    return REQ_ERROR;
 }
 
 int setConfigurationReqHandler(requestTyp *request)
@@ -135,37 +130,33 @@ int setConfigurationReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
         (request->wValue > 0xff) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // null configuration value exception
-    if( (request->wValue == 0) && (usbProp.deviceStaste == ADDRESS) ) {
+    if( (request->wValue == 0) && (usbProp.deviceState == ADDRESS) ) {
         return NULL_REQ;
     }
-    if( (request->wValue == 0) && (usbProp.deviceStaste == CONFIGURED) ) {
-        usbProp.deviceStaste = ADDRESS;
+    if( (request->wValue == 0) && (usbProp.deviceState == CONFIGURED) ) {
+        usbProp.deviceState = ADDRESS;
         return NULL_REQ;
     }
     // check the configuration (if there requested)
     if( request->wValue != configValue ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // main case, which applies the configuration to the device
-    switch ( usbProp.deviceStaste ) {
-        case DEFAULT: {
-            return ST_REQ_ERROR;
-            brake;
-        }
-        case ADDRESS: {
-            usbProp.deviceStaste = CONFIGURED;
-            brake;
-        }
-        case CONFIGURED: {
-            brake;
-        }
+    switch ( usbProp.deviceState ) {
+        case DEFAULT:
+            return REQ_ERROR;
+        case ADDRESS:
+            usbProp.deviceState = CONFIGURED;
+            return NULL_REQ;
+        case CONFIGURED:
+            return NULL_REQ;
         default:
-            return ST_REQ_ERROR;
+            return REQ_ERROR;
     }
-    return NULL_REQ;
+    return REQ_ERROR;
 }
 
 int getConfigurationReqHandler(requestTyp *request)
@@ -173,33 +164,30 @@ int getConfigurationReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
         (request->wValue != 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // main case, return the configuration
-    switch ( usbProp.deviceStaste ) {
-        case DEFAULT: {
-            return ST_REQ_ERROR;
-            brake;
-        }
-        case ADDRESS: {
+    switch ( usbProp.deviceState ) {
+        case DEFAULT:
+            return REQ_ERROR;
+        case ADDRESS:
             controlTxData1(0x00);
-            brake;
-        }
-        case CONFIGURED: {
+            return DATA_STAGE;
+        case CONFIGURED:
             controlTxData1(configValue);
-            brake;
-        }
+            return DATA_STAGE;
         default:
-            return ST_REQ_ERROR;
+            return REQ_ERROR;
     }
-    return DATA_STAGE;
+    return REQ_ERROR;
 }
 
 // that is cup functions for the standard compability
 // because this is devise with only one default interface
 int setInterfaceReqHandler(requestTyp *request)
 {
-    return ST_REQ_ERROR;
+    request->wLength = 0;
+    return REQ_ERROR;
 }
 
 int getInterfaceReqHandler(requestTyp *request)
@@ -207,73 +195,68 @@ int getInterfaceReqHandler(requestTyp *request)
     // error check
     if( (request->wIndex != 0) || (request->wLength != 1) || \
         (request->wValue != 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // main case which returns the null interface
-    switch ( usbProp.deviceStaste ) {
-        case DEFAULT: {
-            return ST_REQ_ERROR;
-            brake;
-        }
-        case ADDRESS: {
-            return ST_REQ_ERROR;
-            brake;
-        }
-        case CONFIGURED: {
+    switch ( usbProp.deviceState ) {
+        case DEFAULT:
+            return REQ_ERROR;
+        case ADDRESS:
+            return REQ_ERROR;
+        case CONFIGURED:
             controlTxData1(0);
-            brake;
-        }
+            return DATA_STAGE;
         default:
-            return ST_REQ_ERROR;
+            return REQ_ERROR;
     }
-    return DATA_STAGE;
+    return REQ_ERROR;
 }
 
 int setFeatureReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wLength != 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // exceptions first
     // checks is there requested endpoint
     if( (request->bmRequestType != ENDPOINT_SET) && \
        ((request->wIndex & 0x00ff) >= NUM_OF_EP) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // default endpoint halt is not avaliable too
     if( (request->bmRequestType == ENDPOINT_SET) && \
        ((request->wIndex & 0x00ff) == 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // there is nothing to do with device except tests
     if( (request->bmRequestType == DEVICE_SET) && (request->wValue != TEST_MODE) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // check test selector
     if( ((request->wIndex & 0x00ff) != 0) || \
-         (request->wIndex < TEST_J) && (request->wIndex > TEST_FORCE_ENABLE) ) {
-        return ST_REQ_ERROR;
+         (request->wIndex < TEST_J) || (request->wIndex > TEST_FORCE_ENABLE) ) {
+        return REQ_ERROR;
     }
 
     // here is main code
     // there is no features for interfaces
     if( (request->bmRequestType == INTERFACE_SET) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // device side
     if( (request->bmRequestType == DEVICE_SET) && (request->wValue == TEST_MODE) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
 //        testEnable(request->wIndex);
     }
     // endpoint side
     // it may halt any endpoint except default
     if( (request->bmRequestType == ENDPOINT_SET) && \
-        (usbProp.deviceStaste == CONFIGURED) && \
+        (usbProp.deviceState == CONFIGURED) && \
         (request->wValue == ENDPOINT_HALT) ) {
         epHaltSet(request->wIndex & 0x00ff);
     } else {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     return NULL_REQ;
 }
@@ -282,15 +265,15 @@ int clearFeatureReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wLength != 0) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // everything except reset halt ep n are errors
     if( (request->bmRequestType == ENDPOINT_SET) && \
-        (usbProp.deviceStaste == CONFIGURED) && \
+        (usbProp.deviceState == CONFIGURED) && \
         (request->wValue == ENDPOINT_HALT) ) {
         epHaltClear(request->wIndex & 0x00ff);
     } else {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     return NULL_REQ;
 }
@@ -299,7 +282,7 @@ int getDescriptorReqHandler(requestTyp *request)
 {
     // error check
     if( (request->bmRequestType != DEVICE_GET) ) {
-        return ST_REQ_ERROR;
+        return REQ_ERROR;
     }
     // concatenation buffer init
     uint8_t tmp[request->wLength];
@@ -342,9 +325,8 @@ int getDescriptorReqHandler(requestTyp *request)
             prev = descCat(gamepadReportDesc, tmp, 0, gamepadReportDescSize, request->wLength);
             controlTxDataN(tmp, prev);
             break;
-        default
-            return ST_REQ_ERROR;
-            break;
+        default:
+            return REQ_ERROR;
     }
     return DATA_STAGE;
 }

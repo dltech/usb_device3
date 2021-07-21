@@ -25,6 +25,8 @@
 #include "usb_hid.h"
 #include "usb_core.h"
 
+volatile usbPropStruct usbProp;
+
 // init functions
 // basic init
 void usbClockInit(void);
@@ -397,4 +399,13 @@ void controlTxDataN(uint8_t *data, int size)
     USB_COUNT0_TX = size & COUNT_TX_MASK;
     epTxStatusSet(0, STAT_TX_VALID);
     epRxStatusSet(0, STAT_RX_STALL);
+}
+
+// Concatenation to make descriptors in request readable form
+int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen) {
+    int i = prev;
+    for( ; (i<mainLen) && (i<size) ; ++i) {
+        out[i] = in[i - prev];
+    }
+    return i;
 }

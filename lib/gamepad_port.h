@@ -69,7 +69,6 @@ typedef struct {
     int button2Cnt;
     uint8_t report;
 } gamepadParamStruct;
-volatile gamepadParamStruct gamepadPar;
 
 // call this to init port poll
 void portInit(void);

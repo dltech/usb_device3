@@ -4,7 +4,6 @@ BUILD_DIR = bin
 SHARED_DIR = ../lib
 CFILES = main.c
 CFILES += mysys.c
-CFILES += gamepad_desc.c
 CFILES += gamepad_port.c
 CFILES += gamepad.c
 CFILES += usb_core.c

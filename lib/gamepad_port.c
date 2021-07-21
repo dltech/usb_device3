@@ -22,10 +22,10 @@
 #include "../libopencm3/include/libopencm3/stm32/rcc.h"
 #include "../libopencm3/include/libopencm3/stm32/timer.h"
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
-//#include "gamepad.h"
-#include "usb_core.h"
 #include "usb_hid.h"
 #include "gamepad_port.h"
+
+volatile gamepadParamStruct gamepadPar;
 
 void gpioInit(void);
 void pollIrqInit(void);
@@ -67,13 +67,13 @@ void portInit()
 {
     gpioInit();
     pollIrqInit();
-    gamepadPar.upCnt;
-    gamepadPar.dnCnt;
-    gamepadPar.leftCnt;
-    gamepadPar.rightCnt;
-    gamepadPar.button1Cnt;
-    gamepadPar.button2Cnt;
-    gamepadPar.report;
+    gamepadPar.upCnt = 0;
+    gamepadPar.dnCnt = 0;
+    gamepadPar.leftCnt = 0;
+    gamepadPar.rightCnt = 0;
+    gamepadPar.button1Cnt = 0;
+    gamepadPar.button2Cnt = 0;
+    gamepadPar.report = 0;
 }
 
 // Information about pressed buttons is obtained by sum of consecutive polls

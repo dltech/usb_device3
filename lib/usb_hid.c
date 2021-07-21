@@ -19,6 +19,10 @@
 #include "gamepad_port.h"
 #include "usb_hid.h"
 
+extern volatile usbPropStruct usbProp;
+extern volatile gamepadParamStruct gamepadPar;
+
+
 int getReportReqHandler(requestTyp *request);
 int getIdleReqHandler(requestTyp *request);
 int setIdleReqHandler(requestTyp *request);
@@ -53,23 +57,23 @@ int getReportReqHandler(requestTyp *req)
     return NULL_REQ;
 }
 
-int getIdleReqHandler(requestTyp *req)
+int getIdleReqHandler(requestTyp *requestt)
 {
-    if( (req->bmRequestType != HID_GET) || (((uint16_t)req->wLength) != ((uint16_t)1)) \
-        (req->wValue != 0) || (usbProp.deviceState != CONFIGURED) ) {
+    if( (requestt->bmRequestType != HID_GET) || (requestt->wLength != 1) || \
+        (requestt->wValue != 0) || (usbProp.deviceState != CONFIGURED) ) {
         return REQ_ERROR;
     }
     controlTxData1(DURATION_TO_PARAM(usbProp.reportDuration));
     return DATA_STAGE;
 }
 
-int setIdleReqHandler(requestTyp *req)
+int setIdleReqHandler(requestTyp *requestt)
 {
-    if( (req->bmRequestType != HID_SET) || (((uint16_t)req->wLength) != ((uint16_t)0)) \
-       ((req->wValue&0x00ff) != 0) || (usbProp.deviceState != CONFIGURED) ) {
+    if( (requestt->bmRequestType != HID_SET) || (requestt->wLength != 0) || \
+       ((requestt->wValue&0x00ff) != 0) || (usbProp.deviceState != CONFIGURED) ) {
         return REQ_ERROR;
     }
-    usbProp.reportDuration = REPORT_DURATION(req->wValue);
+    usbProp.reportDuration = REPORT_DURATION(requestt->wValue);
     return NULL_REQ;
 }
 

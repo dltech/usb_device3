@@ -55,7 +55,6 @@ typedef struct {
     int deviceState;
     int reportDuration;
 } usbPropStruct;
-volatile usbPropStruct usbProp;
 
 // standard request package
 typedef struct
@@ -87,5 +86,8 @@ void controlTxData2(uint16_t data);
 void controlTxDataN(uint8_t *data, int size);
 // for gamepad port poll function
 void reportTx(uint8_t report);
+
+// descriptor concatenator (a part of GetDescr request)
+int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);
 
 #endif

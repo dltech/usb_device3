@@ -28,13 +28,10 @@
 #define gamepadHidDescSize  9
 #define gamepadConfTotalSize    gamepadConfigurationDescSize + \
     gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
-#define gamepadreportDescSize   55
+#define gamepadReportDescSize   55
 #define stringLangIdSize 4
 #define gamepadStringVendorSize 6
 #define gamepadStringProductSize 8
-
-// descriptor concatenator (a part of GetDescr request)
-int descCat(uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);
 
 // descriptors
 const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
@@ -98,11 +95,11 @@ const uint8_t gamepadHidDesc[gamepadHidDescSize] =
     0x33,       // country code SU
     0x01,       // bNumDescriptors
     0x22,       // bDescriptorType, report descriptor
-    gamepadreportDescSize,0x00  // wDescriptorLenght
+    gamepadReportDescSize,0x00  // wDescriptorLenght
 };
 
 // report descriptor for gamepad w d-pad and two buttons
-const uint8_t gamepadReportDesc[gamepadreportDescSize] =
+const uint8_t gamepadReportDesc[gamepadReportDescSize] =
 {
     0x05, 0x01,         // usage_page(Generic Desctop)
     0x09, 0x05,         // usage(Game pad)
