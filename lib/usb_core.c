@@ -27,7 +27,7 @@
 
 volatile usbPropStruct usbProp;
 
-volatile int itCnt = 0;
+volatile int itCnt = 0, succ = 0, reqCnt = 0;
 
 // init functions
 // basic init
@@ -88,10 +88,10 @@ void usbCoreInit()
     usbClockInit();
     usbHidEndpInit();
     usbReportEndpInit();
-    usbProp.deviceState = DEFAULT;
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 0;
+    usbItInit();
 }
 
 void usbHidEndpInit()
@@ -105,10 +105,10 @@ void usbHidEndpInit()
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endpoint 0 address 0, type control endpoint
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
+    // go to the control endpoint idle state
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_NAK);
     epRxStatusSet(0, STAT_TX_NAK);
-    usbProp.epProps[0].isHalt = 0;
 }
 
 void usbReportEndpInit()
@@ -142,7 +142,13 @@ void usbReset()
     USB_DADDR = 0;
     USB_CNTR = 0;
     USB_ISTR = 0;
+    // wait this reaction
     rough_delay_us(100);
+    USB_CNTR &= ~((uint32_t)(FRES));
+    uint32_t timeout = 1e5;
+    while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
+    USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
+    USB_ISTR = 0;
     // init again
     usbHidEndpInit();
     usbReportEndpInit();
@@ -213,6 +219,31 @@ void interruptEpHandler()
     epRxStatusSet(1, STAT_TX_NAK);
 }
 
+void reqHandler()
+{
+    requestTyp request;
+    // set to NAK first, cause USB device is busy while handle requests
+    epRxStatusSet(0, STAT_RX_NAK);
+    epTxStatusSet(0, STAT_TX_NAK);
+    // work with request
+    reqCopy(&request);
+    int reqStatus = stReqHandler(&request);
+    if( reqStatus == NOT_ST_REQ ) {
+        reqStatus = hidReqHandler(&request);
+    }
+    // in case of error return to the idle state but with stall status
+    if( reqStatus < 0 ) {
+        epRxStatusSet(0, STAT_RX_STALL);
+        epTxStatusSet(0, STAT_TX_STALL);
+        controlDtogInit();
+    } else     ++succ;
+    // send null packet if request without data stage handled successfully
+    if( reqStatus == NULL_REQ ) {
+        controlTxData0();
+    }
+    ++reqCnt;
+}
+
 void usbCore()
 {
     ++itCnt;
@@ -224,10 +255,10 @@ void usbCore()
         ctrF();
     }
     if(USB_ISTR & WKUPM) {
-        usbWkup();
+//        usbWkup();
     }
     if(USB_ISTR & SUSPM) {
-        usbSusp();
+//        usbSusp();
     }
     if(USB_ISTR & RESET) {
         usbReset();
@@ -293,34 +324,8 @@ void reqCopy(requestTyp *request)
 
 int isRequest()
 {
-    if( (USB_EP0R & SETUP) > 0 ) {
-        return 1;
-    }
+    if( (USB_EP0R & SETUP) != 0 ) return 1;
     return 0;
-}
-
-void reqHandler()
-{
-    requestTyp request;
-    // set to NAK first, cause USB device is busy while handle requests
-    epRxStatusSet(0, STAT_RX_NAK);
-    epTxStatusSet(0, STAT_TX_NAK);
-    // work with request
-    reqCopy(&request);
-    int reqStatus = stReqHandler(&request);
-    if( reqStatus == NOT_ST_REQ ) {
-        reqStatus = hidReqHandler(&request);
-    }
-    // in case of error return to the idle state but with stall status
-    if( reqStatus < 0 ) {
-        epRxStatusSet(0, STAT_RX_STALL);
-        epTxStatusSet(0, STAT_TX_STALL);
-        controlDtogInit();
-    }
-    // send null packet if request without data stage handled successfully
-    if( reqStatus == NULL_REQ ) {
-        controlTxData0();
-    }
 }
 
 // method overloading imitation for control endpoint tx functions
