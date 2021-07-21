@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "usb_hid.h"
 #include "usb_core.h"
 #include "usb_st_req.h"
 

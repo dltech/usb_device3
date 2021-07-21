@@ -17,8 +17,6 @@
  * limitations under the License.
  */
 #include "gamepad_port.h"
-#include "usb_core.h"
-#include "usb_st_req.h"
 #include "usb_hid.h"
 
 int getReportReqHandler(requestTyp *request);

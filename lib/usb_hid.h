@@ -18,7 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "usb_st_req.h"
+#include <inttypes.h>
+#include "usb_core.h"
 
 // bRequest
 #define GET_REPORT      0x01

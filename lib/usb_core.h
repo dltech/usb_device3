@@ -18,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <inttypes.h>
 
 #define EP0_BUFFER_SIZE         64*2
 #define EP1_BUFFER_SIZE         4
