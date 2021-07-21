@@ -27,8 +27,11 @@
 
 volatile usbPropStruct usbProp;
 
+volatile int itCnt = 0;
+
 // init functions
 // basic init
+void usbGpioInit(void);
 void usbClockInit(void);
 void usbItInit(void);
 // endpoints init
@@ -47,32 +50,41 @@ void interruptEpHandler(void);
 void reqCopy(requestTyp *request);
 int isRequest(void);
 void reqHandler(void);
-// ep ass-tricky register, control functions
-void epTxStatusSet(int ep, uint16_t status);
-void epRxStatusSet(int ep, uint16_t status);
-void controlDtogInit(void);
-void defaultDtogInit(int nep);
+
+void usbGpioInit()
+{
+    RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
+    GPIOA_CRH |= GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << (USBDM_PIN_INIT*4) \
+               | GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << (USBDP_PIN_INIT*4);
+}
 
 void usbClockInit()
 {
-    RCC_AHBENR |= RCC_AHBENR_OTGFSEN;
+//    RCC_AHBENR |= RCC_AHBENR_OTGFSEN;
+    RCC_APB1ENR |= RCC_APB1ENR_USBEN;
     // usb on
     USB_CNTR &= ~PDWN;
-    rough_delay_us(1);
+    rough_delay_us(2);
     USB_ISTR = 0;
     // reset usb
     USB_CNTR &= ~FRES;
+    uint32_t timeout = 1e6;
+    while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
+    USB_ISTR = 0;
+    USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
+    USB_ISTR = 0;
 }
 
 void usbItInit()
 {
-    USB_CNTR |= CTRM | WKUPM | SUSPM | RESETM;
-    nvic_enable_irq(NVIC_USB_HP_CAN_TX_IRQ);
-    nvic_set_priority(NVIC_USB_HP_CAN_TX_IRQ, 0x00);
+    USB_CNTR = CTRM | WKUPM | SUSPM | RESETM;
+    nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+    nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
 }
 
 void usbCoreInit()
 {
+    usbGpioInit();
     usbClockInit();
     usbHidEndpInit();
     usbReportEndpInit();
@@ -102,7 +114,7 @@ void usbHidEndpInit()
 void usbReportEndpInit()
 {
     // endpoint 1 tx buffer
-    USB_ADDR1_TX  = EP1_TX_START;
+    USB_ADDR1_TX = EP1_TX_START;
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
     defaultDtogInit(1);
@@ -203,6 +215,7 @@ void interruptEpHandler()
 
 void usbCore()
 {
+    ++itCnt;
     if( ((USB_ISTR & CTR) != 0) && isRequest() ) {
         USB_ISTR = 0;
         reqHandler();
@@ -234,57 +247,12 @@ void reportTx(uint8_t report)
     epTxStatusSet(1, STAT_TX_VALID);
 }
 
-// work with status bits
-void epTxStatusSet(int ep, uint16_t status)
-{
-    // toggle bit 0, if it's nesessary
-    if( (USB_EP0R & (1<<STAT_TX_OFFS)) != (status & (1<<STAT_TX_OFFS)) ) {
-        USB_EPNR(ep) = (1<<STAT_TX_OFFS) | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
-    }
-    // toggle bit 1
-    if( (USB_EP1R & (1<<(STAT_TX_OFFS+1))) != (status & (1<<(STAT_TX_OFFS+1))) ) {
-        USB_EPNR(ep) = (1<<(STAT_TX_OFFS+1)) | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
-    }
-}
-
-void epRxStatusSet(int ep, uint16_t status)
-{
-    if( (USB_EP0R & (1<<STAT_RX_OFFS)) != (status & (1<<STAT_RX_OFFS)) ) {
-        USB_EPNR(ep) = (1<<STAT_RX_OFFS) | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
-    }
-    if( (USB_EP1R & (1<<(STAT_RX_OFFS+1))) != (status & (1<<(STAT_RX_OFFS+1))) ) {
-        USB_EPNR(ep) = (1<<(STAT_RX_OFFS+1)) | USB_EP_RCWO_MASK | (USB_EPNR(ep)&EA_MASK);
-    }
-}
-
 // core functions which called by requests
 void setAddr(uint8_t addr)
 {
     USB_DADDR &= ~ADD_MASK;
     USB_DADDR |= addr & ADD_MASK;
     usbProp.deviceState = ADDRESS;
-}
-
-void controlDtogInit()
-{
-    // set dtog_tx = 1, dtog_rx = 0
-    if( (USB_EP0R & DTOG_TX) == 0 ) {
-        USB_EP0R = DTOG_TX | USB_EP_RCWO_MASK | (USB_EP0R&EA_MASK);
-    }
-    if( (USB_EP0R & DTOG_RX) != 0 ) {
-        USB_EP0R = DTOG_RX | USB_EP_RCWO_MASK | (USB_EP0R&EA_MASK);
-    }
-}
-
-void defaultDtogInit(int nep)
-{
-    // set dtog_tx = 0, dtog_rx = 0
-    if( (USB_EPNR(nep) & DTOG_TX) != 0 ) {
-        USB_EPNR(nep) = DTOG_TX | USB_EP_RCWO_MASK | (USB_EPNR(nep)&EA_MASK);
-    }
-    if( (USB_EPNR(nep) & DTOG_RX) != 0 ) {
-        USB_EPNR(nep) = DTOG_RX | USB_EP_RCWO_MASK | (USB_EPNR(nep)&EA_MASK);
-    }
 }
 
 int epHaltSet(int ep)
@@ -349,7 +317,7 @@ void reqHandler()
         epTxStatusSet(0, STAT_TX_STALL);
         controlDtogInit();
     }
-    // send null packet if request without data stage and handled successfully
+    // send null packet if request without data stage handled successfully
     if( reqStatus == NULL_REQ ) {
         controlTxData0();
     }

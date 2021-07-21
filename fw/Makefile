@@ -9,6 +9,7 @@ CFILES += gamepad.c
 CFILES += usb_core.c
 CFILES += usb_hid.c
 CFILES += usb_st_req.c
+CFILES += usb_device_regs.c
 
 
 DEVICE=stm32f103C8T6

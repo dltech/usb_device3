@@ -18,6 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "../libopencm3/include/libopencm3/stm32/gpio.h"
 #include <inttypes.h>
 
 #define EP0_BUFFER_SIZE         64*2
@@ -31,6 +32,11 @@
 // endpoints
 #define NUM_OF_EP   2
 #define configValue 0x01
+// pins
+#define USBDM_PIN_INIT          3
+#define USBDP_PIN_INIT          4
+#define USBDM_PIN               GPIO11
+#define USBDP_PIN               GPIO12
 
 enum deviceStates {
     DEV_RESET = 0,

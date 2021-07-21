@@ -10,6 +10,7 @@ void sysClk()
     uint32_t timeout = 1e8;
     while ( ((RCC_CR & RCC_CR_HSERDY) == 0) && (--timeout > 1) );
     // рассчет на тактирование от кварца 8 мГц, на максимальную частоту в 72 мГц
+    // тактирование USB естесственно enabled
     // AHB, APB1, APB2 36 (разрешенный максимум)
     // APB2 36 мГц (для таймеров 72), на АЦП забили, не используем.
     uint32_t cfgr = (RCC_CFGR_USBPRE_PLL_CLK_DIV1_5 << 22)                  \

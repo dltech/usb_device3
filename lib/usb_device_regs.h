@@ -219,4 +219,10 @@
 #define USB_ADDRN_RX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x04 + 0x08*n)*2)
 #define USB_COUNTN_RX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x06 + 0x08*n)*2)
 
+// ep ass-tricky register, control functions
+void epTxStatusSet(int ep, uint16_t status);
+void epRxStatusSet(int ep, uint16_t status);
+void controlDtogInit(void);
+void defaultDtogInit(int nep);
+
 #endif
