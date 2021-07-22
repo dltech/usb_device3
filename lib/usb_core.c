@@ -27,7 +27,7 @@
 
 volatile usbPropStruct usbProp;
 
-volatile int itCnt = 0, succ = 0, reqCnt = 0;
+volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0;
 
 // init functions
 // basic init
@@ -48,7 +48,6 @@ void controlEpHandler(void);
 void interruptEpHandler(void);
 // request handler
 void reqCopy(requestTyp *request);
-int isRequest(void);
 void reqHandler(void);
 
 void usbGpioInit()
@@ -127,7 +126,8 @@ void usbReset()
 {
     usbProp.deviceState = DEV_RESET;
     USB_DADDR = EF | 0x00;
-    USB_CNTR &= ~(RESETM);
+    // disable all interrupts
+    USB_CNTR = 0;
     USB_CNTR |= FRES;
     // clear all endpoint related registers
     for(int i=0 ; i<NUM_OF_EP ; ++i) {
@@ -142,8 +142,9 @@ void usbReset()
     USB_DADDR = 0;
     USB_CNTR = 0;
     USB_ISTR = 0;
-    // wait this reaction
+    // wait as it says in standard
     rough_delay_us(100);
+    // wait this reaction
     USB_CNTR &= ~((uint32_t)(FRES));
     uint32_t timeout = 1e5;
     while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
@@ -191,6 +192,7 @@ void usbWkup()
 
 void ctrF()
 {
+
     switch(USB_ISTR & EP_ID_MASK)
     {
         case 0:
@@ -205,8 +207,16 @@ void ctrF()
 void controlEpHandler()
 {
     USB_ISTR = 0;
-    // I think that ACK is received, come back again in the idle state
-    // Cause data sequence in my core consists of only one packet
+    USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
+    // in case of setup packet is received call request handler
+    if(USB_EP0R & SETUP) {
+        reqHandler();
+        return;
+    }
+    // In all other cases, usually after TX ACK is received, come
+    // back again in the idle state. Cause data sequence in my core
+    // consists of only one packet.
+    USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
     epRxStatusSet(0, STAT_RX_NAK);
     epRxStatusSet(0, STAT_TX_NAK);
     controlDtogInit();
@@ -215,6 +225,7 @@ void controlEpHandler()
 void interruptEpHandler()
 {
     USB_ISTR = 0;
+    USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
     // all right, wait for the next timer interrupt
     epRxStatusSet(1, STAT_TX_NAK);
 }
@@ -247,21 +258,21 @@ void reqHandler()
 void usbCore()
 {
     ++itCnt;
-    if( ((USB_ISTR & CTR) != 0) && isRequest() ) {
-        USB_ISTR = 0;
-        reqHandler();
-    }
-    if( ((USB_ISTR & CTR) != 0) && (isRequest() == 0) ) {
+    if((USB_ISTR & CTR) != 0) {
         ctrF();
+        ++ctrCnt;
     }
     if(USB_ISTR & WKUPM) {
 //        usbWkup();
+        ++wkCnt;
     }
     if(USB_ISTR & SUSPM) {
 //        usbSusp();
+        ++suspCnt;
     }
     if(USB_ISTR & RESET) {
         usbReset();
+        ++resCnt;
     }
     USB_ISTR = 0;
 }
@@ -320,12 +331,6 @@ void reqCopy(requestTyp *request)
     request->wIndex = *pBuf.w++;
     pBuf.w++;
     request->wLength = *pBuf.w++;
-}
-
-int isRequest()
-{
-    if( (USB_EP0R & SETUP) != 0 ) return 1;
-    return 0;
 }
 
 // method overloading imitation for control endpoint tx functions

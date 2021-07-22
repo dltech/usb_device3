@@ -151,6 +151,7 @@
 #define EA_OFFS             0
 // mask for safe modyfying
 #define USB_EP_RCWO_MASK    0x8080
+#define USB_EP_RESET_CTR_MASK 0x060f
 
 /* USB RAM table */
 /* Transmission buffer address 0 */

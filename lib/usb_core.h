@@ -28,7 +28,7 @@
 #define USB_TABLE_END           USB_TABLE_ADDR + 0x40
 #define EP0_TX_START            USB_TABLE_END
 #define EP0_RX_START            EP0_TX_START + EP0_BUFFER_SIZE
-#define EP1_TX_START            EP0_RX_START
+#define EP1_TX_START            EP0_RX_START + EP0_BUFFER_SIZE+8
 // endpoints
 #define NUM_OF_EP   2
 #define configValue 0x01
