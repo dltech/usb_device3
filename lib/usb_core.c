@@ -106,8 +106,8 @@ void usbHidEndpInit()
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     // go to the control endpoint idle state
     controlDtogInit();
-    epRxStatusSet(0, STAT_RX_NAK);
-    epRxStatusSet(0, STAT_TX_NAK);
+    epRxStatusSet(0, STAT_RX_VALID);
+    epTxStatusSet(0, STAT_TX_NAK);
 }
 
 void usbReportEndpInit()
@@ -118,7 +118,7 @@ void usbReportEndpInit()
     USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
     defaultDtogInit(1);
     epRxStatusSet(1, STAT_RX_DISABLED);
-    epRxStatusSet(1, STAT_TX_NAK);
+    epTxStatusSet(1, STAT_TX_NAK);
     usbProp.epProps[1].isHalt = 0;
 }
 
@@ -217,8 +217,8 @@ void controlEpHandler()
     // back again in the idle state. Cause data sequence in my core
     // consists of only one packet.
     USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
-    epRxStatusSet(0, STAT_RX_NAK);
-    epRxStatusSet(0, STAT_TX_NAK);
+    epRxStatusSet(0, STAT_RX_VALID);
+    epTxStatusSet(0, STAT_TX_NAK);
     controlDtogInit();
 }
 
@@ -227,7 +227,7 @@ void interruptEpHandler()
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
     // all right, wait for the next timer interrupt
-    epRxStatusSet(1, STAT_TX_NAK);
+    epTxStatusSet(1, STAT_TX_NAK);
 }
 
 void reqHandler()
@@ -337,8 +337,8 @@ void reqCopy(requestTyp *request)
 void controlTxData0()
 {
     USB_COUNT0_TX = 0;
-    epTxStatusSet(0, STAT_TX_VALID);
     epRxStatusSet(0, STAT_RX_STALL);
+    epTxStatusSet(0, STAT_TX_VALID);
 }
 
 void controlTxData1(uint8_t data)
@@ -346,8 +346,8 @@ void controlTxData1(uint8_t data)
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     *bufferPtr = (uint16_t)data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
-    epTxStatusSet(0, STAT_TX_VALID);
     epRxStatusSet(0, STAT_RX_STALL);
+    epTxStatusSet(0, STAT_TX_VALID);
 }
 
 void controlTxData2(uint16_t data)
@@ -355,8 +355,8 @@ void controlTxData2(uint16_t data)
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     *bufferPtr = data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
-    epTxStatusSet(0, STAT_TX_VALID);
     epRxStatusSet(0, STAT_RX_STALL);
+    epTxStatusSet(0, STAT_TX_VALID);
 }
 
 void controlTxDataN(uint8_t *data, int size)
@@ -375,12 +375,13 @@ void controlTxDataN(uint8_t *data, int size)
         ++size;
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
-    epTxStatusSet(0, STAT_TX_VALID);
     epRxStatusSet(0, STAT_RX_STALL);
+    epTxStatusSet(0, STAT_TX_VALID);
 }
 
 // Concatenation to make descriptors in request readable form
-int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen) {
+int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen)
+{
     int i = prev;
     for( ; (i<mainLen) && (i<size) ; ++i) {
         out[i] = in[i - prev];
