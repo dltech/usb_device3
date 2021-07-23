@@ -56,6 +56,11 @@ void usbGpioInit()
                | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
                | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
                | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
+
+    // GPIOA_CRH = (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDM_PIN_INIT*4)+2)) \
+    //            | (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDP_PIN_INIT*4)+2)) \
+    //            | (GPIO_MODE_INPUT << (USBDM_PIN_INIT*4)) \
+    //            | (GPIO_MODE_INPUT << (USBDP_PIN_INIT*4));
 }
 
 void usbClockInit()
@@ -77,10 +82,11 @@ void usbClockInit()
 
 void usbItInit()
 {
-    //init userful interrupts
+    // init userful interrupts
     USB_CNTR = CTRM | WKUPM | SUSPM | RESETM;
     // init unuserful interrupts
-    USB_CNTR |= ERRM | PMAOVRM | SOFM | ESOFM;
+    USB_CNTR |= ERRM | PMAOVRM | SOFM;
+//    USB_CNTR |= ESOFM;
     nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
     nvic_enable_irq(NVIC_USB_WAKEUP_IRQ);
     nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
@@ -307,7 +313,7 @@ void usbCore()
         ++esofCnt;
         if( (esofCnt > 3) && ((USB_ISTR & SUSPM) == 0) ) {
             esofCnt = 0;
-            usbReset();
+//            usbReset();
         }
         ++esofCntDbg;
     }

@@ -10,16 +10,16 @@ void sysClk()
     uint32_t timeout = 1e8;
     while ( ((RCC_CR & RCC_CR_HSERDY) == 0) && (--timeout > 1) );
     // рассчет на тактирование от кварца 8 мГц, на максимальную частоту в 72 мГц
-    // тактирование USB естесственно enabled
-    // AHB, APB1, APB2 36 (разрешенный максимум)
-    // APB2 36 мГц (для таймеров 72), на АЦП забили, не используем.
+    // тактирование USB настроено нормально
+    // AHB 72, APB1 36, APB2 72 (разрешенный максимум)
+    // на АЦП забили, не используем.
     uint32_t cfgr = (RCC_CFGR_USBPRE_PLL_CLK_DIV1_5 << 22)                  \
                   | (RCC_CFGR_PLLMUL_PLL_CLK_MUL9 << RCC_CFGR_PLLMUL_SHIFT) \
                   | (RCC_CFGR_PLLXTPRE_HSE_CLK << 17)                       \
                   | (RCC_CFGR_PLLSRC_HSE_CLK << 16)                         \
                   | (RCC_CFGR_PPRE2_HCLK_NODIV << RCC_CFGR_PPRE2_SHIFT)     \
-                  | (RCC_CFGR_PPRE1_HCLK_NODIV << RCC_CFGR_PPRE1_SHIFT)     \
-                  | (RCC_CFGR_HPRE_SYSCLK_DIV2 << RCC_CFGR_HPRE_SHIFT);
+                  | (RCC_CFGR_PPRE1_HCLK_DIV2 << RCC_CFGR_PPRE1_SHIFT)     \
+                  | (RCC_CFGR_HPRE_SYSCLK_NODIV << RCC_CFGR_HPRE_SHIFT);
     RCC_CFGR = cfgr;
     // что то с памятью, копипаста с функций stmhal
     FLASH_ACR |= (uint32_t)FLASH_ACR_PRFTBE;
