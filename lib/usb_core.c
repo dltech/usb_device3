@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
 #include "../libopencm3/include/libopencm3/stm32/rcc.h"
 #include "mysys.h"
@@ -27,7 +26,7 @@
 
 volatile usbPropStruct usbProp;
 
-volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0;
+volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0;
 
 // init functions
 // basic init
@@ -53,8 +52,10 @@ void reqHandler(void);
 void usbGpioInit()
 {
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA_CRH |= GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << (USBDM_PIN_INIT*4) \
-               | GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << (USBDP_PIN_INIT*4);
+    GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
+               | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
+               | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
+               | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
 }
 
 void usbClockInit()
@@ -76,8 +77,12 @@ void usbClockInit()
 
 void usbItInit()
 {
+    //init userful interrupts
     USB_CNTR = CTRM | WKUPM | SUSPM | RESETM;
+    // init unuserful interrupts
+    USB_CNTR |= ERRM | PMAOVRM | SOFM | ESOFM;
     nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+    nvic_enable_irq(NVIC_USB_WAKEUP_IRQ);
     nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
 }
 
@@ -90,6 +95,7 @@ void usbCoreInit()
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 0;
+    USB_DADDR = 0;
     usbItInit();
 }
 
@@ -103,6 +109,7 @@ void usbHidEndpInit()
     USB_COUNT0_RX = BL_SIZE_32B | \
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endpoint 0 address 0, type control endpoint
+//    USB_EP0R = EP_KIND | EP_TYPE_CONTROL | (0 & EA_MASK);
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     // go to the control endpoint idle state
     controlDtogInit();
@@ -160,6 +167,7 @@ void usbReset()
 // I don't know how it works. It's just the shadow of MCD team code.
 void usbSusp()
 {
+    if(usbProp.isSusp == 1) return;
     usbProp.isSusp = 1;
     // instanteous reset
     // unmask interrupts
@@ -178,21 +186,28 @@ void usbSusp()
     USB_CNTR |= FSUSP;
     // USB low power mode and slow clock
     USB_CNTR |= LP_MODE;
-    suspSysClk();
+    USB_CNTR |= RESETM;
+//    suspSysClk();
 }
 
 void usbWkup()
 {
+    if(usbProp.isSusp == 0) return;
     usbProp.isSusp = 0;
-    sysClk();
+//    sysClk();
     USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
     USB_ISTR = 0;
+    defaultDtogInit(1);
+    epRxStatusSet(1, STAT_RX_DISABLED);
+    epTxStatusSet(1, STAT_TX_NAK);
+    controlDtogInit();
+    epRxStatusSet(0, STAT_RX_VALID);
+    epTxStatusSet(0, STAT_TX_NAK);
     USB_CNTR |= RESETM;
 }
 
 void ctrF()
 {
-
     switch(USB_ISTR & EP_ID_MASK)
     {
         case 0:
@@ -207,6 +222,7 @@ void ctrF()
 void controlEpHandler()
 {
     USB_ISTR = 0;
+//    USB_EP0R = EP_KIND | (USB_EP_RESET_CTR_MASK & USB_EP0R);
     USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
     // in case of setup packet is received call request handler
     if(USB_EP0R & SETUP) {
@@ -216,7 +232,7 @@ void controlEpHandler()
     // In all other cases, usually after TX ACK is received, come
     // back again in the idle state. Cause data sequence in my core
     // consists of only one packet.
-    USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
+//    USB_EP0R = EP_KIND | (USB_EP_RESET_CTR_MASK & USB_EP0R);
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_NAK);
     controlDtogInit();
@@ -255,24 +271,45 @@ void reqHandler()
     ++reqCnt;
 }
 
+
+volatile int esofCntDbg = 0, sofCnt = 0, ovrCnt = 0;
 void usbCore()
 {
+    static int esofCnt = 0;
     ++itCnt;
-    if((USB_ISTR & CTR) != 0) {
+    if(USB_ISTR & CTR) {
         ctrF();
         ++ctrCnt;
     }
     if(USB_ISTR & WKUPM) {
-//        usbWkup();
+        usbWkup();
         ++wkCnt;
     }
     if(USB_ISTR & SUSPM) {
-//        usbSusp();
+        usbSusp();
         ++suspCnt;
     }
     if(USB_ISTR & RESET) {
         usbReset();
         ++resCnt;
+    }
+    // unusable interrupts
+    if(USB_ISTR & ERR) {
+        ++errCnt;
+    }
+    if(USB_ISTR & PMAOVR) {
+        ++ovrCnt;
+    }
+    if(USB_ISTR & SOF) {
+        ++sofCnt;
+    }
+    if(USB_ISTR & ESOF) {
+        ++esofCnt;
+        if( (esofCnt > 3) && ((USB_ISTR & SUSPM) == 0) ) {
+            esofCnt = 0;
+            usbReset();
+        }
+        ++esofCntDbg;
     }
     USB_ISTR = 0;
 }
@@ -387,4 +424,11 @@ int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t m
         out[i] = in[i - prev];
     }
     return i;
+}
+
+// yet another wakeup interrupt line
+void usb_wakeup_isr()
+{
+    usbWkup();
+    ++wkCnt;
 }

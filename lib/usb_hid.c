@@ -80,6 +80,7 @@ int setIdleReqHandler(requestTyp *requestt)
 void sendReport(uint8_t report, int *ms)
 {
     static uint8_t prevReport;
+    if( usbProp.epProps[1].isHalt == 1 ) return;
     if( (usbProp.reportDuration == 0) && (prevReport != report) ) {
         reportTx(report);
         *ms = 0;
