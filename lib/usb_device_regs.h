@@ -171,8 +171,8 @@
 /* Reception byte count 0 */
 #define USB_COUNT0_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x06)*2)
 // block size (rw)
-#define BL_SIZE_2B      0x8000
-#define BL_SIZE_32B     0x0000
+#define BL_SIZE_2B      0x0000
+#define BL_SIZE_32B     0x8000
 // number of blocks (rw)
 #define NUM_BLOCK_MASK  0x7c00
 #define NUM_BLOCK_OFFS  10

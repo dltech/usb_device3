@@ -52,10 +52,11 @@ void reqHandler(void);
 void usbGpioInit()
 {
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
-               | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
-               | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
-               | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
+    // does not affect anything
+    // GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
+    //            | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
+    //            | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
+    //            | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
 
     // GPIOA_CRH = (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDM_PIN_INIT*4)+2)) \
     //            | (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDP_PIN_INIT*4)+2)) \
@@ -101,8 +102,8 @@ void usbCoreInit()
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 0;
-    USB_DADDR = 0;
     usbItInit();
+    USB_DADDR = EF;
 }
 
 void usbHidEndpInit()
@@ -152,7 +153,7 @@ void usbReset()
         USB_ADDRN_RX(i) = 0;
         USB_COUNTN_RX(i) = 0;
     }
-    USB_DADDR = 0;
+    USB_DADDR = EF;
     USB_CNTR = 0;
     USB_ISTR = 0;
     // wait as it says in standard
@@ -292,7 +293,7 @@ void usbCore()
         ++wkCnt;
     }
     if(USB_ISTR & SUSPM) {
-        usbSusp();
+//        usbSusp();
         ++suspCnt;
     }
     if(USB_ISTR & RESET) {
@@ -323,7 +324,7 @@ void usbCore()
 void reportTx(uint8_t report)
 {
     // get the poiner to packet buffer from table
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
     // put data into buffer
     *bufferPtr = (uint16_t)report;
     // the size is 2 bytes because memory is word-aligned
@@ -335,8 +336,7 @@ void reportTx(uint8_t report)
 // core functions which called by requests
 void setAddr(uint8_t addr)
 {
-    USB_DADDR &= ~ADD_MASK;
-    USB_DADDR |= addr & ADD_MASK;
+    USB_DADDR = EF | (addr & ADD_MASK);
     usbProp.deviceState = ADDRESS;
 }
 
@@ -365,7 +365,7 @@ void reqCopy(requestTyp *request)
       uint8_t* b;
       uint16_t* w;
     } pBuf;
-    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
+    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE_MY);
     request->bmRequestType = *pBuf.b++;
     request->bRequest = *pBuf.b++;
     pBuf.w++;
@@ -386,7 +386,7 @@ void controlTxData0()
 
 void controlTxData1(uint8_t data)
 {
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = (uint16_t)data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
     epRxStatusSet(0, STAT_RX_STALL);
@@ -395,7 +395,7 @@ void controlTxData1(uint8_t data)
 
 void controlTxData2(uint16_t data)
 {
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
     epRxStatusSet(0, STAT_RX_STALL);
@@ -407,14 +407,20 @@ void controlTxDataN(uint8_t *data, int size)
     if(size <= 2) return;
     // byte alingment
     uint16_t *input = (uint16_t*)data;
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint32_t temp1, temp2;
     int i=0;
     for(i=0 ; i<(size/2) ; ++i) {
-        bufferPtr[i] = input[i];
+        temp1 = (uint16_t) * data;
+        data++;
+        temp2 = temp1 | ((uint16_t) * data << 8);
+        *bufferPtr++ = temp2;
+        data++;
+        bufferPtr++;
     }
     // last byte to 16 bit
     if( (size%2) > 0 ) {
-        *(bufferPtr+i) = (uint16_t)data[size-1];
+        *bufferPtr = (uint16_t)data[size-1];
         ++size;
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
