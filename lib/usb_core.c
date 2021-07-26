@@ -27,6 +27,7 @@
 volatile usbPropStruct usbProp;
 
 volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0;
+volatile uint32_t reqTrace[100], ii = 0, tchk;
 
 // init functions
 // basic init
@@ -97,8 +98,6 @@ void usbCoreInit()
 {
     usbGpioInit();
     usbClockInit();
-    usbHidEndpInit();
-    usbReportEndpInit();
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 0;
@@ -156,12 +155,12 @@ void usbReset()
     USB_DADDR = EF;
     USB_CNTR = 0;
     USB_ISTR = 0;
-    // wait as it says in standard
-    rough_delay_us(100);
+    rough_delay_us(1);
     // wait this reaction
+    uint32_t timeout = 1e4;
     USB_CNTR &= ~((uint32_t)(FRES));
-    uint32_t timeout = 1e5;
     while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
+    tchk = timeout;
     USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
     USB_ISTR = 0;
     // init again
@@ -185,6 +184,7 @@ void usbSusp()
     // wait this reaction
     uint32_t timeout = 1e5;
     while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
+
     USB_ISTR = 0;
     // after which we need to restore endp registers only (why endpoints only?)
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
@@ -229,17 +229,16 @@ void ctrF()
 void controlEpHandler()
 {
     USB_ISTR = 0;
-//    USB_EP0R = EP_KIND | (USB_EP_RESET_CTR_MASK & USB_EP0R);
-    USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
     // in case of setup packet is received call request handler
-    if(USB_EP0R & SETUP) {
+    if((USB_EP0R & SETUP) && (USB_EP0R & CTR_RX)) {
+        USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
         reqHandler();
         return;
     }
     // In all other cases, usually after TX ACK is received, come
     // back again in the idle state. Cause data sequence in my core
     // consists of only one packet.
-//    USB_EP0R = EP_KIND | (USB_EP_RESET_CTR_MASK & USB_EP0R);
+    USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_NAK);
     controlDtogInit();
@@ -257,14 +256,22 @@ void reqHandler()
 {
     requestTyp request;
     // set to NAK first, cause USB device is busy while handle requests
-    epRxStatusSet(0, STAT_RX_NAK);
-    epTxStatusSet(0, STAT_TX_NAK);
+//    epRxStatusSet(0, STAT_RX_NAK);
+//    epTxStatusSet(0, STAT_TX_NAK);
     // work with request
     reqCopy(&request);
     int reqStatus = stReqHandler(&request);
     if( reqStatus == NOT_ST_REQ ) {
         reqStatus = hidReqHandler(&request);
     }
+    reqTrace[ii++] = request.bmRequestType;
+    reqTrace[ii++] = request.bRequest;
+    reqTrace[ii++] = request.wValue;
+    reqTrace[ii++] = request.wIndex;
+    reqTrace[ii++] = request.wLength;
+    reqTrace[ii++] = reqStatus;
+    reqTrace[ii++] = 3333;
+    if(ii>50) ii=0;
     // in case of error return to the idle state but with stall status
     if( reqStatus < 0 ) {
         epRxStatusSet(0, STAT_RX_STALL);
@@ -277,7 +284,6 @@ void reqHandler()
     }
     ++reqCnt;
 }
-
 
 volatile int esofCntDbg = 0, sofCnt = 0, ovrCnt = 0;
 void usbCore()
@@ -379,9 +385,15 @@ void reqCopy(requestTyp *request)
 // method overloading imitation for control endpoint tx functions
 void controlTxData0()
 {
-    USB_COUNT0_TX = 0;
-    epRxStatusSet(0, STAT_RX_STALL);
-    epTxStatusSet(0, STAT_TX_VALID);
+/*    USB_COUNT0_TX = 0;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    *bufferPtr = 0;
+    controlDtogInit();
+    epRxStatusSet(0, STAT_RX_VALID);
+    epTxStatusSet(0, STAT_TX_VALID); */
+    controlDtogInit();
+    epRxStatusSet(0, STAT_RX_VALID);
+    epTxStatusSet(0, STAT_TX_NAK);
 }
 
 void controlTxData1(uint8_t data)
@@ -389,7 +401,8 @@ void controlTxData1(uint8_t data)
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = (uint16_t)data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
-    epRxStatusSet(0, STAT_RX_STALL);
+    controlDtogInit();
+    epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
@@ -398,19 +411,20 @@ void controlTxData2(uint16_t data)
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
-    epRxStatusSet(0, STAT_RX_STALL);
+    controlDtogInit();
+    epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
 void controlTxDataN(uint8_t *data, int size)
 {
+    controlDtogInit();
     if(size <= 2) return;
     // byte alingment
     uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     uint32_t temp1, temp2;
-    int i=0;
-    for(i=0 ; i<(size/2) ; ++i) {
+    for(int i=0 ; i<(size/2) ; ++i) {
         temp1 = (uint16_t) * data;
         data++;
         temp2 = temp1 | ((uint16_t) * data << 8);
@@ -421,10 +435,9 @@ void controlTxDataN(uint8_t *data, int size)
     // last byte to 16 bit
     if( (size%2) > 0 ) {
         *bufferPtr = (uint16_t)data[size-1];
-        ++size;
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
-    epRxStatusSet(0, STAT_RX_STALL);
+    epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
 }
 

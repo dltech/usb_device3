@@ -12,8 +12,8 @@ int main(void) {
 		reg3 = USB_EP0R;
 		reg4 = GPIOA_CRH;
 		reg5 = USB_COUNT0_RX;
-		reg6 = USB_ADDR0_TX;
-		reg7 = USB_ADDR0_RX;
-		reg8 = USB_ADDR1_TX;
+		reg6 = USB_DADDR;
+		reg7 = USB_COUNT0_TX;
+		reg8 = USB_EP1R;
 	}
 }

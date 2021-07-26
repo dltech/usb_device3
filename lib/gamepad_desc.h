@@ -43,8 +43,8 @@ const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
     0x00,       // bDeviceSubclass, not used
     0x00,       // bDeviceProtocol, not used
     0x40,       // bMaxPacketSize0, maximum size 64 byte
-    0xC4,0x10,  // idVendor, SiLabs
-    0x00,0x00,  // idProduct
+    0x83,0x04,  // idVendor, SiLabs 0xc4 0x10
+    0x75,0x40,  // idProduct
     0x00,0x01,  // bcdDevice
     0x01,       // iManufacter
     0x02,       // iProduct

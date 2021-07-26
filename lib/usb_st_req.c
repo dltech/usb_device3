@@ -288,7 +288,7 @@ int getDescriptorReqHandler(requestTyp *request)
     uint8_t tmp[request->wLength];
     uint8_t prev = 0;
 
-    switch(request->wValue << 8)
+    switch(request->wValue >> 8)
     {
         case DEVICE_TYP:
             prev = descCat(gamepadDeviseDesc, tmp, 0, gamepadDeviseDescSize, request->wLength);
