@@ -42,6 +42,7 @@ enum deviceStates {
     DEV_RESET = 0,
     DEFAULT,
     ADDRESS,
+    SET_ADDRESS_REQ,
     CONFIGURED
 };
 enum inEpState {
@@ -60,6 +61,7 @@ typedef struct {
     epProp epProps[NUM_OF_EP];
     int deviceState;
     int reportDuration;
+    uint8_t address;
 } usbPropStruct;
 
 // standard request package
@@ -75,7 +77,7 @@ enum reqType {
     REQ_ERROR = -1,
     NULL_REQ = 0,
     DATA_STAGE = 1,
-    NOT_ST_REQ
+    NOT_ST_REQ,
 };
 
 // usb init

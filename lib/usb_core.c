@@ -235,6 +235,13 @@ void controlEpHandler()
         reqHandler();
         return;
     }
+    // because set address request is completed after request
+    if(usbProp.deviceState == SET_ADDRESS_REQ) {
+        USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
+        setAddr(usbProp.address);
+        controlTxData0();
+        return;
+    }
     // In all other cases, usually after TX ACK is received, come
     // back again in the idle state. Cause data sequence in my core
     // consists of only one packet.
@@ -385,15 +392,15 @@ void reqCopy(requestTyp *request)
 // method overloading imitation for control endpoint tx functions
 void controlTxData0()
 {
-/*    USB_COUNT0_TX = 0;
+    USB_COUNT0_TX = 0;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = 0;
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
-    epTxStatusSet(0, STAT_TX_VALID); */
-    controlDtogInit();
+    epTxStatusSet(0, STAT_TX_VALID);
+/*    controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
-    epTxStatusSet(0, STAT_TX_NAK);
+    epTxStatusSet(0, STAT_TX_NAK);*/
 }
 
 void controlTxData1(uint8_t data)

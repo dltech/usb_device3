@@ -18,6 +18,7 @@
  */
 #include "usb_core.h"
 #include "gamepad_desc.h"
+#include "mysys.h"
 #include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;
@@ -100,22 +101,15 @@ int setAddressReqHandler(requestTyp *request)
 {
     // error check
     if( (request->wIndex != 0) || (request->wLength != 0) || \
-       (request->wValue > 127) ) {
+       (request->wValue > 127) || (request->wValue == 0) ) {
         return REQ_ERROR;
-    }
-    // null address exception
-    if( (request->wValue == 0) && (usbProp.deviceState == DEFAULT) ) {
-        return NULL_REQ;
-    }
-    if( (request->wValue == 0) && (usbProp.deviceState == ADDRESS) ) {
-        usbProp.deviceState = DEFAULT;
-        return NULL_REQ;
     }
     // main case, which applies address to the device
     switch ( usbProp.deviceState ) {
         case DEFAULT:
         case ADDRESS:
-            setAddr((uint8_t)request->wValue);
+            usbProp.deviceState = SET_ADDRESS_REQ;
+            usbProp.address = (uint8_t)request->wValue;
             return NULL_REQ;
         case CONFIGURED:
             return REQ_ERROR;
