@@ -50,6 +50,12 @@ enum inEpState {
     EP_SENT,
     EP_ACK
 };
+enum reqStage {
+    CONTROL_SETUP = 0,
+    CONTROL_DATA,
+    CONTROL_STATUS,
+    CONTROL_ERROR
+};
 
 // all usb low-level information
 typedef struct {
@@ -61,6 +67,7 @@ typedef struct {
     epProp epProps[NUM_OF_EP];
     int deviceState;
     int reportDuration;
+    int controlStage;
     uint8_t address;
 } usbPropStruct;
 

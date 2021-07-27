@@ -27,7 +27,7 @@
 volatile usbPropStruct usbProp;
 
 volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0;
-volatile uint32_t reqTrace[100], ii = 0, tchk;
+volatile uint32_t reqTrace[300], ii = 0, tchk;
 
 // init functions
 // basic init
@@ -44,8 +44,9 @@ void usbSusp(void);
 void usbWkup(void);
 // the core
 void ctrF(void);
-void controlEpHandler(void);
-void interruptEpHandler(void);
+void controlEpRx(void);
+void controlEpTx(void);
+void interruptEpTx(void);
 // request handler
 void reqCopy(requestTyp *request);
 void reqHandler(void);
@@ -100,7 +101,7 @@ void usbCoreInit()
     usbClockInit();
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
-    usbProp.reportDuration = 0;
+    usbProp.reportDuration = 33;
     usbItInit();
     USB_DADDR = EF;
 }
@@ -215,30 +216,42 @@ void usbWkup()
 
 void ctrF()
 {
-    switch(USB_ISTR & EP_ID_MASK)
-    {
-        case 0:
-            controlEpHandler();
-            break;
-        case 1:
-            interruptEpHandler();
-            break;
+    if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_RX) ) {
+        reqTrace[ii++] = 5555;
+        controlEpRx();
+    } else if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_TX) ) {
+        reqTrace[ii++] = 6666;
+        controlEpTx();
+    }
+    if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP0R & CTR_TX) ) {
+        interruptEpTx();
     }
 }
 
-void controlEpHandler()
+void controlEpRx()
 {
     USB_ISTR = 0;
     // in case of setup packet is received call request handler
-    if((USB_EP0R & SETUP) && (USB_EP0R & CTR_RX)) {
+    if(USB_EP0R & SETUP) {
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
+        usbProp.controlStage = CONTROL_SETUP;
         reqHandler();
-        return;
     }
+}
+
+void controlEpTx()
+{
+    USB_ISTR = 0;
     // because set address request is completed after request
     if(usbProp.deviceState == SET_ADDRESS_REQ) {
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
         setAddr(usbProp.address);
+        controlTxData0();
+        reqTrace[ii++] = 1111;
+        return;
+    }
+    if(usbProp.controlStage == CONTROL_DATA) {
+        usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
         return;
     }
@@ -251,7 +264,7 @@ void controlEpHandler()
     controlDtogInit();
 }
 
-void interruptEpHandler()
+void interruptEpTx()
 {
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
@@ -276,19 +289,24 @@ void reqHandler()
     reqTrace[ii++] = request.wValue;
     reqTrace[ii++] = request.wIndex;
     reqTrace[ii++] = request.wLength;
-    reqTrace[ii++] = reqStatus;
-    reqTrace[ii++] = 3333;
-    if(ii>50) ii=0;
+    if( reqStatus == DATA_STAGE ) {
+        usbProp.controlStage = CONTROL_DATA;
+    }
     // in case of error return to the idle state but with stall status
     if( reqStatus < 0 ) {
         epRxStatusSet(0, STAT_RX_STALL);
         epTxStatusSet(0, STAT_TX_STALL);
         controlDtogInit();
+        usbProp.controlStage = CONTROL_ERROR;
     } else     ++succ;
     // send null packet if request without data stage handled successfully
     if( reqStatus == NULL_REQ ) {
+        usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
+    reqTrace[ii++] = usbProp.controlStage;
+    reqTrace[ii++] = 3333;
+    if(ii>200) ii=0;
     ++reqCnt;
 }
 
@@ -334,8 +352,10 @@ void usbCore()
     USB_ISTR = 0;
 }
 
+volatile int eee;
 void reportTx(uint8_t report)
 {
+    eee++;
     // get the poiner to packet buffer from table
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
     // put data into buffer
@@ -425,16 +445,14 @@ void controlTxData2(uint16_t data)
 
 void controlTxDataN(uint8_t *data, int size)
 {
-    controlDtogInit();
     if(size <= 2) return;
-    // byte alingment
     uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     uint32_t temp1, temp2;
     for(int i=0 ; i<(size/2) ; ++i) {
         temp1 = (uint16_t) * data;
         data++;
-        temp2 = temp1 | ((uint16_t) * data << 8);
+        temp2 = temp1 | (((uint16_t)*data) << 8);
         *bufferPtr++ = temp2;
         data++;
         bufferPtr++;
@@ -444,6 +462,7 @@ void controlTxDataN(uint8_t *data, int size)
         *bufferPtr = (uint16_t)data[size-1];
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
+    controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
 }
@@ -452,7 +471,7 @@ void controlTxDataN(uint8_t *data, int size)
 int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen)
 {
     int i = prev;
-    for( ; (i<mainLen) && (i<size) ; ++i) {
+    for( ; (i<mainLen) && ((i-prev)<size) ; ++i) {
         out[i] = in[i - prev];
     }
     return i;

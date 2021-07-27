@@ -52,21 +52,21 @@ void gpioInit()
 void pollIrqInit()
 {
     // Timer based interrupt which initiates port poll
-    RCC_APB1ENR |= RCC_APB1ENR_TIM6EN;
-    TIM6_CR1   = (uint32_t) TIM_CR1_CKD_CK_INT;
-    TIM6_PSC   = (uint32_t) POLL_PSC;
-    TIM6_ARR   = (uint32_t) 1;
-    TIM6_DIER  = (uint32_t) TIM_DIER_UIE;
-    TIM6_EGR  |= (uint32_t) TIM_EGR_UG;
-    TIM6_SR = 0;
-    nvic_enable_irq(NVIC_TIM6_IRQ);
-    nvic_set_priority(NVIC_TIM6_IRQ, 0x00);
+    RCC_APB1ENR |= RCC_APB1ENR_TIM2EN;
+    TIM2_CR1   = (uint32_t) TIM_CR1_CKD_CK_INT;
+    TIM2_PSC   = (uint32_t) POLL_PSC;
+    TIM2_ARR   = (uint32_t) 1;
+    TIM2_DIER  = (uint32_t) TIM_DIER_UIE;
+    TIM2_CR1  |= (uint32_t) TIM_CR1_CEN;
+    nvic_enable_irq(NVIC_TIM2_IRQ);
+    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
+    TIM2_SR = 0;
+    TIM2_EGR  |= (uint32_t) TIM_EGR_UG;
 }
 
 void portInit()
 {
     gpioInit();
-    pollIrqInit();
     gamepadPar.upCnt = 0;
     gamepadPar.dnCnt = 0;
     gamepadPar.leftCnt = 0;
@@ -74,6 +74,7 @@ void portInit()
     gamepadPar.button1Cnt = 0;
     gamepadPar.button2Cnt = 0;
     gamepadPar.report = 0;
+    pollIrqInit();
 }
 
 // Information about pressed buttons is obtained by sum of consecutive polls
@@ -153,14 +154,14 @@ void reportUpdate()
     }
 }
 
-void tim6_isr()
+void tim2_isr()
 {
     static int cnt=0;
-    TIM6_SR = 0;
     portPoll();
     reportUpdate();
     ++cnt;
     sendReport(gamepadPar.report, &cnt);
+    TIM2_SR = 0;
 //    wkupByPress();
 }
 

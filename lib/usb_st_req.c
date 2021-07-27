@@ -91,10 +91,8 @@ int getStatusReqHandler(requestTyp *request)
                 controlTxData2(ENDP_ACTIVE_STATUS);
             }
             return DATA_STAGE;
-        default:
-            return REQ_ERROR;
     }
-    return DATA_STAGE;
+    return REQ_ERROR;
 }
 
 int setAddressReqHandler(requestTyp *request)
@@ -112,8 +110,6 @@ int setAddressReqHandler(requestTyp *request)
             usbProp.address = (uint8_t)request->wValue;
             return NULL_REQ;
         case CONFIGURED:
-            return REQ_ERROR;
-        default:
             return REQ_ERROR;
     }
     return REQ_ERROR;
@@ -147,8 +143,6 @@ int setConfigurationReqHandler(requestTyp *request)
             return NULL_REQ;
         case CONFIGURED:
             return NULL_REQ;
-        default:
-            return REQ_ERROR;
     }
     return REQ_ERROR;
 }
@@ -170,8 +164,6 @@ int getConfigurationReqHandler(requestTyp *request)
         case CONFIGURED:
             controlTxData1(configValue);
             return DATA_STAGE;
-        default:
-            return REQ_ERROR;
     }
     return REQ_ERROR;
 }
@@ -187,8 +179,7 @@ int setInterfaceReqHandler(requestTyp *request)
 int getInterfaceReqHandler(requestTyp *request)
 {
     // error check
-    if( (request->wIndex != 0) || (request->wLength != 1) || \
-        (request->wValue != 0) ) {
+    if( (request->wIndex != 0) || (request->wValue != 0) ) {
         return REQ_ERROR;
     }
     // main case which returns the null interface
@@ -200,8 +191,6 @@ int getInterfaceReqHandler(requestTyp *request)
         case CONFIGURED:
             controlTxData1(0);
             return DATA_STAGE;
-        default:
-            return REQ_ERROR;
     }
     return REQ_ERROR;
 }
@@ -275,52 +264,56 @@ int clearFeatureReqHandler(requestTyp *request)
 int getDescriptorReqHandler(requestTyp *request)
 {
     // error check
-    if( (request->bmRequestType != DEVICE_GET) ) {
-        return REQ_ERROR;
-    }
+//    if( (request->bmRequestType != DEVICE_GET) ) {
+//        return REQ_ERROR;
+//    }
     // concatenation buffer init
     uint8_t tmp[request->wLength];
     uint8_t prev = 0;
 
-    switch(request->wValue >> 8)
+    switch(request->wValue)
     {
-        case DEVICE_TYP:
+        case DEVICE_TYP<<8:
             prev = descCat(gamepadDeviseDesc, tmp, 0, gamepadDeviseDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case CONFIGURATION_TYP:
+            return DATA_STAGE;
+        case CONFIGURATION_TYP<<8:
             prev = descCat(gamepadConfigurationDesc, tmp, 0, gamepadConfigurationDescSize, request->wLength);
             prev = descCat(gamepadInterfaceDesc, tmp, prev, gamepadInterfaceDescSize, request->wLength);
             prev = descCat(gamepadHidDesc, tmp, prev, gamepadHidDescSize, request->wLength);
             prev = descCat(gamepadInEndpDesc, tmp, prev, gamepadInEndpDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case STRING_TYP:
+            return DATA_STAGE;
+        case STRING_TYP<<8:
             prev = descCat(stringLangId, tmp, 0, stringLangIdSize, request->wLength);
+            controlTxDataN(tmp, prev);
+            return DATA_STAGE;
+        case (STRING_TYP<<8)+1:
             prev = descCat(gamepadStringVendor, tmp, prev, gamepadStringVendorSize, request->wLength);
+            controlTxDataN(tmp, prev);
+            return DATA_STAGE;
+        case (STRING_TYP<<8)+2:
             prev = descCat(gamepadStringProduct, tmp, prev, gamepadStringProductSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case INTERFACE_TYP:
+            return DATA_STAGE;
+        case INTERFACE_TYP<<8:
             prev = descCat(gamepadInterfaceDesc, tmp, 0, gamepadInterfaceDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case ENDPOINT_TYP:
+            return DATA_STAGE;
+        case ENDPOINT_TYP<<8:
             prev = descCat(gamepadInEndpDesc, tmp, 0, gamepadInEndpDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case DEVICE_QUALIFIER_TYP:
-            break;
-        case HID_TYP:
+            return DATA_STAGE;
+        case DEVICE_QUALIFIER_TYP<<8:
+            return REQ_ERROR;
+        case ((uint16_t)HID_TYP)<<8:
             prev = descCat(gamepadHidDesc, tmp, 0, gamepadHidDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        case REPORT_TYP:
+            return DATA_STAGE;
+        case ((uint16_t)REPORT_TYP)<<8:
             prev = descCat(gamepadReportDesc, tmp, 0, gamepadReportDescSize, request->wLength);
             controlTxDataN(tmp, prev);
-            break;
-        default:
-            return REQ_ERROR;
+            return DATA_STAGE;
     }
-    return DATA_STAGE;
+    return REQ_ERROR;
 }

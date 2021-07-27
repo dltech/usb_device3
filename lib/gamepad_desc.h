@@ -28,7 +28,7 @@
 #define gamepadHidDescSize  9
 #define gamepadConfTotalSize    gamepadConfigurationDescSize + \
     gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
-#define gamepadReportDescSize   55
+#define gamepadReportDescSize   51
 #define stringLangIdSize 4
 #define gamepadStringVendorSize 6
 #define gamepadStringProductSize 8
@@ -92,7 +92,7 @@ const uint8_t gamepadHidDesc[gamepadHidDescSize] =
     0x09,       // bLenght
     0x21,       // bDescriptorType, HID descriptor
     0x00,0x01,  // bcdHID, HID spec 1.01
-    0x33,       // country code SU
+    0x33,       // country code SU 0x33
     0x01,       // bNumDescriptors
     0x22,       // bDescriptorType, report descriptor
     gamepadReportDescSize,0x00  // wDescriptorLenght

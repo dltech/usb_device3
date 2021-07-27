@@ -22,7 +22,6 @@
 extern volatile usbPropStruct usbProp;
 extern volatile gamepadParamStruct gamepadPar;
 
-
 int getReportReqHandler(requestTyp *request);
 int getIdleReqHandler(requestTyp *request);
 int setIdleReqHandler(requestTyp *request);
@@ -80,11 +79,11 @@ int setIdleReqHandler(requestTyp *requestt)
 void sendReport(uint8_t report, int *ms)
 {
     static uint8_t prevReport;
-    if( usbProp.epProps[1].isHalt == 1 ) return;
-    if( (usbProp.reportDuration == 0) && (prevReport != report) ) {
-        reportTx(report);
-        *ms = 0;
-    } else if(*ms > usbProp.reportDuration) {
+    if( (usbProp.deviceState != CONFIGURED) || (usbProp.epProps[1].isHalt == 1) ) {
+        return;
+    }
+    if( ((usbProp.reportDuration == 0) && (prevReport != report)) || \
+        ((usbProp.reportDuration > 0) && ((*ms) > usbProp.reportDuration)) ) {
         reportTx(report);
         *ms = 0;
     }
