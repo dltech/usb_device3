@@ -1,6 +1,7 @@
-# usb_device1
-USB adapter for ZX spectrum joystick 
+# usb_device3
+USB adapter for ZX spectrum joystick. You may connect gamepad with d-pad
+and two buttons to PC using USB.
 
-just created repo
 TODO:
+computer see it!
 test

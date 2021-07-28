@@ -28,7 +28,7 @@
 #define gamepadHidDescSize  9
 #define gamepadConfTotalSize    gamepadConfigurationDescSize + \
     gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
-#define gamepadReportDescSize   51
+#define gamepadReportDescSize   48
 #define stringLangIdSize 4
 #define gamepadStringVendorSize 6
 #define gamepadStringProductSize 8
@@ -104,30 +104,39 @@ const uint8_t gamepadReportDesc[gamepadReportDescSize] =
     0x05, 0x01,         // usage_page(Generic Desctop)
     0x09, 0x05,         // usage(Game pad)
     0xa1, 0x01,         // collection(Application)
-    0x05, 0x01,         //  usage_page(Generic Desctop)
-    0x09, 0x01,         //  usage(Pointer)
+//    0x05, 0x01,         //  usage_page(Generic Desctop)
+    0x09, 0x01,         //   usage(Pointer)
     0xa1, 0x00,         //   collection(Physical)
-    0x09, 0x39,         //   usage(Hat switch)
-    0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x07,         //   logical maximum(7)
-    0x35, 0x00,         //   physical minimum(0)
-    0x46, 0x3b, 0x01,   //   physical maximum(315)
-    0x65, 0x14,         //   unit(Eng Rot:Angular Pos)
-    0x95, 0x01,         //   report_count(1)
-    0x75, 0x04,         //   report_size(4)
-    0x81, 0x42,         //   input(Data,Var,Abs,Null)
-    0xc0,               //  end_collection
+    0x09, 0x30,         //   usage(X)
+    0x09, 0x31,         //   usage(Y)
+    0x15, 0xff,         //   logical minimum(-1)
+    0x25, 0x01,         //   logical maximum(1)
+    0x95, 0x02,         //   report_count(2)
+    0x75, 0x02,         //   report_size(2)
+    0x81, 0x02,         //   input(Data,Var,Abs)
+//    0x09, 0x39,         //   usage(Hat switch)
+//    0x15, 0x01,         //   logical minimum(1)
+//    0x25, 0x08,         //   logical maximum(8)
+//    0x35, 0x00,         //   physical minimum(0)
+//    0x46, 0x3b, 0x01,   //   physical maximum(315)
+//    0x65, 0x14,         //   unit(Eng Rot:Angular Pos)
+//    0x95, 0x01,         //   report_count(1)
+//    0x75, 0x04,         //   report_size(4)
+//    0x81, 0x06,         //   input(Data,Var,Relative,Null)
     0x05, 0x09,         //  usage_page(Button)
+    0x19, 0x01,         //  usage_minimum(button1)
+    0x29, 0x02,         //  usage_maximum(button2)
     0x15, 0x00,         //  logical minimum(0)
     0x25, 0x01,         //  logical maximum(1)
     0x95, 0x02,         //  report_count(2)
     0x75, 0x01,         //  report_size(1)
     0x81, 0x02,         //  input(Data,Var,Abs)
 // byte alingment
-    0x95, 0x01,         //  report_count(1)
-    0x75, 0x02,         //  report_size(2)
+    0x95, 0x02,         //  report_count(2)
+    0x75, 0x01,         //  report_size(1)
     0x81, 0x01,         //  input(Const)
-    0xc0                // end_collection
+    0xc0,               // end_collection (physical)
+    0xc0                // end_collection (application)
 };
 
 const uint8_t stringLangId[stringLangIdSize] =
