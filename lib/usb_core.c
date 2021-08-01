@@ -23,10 +23,11 @@
 #include "usb_st_req.h"
 #include "usb_hid.h"
 #include "usb_core.h"
+#include "gamepad_port.h"
 
 volatile usbPropStruct usbProp;
 
-volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0;
+volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0, repCnt = POLL_PSC;
 volatile uint32_t reqTrace[300], ii = 0, tchk;
 
 // init functions
@@ -55,15 +56,15 @@ void usbGpioInit()
 {
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
     // does not affect anything
-    // GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
-    //            | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
-    //            | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
-    //            | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
+/*    GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
+              | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
+              | (GPIO_MODE_OUTPUT_50_MHZ << (USBDM_PIN_INIT*4)) \
+              | (GPIO_MODE_OUTPUT_50_MHZ << (USBDP_PIN_INIT*4));
 
-    // GPIOA_CRH = (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDM_PIN_INIT*4)+2)) \
-    //            | (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDP_PIN_INIT*4)+2)) \
-    //            | (GPIO_MODE_INPUT << (USBDM_PIN_INIT*4)) \
-    //            | (GPIO_MODE_INPUT << (USBDP_PIN_INIT*4));
+    GPIOA_CRH = (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDM_PIN_INIT*4)+2)) \
+              | (GPIO_CNF_INPUT_PULL_UPDOWN << ((USBDP_PIN_INIT*4)+2)) \
+              | (GPIO_MODE_INPUT << (USBDM_PIN_INIT*4)) \
+              | (GPIO_MODE_INPUT << (USBDP_PIN_INIT*4)); */
 }
 
 void usbClockInit()
@@ -134,6 +135,7 @@ void usbReportEndpInit()
     epRxStatusSet(1, STAT_RX_DISABLED);
     epTxStatusSet(1, STAT_TX_NAK);
     usbProp.epProps[1].isHalt = 0;
+    usbProp.isRepCompl = 1;
 }
 
 void usbReset()
@@ -195,14 +197,14 @@ void usbSusp()
     // USB low power mode and slow clock
     USB_CNTR |= LP_MODE;
     USB_CNTR |= RESETM;
-//    suspSysClk();
+    suspSysClk();
 }
 
 void usbWkup()
 {
     if(usbProp.isSusp == 0) return;
     usbProp.isSusp = 0;
-//    sysClk();
+    sysClk();
     USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
     USB_ISTR = 0;
     defaultDtogInit(1);
@@ -270,6 +272,8 @@ void interruptEpTx()
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
     // all right, wait for the next timer interrupt
     epTxStatusSet(1, STAT_TX_NAK);
+    usbProp.isRepCompl = 1;
+    ++repCnt;
 }
 
 void reqHandler()
@@ -324,7 +328,7 @@ void usbCore()
         ++wkCnt;
     }
     if(USB_ISTR & SUSPM) {
-//        usbSusp();
+        usbSusp();
         ++suspCnt;
     }
     if(USB_ISTR & RESET) {
@@ -356,12 +360,14 @@ volatile int eee;
 void reportTx(uint8_t report)
 {
     eee++;
+//    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
     // put data into buffer
-    *bufferPtr = (uint16_t)report;
+    *bufferPtr =  ((uint16_t)report);
     // the size is 2 bytes because memory is word-aligned
-    USB_COUNT1_TX = 2 & COUNT_TX_MASK;
+    USB_COUNT1_TX = 1 & COUNT_TX_MASK;
+    usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(1, STAT_TX_VALID);
 }

@@ -31,6 +31,7 @@ void gpioInit(void);
 void pollIrqInit(void);
 void portPoll(void);
 void reportUpdate(void);
+void repTest(void);
 // wakeup from suspend mode by pressed button (not used)
 //void wkupByPress(void);
 
@@ -39,14 +40,14 @@ void gpioInit()
     // GPIO input mode with 3.3 pullup (0 if button pressed)
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
     GPIOA_CRL = GPIO_CNF_INPUT_PULL_UPDOWN << ((UP_PIN_INIT*4)+2) \
-               | GPIO_CNF_INPUT_PULL_UPDOWN << ((LEFT_PIN_INIT*4)+2) \
-               | GPIO_CNF_INPUT_PULL_UPDOWN << ((RIGHT_PIN_INIT*4)+2);
-    GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN;
+              | GPIO_CNF_INPUT_PULL_UPDOWN << ((LEFT_PIN_INIT*4)+2) \
+              | GPIO_CNF_INPUT_PULL_UPDOWN << ((RIGHT_PIN_INIT*4)+2) \
+              | GPIO_CNF_INPUT_PULL_UPDOWN << ((DN_PIN_INIT*4)+2) \
+              | GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON1_PIN_INIT*4)+2);
+    GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN | DN_PIN | BUTTON1_PIN;
     RCC_APB2ENR |= RCC_APB2ENR_IOPBEN;
-    GPIOB_CRL = GPIO_CNF_INPUT_PULL_UPDOWN << ((DN_PIN_INIT*4)+2) \
-               | GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON1_PIN_INIT*4)+2) \
-               | GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON2_PIN_INIT*4)+2);
-    GPIOB_ODR |= DN_PIN | BUTTON1_PIN | BUTTON2_PIN;
+    GPIOB_CRL = GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON2_PIN_INIT*4)+2);
+    GPIOB_ODR |= BUTTON2_PIN;
 }
 
 void pollIrqInit()
@@ -86,7 +87,7 @@ void portPoll()
     } else {
         gamepadPar.upCnt = 0;
     }
-    if( (PORT2 & DN_PIN) == 0) {
+    if( (PORT1 & DN_PIN) == 0) {
         ++gamepadPar.dnCnt;
     } else {
         gamepadPar.dnCnt = 0;
@@ -101,7 +102,7 @@ void portPoll()
     } else {
         gamepadPar.rightCnt = 0;
     }
-    if( (PORT2 & BUTTON1_PIN) == 0) {
+    if( (PORT1 & BUTTON1_PIN) == 0) {
         ++gamepadPar.button1Cnt;
     } else {
         gamepadPar.button1Cnt = 0;
@@ -117,33 +118,17 @@ void reportUpdate()
 {
     gamepadPar.report = 0;
     // angles of d-pad including two buttons pressed simulateously
-    if( gamepadPar.rightCnt >= cntPressed ) {
-        gamepadPar.report = HAT0DEG;
-    }
-    if( (gamepadPar.rightCnt >= cntPressed) && \
-        (gamepadPar.dnCnt >= cntPressed) ) {
-        gamepadPar.report = HAT45DEG;
-    }
-    if( gamepadPar.dnCnt >= cntPressed ) {
-        gamepadPar.report = HAT90DEG;
-    }
-    if( (gamepadPar.dnCnt >= cntPressed) && \
-        (gamepadPar.leftCnt >= cntPressed) ) {
-        gamepadPar.report = HAT135DEG;
-    }
     if( gamepadPar.leftCnt >= cntPressed ) {
-        gamepadPar.report = HAT180DEG;
+        gamepadPar.report |= XM1;
     }
-    if( (gamepadPar.leftCnt >= cntPressed) && \
-        (gamepadPar.upCnt >= cntPressed) ) {
-        gamepadPar.report = HAT225DEG;
+    if( gamepadPar.rightCnt >= cntPressed ) {
+        gamepadPar.report |= XP1;
     }
     if( gamepadPar.upCnt >= cntPressed ) {
-        gamepadPar.report = HAT270DEG;
+        gamepadPar.report |= YM1;
     }
-    if( (gamepadPar.upCnt >= cntPressed) && \
-        (gamepadPar.rightCnt >= cntPressed) ) {
-        gamepadPar.report = HAT315DEG;
+    if( gamepadPar.dnCnt >= cntPressed ) {
+        gamepadPar.report |= YP1;
     }
     // buttons
     if( gamepadPar.button1Cnt >= cntPressed ) {
@@ -154,12 +139,26 @@ void reportUpdate()
     }
 }
 
+void repTest()
+{
+    static int eeee=0;
+    eeee++;
+    if(eeee>1000) gamepadPar.report = XM1;
+    if(eeee>2000) gamepadPar.report = XP1;
+    if(eeee>3000) gamepadPar.report = YM1;
+    if(eeee>4000) gamepadPar.report = YP1;
+    if(eeee>5000) gamepadPar.report = BUTTON1ON;
+    if(eeee>6000) gamepadPar.report = BUTTON2ON;
+    if(eeee>7000) eeee=0;
+}
+
 void tim2_isr()
 {
     static int cnt=0;
     portPoll();
     reportUpdate();
     ++cnt;
+    repTest();
     sendReport(gamepadPar.report, &cnt);
     TIM2_SR = 0;
 //    wkupByPress();

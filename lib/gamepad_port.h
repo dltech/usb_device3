@@ -24,34 +24,30 @@
 // port poll frequency in ms
 #define POLLRATE    1
 #define READ_RATE   7
-#define POLL_PSC    (SYS_CLK / POLLRATE / 72000) - 1
+#define POLL_PSC    (SYS_CLK / POLLRATE / 1000) - 1
 
 // pin definitions
-#define PORT1           GPIOA_ODR
-#define UP_PIN          GPIO6
-#define LEFT_PIN        GPIO5
-#define RIGHT_PIN       GPIO7
-#define UP_PIN_INIT          6
-#define LEFT_PIN_INIT        5
-#define RIGHT_PIN_INIT       7
-#define PORT2           GPIOB_ODR
-#define DN_PIN          GPIO0
-#define BUTTON1_PIN     GPIO1
-#define BUTTON2_PIN     GPIO2
-#define DN_PIN_INIT          0
-#define BUTTON1_PIN_INIT     1
-#define BUTTON2_PIN_INIT     2
+#define PORT1           GPIOA_IDR
+#define LEFT_PIN        GPIO3
+#define UP_PIN          GPIO4
+#define RIGHT_PIN       GPIO5
+#define DN_PIN          GPIO6
+#define BUTTON1_PIN     GPIO7
+#define LEFT_PIN_INIT       3
+#define UP_PIN_INIT         4
+#define RIGHT_PIN_INIT      5
+#define DN_PIN_INIT         6
+#define BUTTON1_PIN_INIT    7
+#define PORT2           GPIOB_IDR
+#define BUTTON2_PIN     GPIO0
+#define BUTTON2_PIN_INIT    0
 
 // report map
 // hat switch
-#define HAT0DEG     0x00
-#define HAT45DEG    0x01
-#define HAT90DEG    0x02
-#define HAT135DEG   0x03
-#define HAT180DEG   0x04
-#define HAT225DEG   0x05
-#define HAT270DEG   0x06
-#define HAT315DEG   0x07
+#define XM1   0x02
+#define XP1   0x01
+#define YM1   0x08
+#define YP1   0x04
 // buttons
 #define BUTTON1ON   0x10
 #define BUTTON2ON   0x20
