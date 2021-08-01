@@ -27,9 +27,6 @@
 
 volatile usbPropStruct usbProp;
 
-volatile int itCnt = 0, succ = 0, reqCnt = 0, resCnt = 0, wkCnt = 0, suspCnt = 0, ctrCnt = 0, errCnt = 0, repCnt = POLL_PSC;
-volatile uint32_t reqTrace[300], ii = 0, tchk;
-
 // init functions
 // basic init
 void usbGpioInit(void);
@@ -69,7 +66,6 @@ void usbGpioInit()
 
 void usbClockInit()
 {
-//    RCC_AHBENR |= RCC_AHBENR_OTGFSEN;
     RCC_APB1ENR |= RCC_APB1ENR_USBEN;
     // usb on
     USB_CNTR &= ~PDWN;
@@ -89,7 +85,7 @@ void usbItInit()
     // init userful interrupts
     USB_CNTR = CTRM | WKUPM | SUSPM | RESETM;
     // init unuserful interrupts
-    USB_CNTR |= ERRM | PMAOVRM | SOFM;
+//    USB_CNTR |= ERRM | PMAOVRM | SOFM;
 //    USB_CNTR |= ESOFM;
     nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
     nvic_enable_irq(NVIC_USB_WAKEUP_IRQ);
@@ -163,7 +159,6 @@ void usbReset()
     uint32_t timeout = 1e4;
     USB_CNTR &= ~((uint32_t)(FRES));
     while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
-    tchk = timeout;
     USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
     USB_ISTR = 0;
     // init again
@@ -219,10 +214,8 @@ void usbWkup()
 void ctrF()
 {
     if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_RX) ) {
-        reqTrace[ii++] = 5555;
         controlEpRx();
     } else if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_TX) ) {
-        reqTrace[ii++] = 6666;
         controlEpTx();
     }
     if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP0R & CTR_TX) ) {
@@ -249,7 +242,6 @@ void controlEpTx()
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
         setAddr(usbProp.address);
         controlTxData0();
-        reqTrace[ii++] = 1111;
         return;
     }
     if(usbProp.controlStage == CONTROL_DATA) {
@@ -273,7 +265,6 @@ void interruptEpTx()
     // all right, wait for the next timer interrupt
     epTxStatusSet(1, STAT_TX_NAK);
     usbProp.isRepCompl = 1;
-    ++repCnt;
 }
 
 void reqHandler()
@@ -288,11 +279,6 @@ void reqHandler()
     if( reqStatus == NOT_ST_REQ ) {
         reqStatus = hidReqHandler(&request);
     }
-    reqTrace[ii++] = request.bmRequestType;
-    reqTrace[ii++] = request.bRequest;
-    reqTrace[ii++] = request.wValue;
-    reqTrace[ii++] = request.wIndex;
-    reqTrace[ii++] = request.wLength;
     if( reqStatus == DATA_STAGE ) {
         usbProp.controlStage = CONTROL_DATA;
     }
@@ -302,48 +288,36 @@ void reqHandler()
         epTxStatusSet(0, STAT_TX_STALL);
         controlDtogInit();
         usbProp.controlStage = CONTROL_ERROR;
-    } else     ++succ;
+    }
     // send null packet if request without data stage handled successfully
     if( reqStatus == NULL_REQ ) {
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
-    reqTrace[ii++] = usbProp.controlStage;
-    reqTrace[ii++] = 3333;
-    if(ii>200) ii=0;
-    ++reqCnt;
 }
 
 volatile int esofCntDbg = 0, sofCnt = 0, ovrCnt = 0;
 void usbCore()
 {
     static int esofCnt = 0;
-    ++itCnt;
     if(USB_ISTR & CTR) {
         ctrF();
-        ++ctrCnt;
     }
     if(USB_ISTR & WKUPM) {
         usbWkup();
-        ++wkCnt;
     }
     if(USB_ISTR & SUSPM) {
         usbSusp();
-        ++suspCnt;
     }
     if(USB_ISTR & RESET) {
         usbReset();
-        ++resCnt;
     }
     // unusable interrupts
     if(USB_ISTR & ERR) {
-        ++errCnt;
     }
     if(USB_ISTR & PMAOVR) {
-        ++ovrCnt;
     }
     if(USB_ISTR & SOF) {
-        ++sofCnt;
     }
     if(USB_ISTR & ESOF) {
         ++esofCnt;
@@ -351,15 +325,12 @@ void usbCore()
             esofCnt = 0;
 //            usbReset();
         }
-        ++esofCntDbg;
     }
     USB_ISTR = 0;
 }
 
-volatile int eee;
 void reportTx(uint8_t report)
 {
-    eee++;
 //    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
@@ -487,5 +458,4 @@ int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t m
 void usb_wakeup_isr()
 {
     usbWkup();
-    ++wkCnt;
 }

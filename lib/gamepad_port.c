@@ -158,7 +158,7 @@ void tim2_isr()
     portPoll();
     reportUpdate();
     ++cnt;
-    repTest();
+//    repTest();
     sendReport(gamepadPar.report, &cnt);
     TIM2_SR = 0;
 //    wkupByPress();
