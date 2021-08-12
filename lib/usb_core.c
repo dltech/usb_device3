@@ -113,7 +113,6 @@ void usbHidEndpInit()
     USB_COUNT0_RX = BL_SIZE_32B | \
                     (((EP0_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endpoint 0 address 0, type control endpoint
-//    USB_EP0R = EP_KIND | EP_TYPE_CONTROL | (0 & EA_MASK);
     USB_EP0R = EP_TYPE_CONTROL | (0 & EA_MASK);
     // go to the control endpoint idle state
     controlDtogInit();
@@ -244,6 +243,7 @@ void controlEpTx()
         controlTxData0();
         return;
     }
+    // status stage of control transaction
     if(usbProp.controlStage == CONTROL_DATA) {
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
@@ -296,7 +296,24 @@ void reqHandler()
     }
 }
 
-volatile int esofCntDbg = 0, sofCnt = 0, ovrCnt = 0;
+// Сopies request for control endpoint 0 from rx buffer
+void reqCopy(requestTyp *request)
+{
+    union {
+      uint8_t* b;
+      uint16_t* w;
+    } pBuf;
+    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE_MY);
+    request->bmRequestType = *pBuf.b++;
+    request->bRequest = *pBuf.b++;
+    pBuf.w++;
+    request->wValue = *pBuf.w++;
+    pBuf.w++;
+    request->wIndex = *pBuf.w++;
+    pBuf.w++;
+    request->wLength = *pBuf.w++;
+}
+
 void usbCore()
 {
     static int esofCnt = 0;
@@ -336,7 +353,6 @@ void reportTx(uint8_t report)
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
     // put data into buffer
     *bufferPtr =  ((uint16_t)report);
-    // the size is 2 bytes because memory is word-aligned
     USB_COUNT1_TX = 1 & COUNT_TX_MASK;
     usbProp.isRepCompl = 0;
     // change the endpoint state
@@ -368,24 +384,6 @@ int epHaltClear(int ep)
     return 0;
 }
 
-// Сopies request for control endpoint 0 from rx buffer
-void reqCopy(requestTyp *request)
-{
-    union {
-      uint8_t* b;
-      uint16_t* w;
-    } pBuf;
-    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE_MY);
-    request->bmRequestType = *pBuf.b++;
-    request->bRequest = *pBuf.b++;
-    pBuf.w++;
-    request->wValue = *pBuf.w++;
-    pBuf.w++;
-    request->wIndex = *pBuf.w++;
-    pBuf.w++;
-    request->wLength = *pBuf.w++;
-}
-
 // method overloading imitation for control endpoint tx functions
 void controlTxData0()
 {
@@ -395,16 +393,14 @@ void controlTxData0()
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
-/*    controlDtogInit();
-    epRxStatusSet(0, STAT_RX_VALID);
-    epTxStatusSet(0, STAT_TX_NAK);*/
+//    epTxStatusSet(0, STAT_TX_NAK);
 }
 
 void controlTxData1(uint8_t data)
 {
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
     *bufferPtr = (uint16_t)data;
-    USB_COUNT0_TX = 2 & COUNT_TX_MASK;
+    USB_COUNT0_TX = 1 & COUNT_TX_MASK;
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
@@ -425,14 +421,10 @@ void controlTxDataN(uint8_t *data, int size)
     if(size <= 2) return;
     uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
-    uint32_t temp1, temp2;
     for(int i=0 ; i<(size/2) ; ++i) {
-        temp1 = (uint16_t) * data;
-        data++;
-        temp2 = temp1 | (((uint16_t)*data) << 8);
-        *bufferPtr++ = temp2;
-        data++;
-        bufferPtr++;
+        *bufferPtr = *input;
+        input++;
+        bufferPtr += 2;
     }
     // last byte to 16 bit
     if( (size%2) > 0 ) {
