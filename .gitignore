@@ -1,4 +1,3 @@
-*cache*
 *.o
 *.d
 *.ld
@@ -6,11 +5,10 @@
 *.elf
 core
 
-sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
-sch/heater_dir_ctrl/heater_dir_ctrl.sch-bak
-sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
-sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
-sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
-sch/heater_dir_ctrl/heater_dir_ctrl.kicad_pcb-bak
-sch/fp-lib-table
 .tags
+fp-info-cache
+*bak
+*.aux
+*.log
+*.out
+*.toc
