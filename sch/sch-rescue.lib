@@ -1,90 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# local_STM32F103C8Tx_usb
+# +3.3V-power
 #
-DEF local_STM32F103C8Tx_usb U 0 40 Y Y 1 L N
-F0 "U" -2800 1725 50 H V L BNN
-F1 "local_STM32F103C8Tx_usb" 900 1725 50 H V R BNN
-F2 "Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm" -25 1000 50 V I R TNN
-F3 "" 100 0 50 H I C CNN
-ALIAS STM32F103CBTx
-DRAW
-S -450 -1700 450 1700 0 1 10 f
-X VBAT 1 -550 1000 100 R 50 50 1 1 W
-X PA0 10 550 100 100 L 50 50 1 1 B
-X PA1 11 550 0 100 L 50 50 1 1 B
-X PA2 12 550 -100 100 L 50 50 1 1 B
-X PA3 13 550 -200 100 L 50 50 1 1 B
-X PA4 14 550 -300 100 L 50 50 1 1 B
-X PA5 15 550 -400 100 L 50 50 1 1 B
-X PA6 16 550 -500 100 L 50 50 1 1 B
-X PA7 17 550 -600 100 L 50 50 1 1 B
-X PB0 18 -550 100 100 R 50 50 1 1 B
-X PB1 19 -550 0 100 R 50 50 1 1 B
-X PC13 2 -550 500 100 R 50 50 1 1 B
-X PB2/BOOT1 20 -550 -100 100 R 50 50 1 1 B
-X PB10 21 -550 -900 100 R 50 50 1 1 B
-X PB11 22 -550 -1000 100 R 50 50 1 1 B
-X VSS 23 -200 -1800 100 U 50 50 1 1 W
-X VDD 24 -200 1800 100 D 50 50 1 1 W
-X PB12 25 -550 -1100 100 R 50 50 1 1 B
-X PB13 26 -550 -1200 100 R 50 50 1 1 B
-X PB14 27 -550 -1300 100 R 50 50 1 1 B
-X PB15 28 -550 -1400 100 R 50 50 1 1 B
-X PA8 29 550 -700 100 L 50 50 1 1 B
-X PC14 3 -550 400 100 R 50 50 1 1 B
-X PA9 30 550 -800 100 L 50 50 1 1 B
-X PA10 31 550 -900 100 L 50 50 1 1 B
-X USB_DM/PA11 32 550 -1000 100 L 50 50 1 1 B
-X USB_DP/PA12 33 550 -1100 100 L 50 50 1 1 B
-X SWDIO/PA13 34 550 -1200 100 L 50 50 1 1 B
-X VSS 35 -100 -1800 100 U 50 50 1 1 W
-X VDD 36 -100 1800 100 D 50 50 1 1 W
-X SWCLK/PA14 37 550 -1300 100 L 50 50 1 1 B
-X PA15 38 550 -1400 100 L 50 50 1 1 B
-X PB3 39 -550 -200 100 R 50 50 1 1 B
-X PC15 4 -550 300 100 R 50 50 1 1 B
-X PB4 40 -550 -300 100 R 50 50 1 1 B
-X PB5 41 -550 -400 100 R 50 50 1 1 B
-X PB6 42 -550 -500 100 R 50 50 1 1 B
-X PB7 43 -550 -600 100 R 50 50 1 1 B
-X BOOT0 44 -550 1200 100 R 50 50 1 1 I
-X PB8 45 -550 -700 100 R 50 50 1 1 B
-X PB9 46 -550 -800 100 R 50 50 1 1 B
-X VSS 47 0 -1800 100 U 50 50 1 1 W
-X VDD 48 0 1800 100 D 50 50 1 1 W
-X PD0/RCC_OSC_IN 5 -550 800 100 R 50 50 1 1 I
-X PD1/RCC_OSC_OUT 6 -550 700 100 R 50 50 1 1 I
-X NRST 7 -550 1400 100 R 50 50 1 1 I
-X VSSA 8 100 -1800 100 U 50 50 1 1 W
-X VDDA 9 100 1800 100 D 50 50 1 1 W
-ENDDRAW
-ENDDEF
-#
-# local_XC6206-33
-#
-DEF local_XC6206-33 U 0 10 Y Y 1 F N
-F0 "U" -150 125 50 H V C CNN
-F1 "local_XC6206-33" 0 125 50 H V L CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 100 -250 50 H I C CNN
-$FPLIST
- SOT23*
-$ENDFPLIST
-DRAW
-S -200 -200 200 75 0 1 10 f
-X GND 1 0 -300 100 U 50 50 1 1 W
-X VO 2 -300 0 100 R 50 50 1 1 w
-X VI 3 300 0 100 L 50 50 1 1 W
-ENDDRAW
-ENDDEF
-#
-# sch-rescue_+3.3V-power
-#
-DEF sch-rescue_+3.3V-power #PWR 0 0 Y Y 1 F P
+DEF +3.3V-power #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "sch-rescue_+3.3V-power" 0 140 50 H V C CNN
+F1 "+3.3V-power" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -95,11 +16,11 @@ X +3V3 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_+5V-power
+# +5V-power
 #
-DEF sch-rescue_+5V-power #PWR 0 0 Y Y 1 F P
+DEF +5V-power #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "sch-rescue_+5V-power" 0 140 50 H V C CNN
+F1 "+5V-power" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -110,11 +31,11 @@ X +5V 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_C-device
+# C-device
 #
-DEF sch-rescue_C-device C 0 10 N Y 1 F N
+DEF C-device C 0 10 N Y 1 F N
 F0 "C" 25 100 50 H V L CNN
-F1 "sch-rescue_C-device" 25 -100 50 H V L CNN
+F1 "C-device" 25 -100 50 H V L CNN
 F2 "" 38 -150 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -128,11 +49,11 @@ X ~ 2 0 -150 110 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x03-Connector
+# Conn_01x03-Connector
 #
-DEF sch-rescue_Conn_01x03-Connector J 0 40 Y N 1 F N
+DEF Conn_01x03-Connector J 0 40 Y N 1 F N
 F0 "J" 0 200 50 H V C CNN
-F1 "sch-rescue_Conn_01x03-Connector" 0 -200 50 H V C CNN
+F1 "Conn_01x03-Connector" 0 -200 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -154,11 +75,11 @@ X Pin_3 3 -200 -100 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x04-Connector
+# Conn_01x04-Connector
 #
-DEF sch-rescue_Conn_01x04-Connector J 0 40 Y N 1 F N
+DEF Conn_01x04-Connector J 0 40 Y N 1 F N
 F0 "J" 0 200 50 H V C CNN
-F1 "sch-rescue_Conn_01x04-Connector" 0 -300 50 H V C CNN
+F1 "Conn_01x04-Connector" 0 -300 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -182,11 +103,11 @@ X Pin_4 4 -200 -200 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x07-Connector
+# Conn_01x07-Connector
 #
-DEF sch-rescue_Conn_01x07-Connector J 0 40 Y N 1 F N
+DEF Conn_01x07-Connector J 0 40 Y N 1 F N
 F0 "J" 0 400 50 H V C CNN
-F1 "sch-rescue_Conn_01x07-Connector" 0 -400 50 H V C CNN
+F1 "Conn_01x07-Connector" 0 -400 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -216,11 +137,11 @@ X Pin_7 7 -200 -300 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x09-Connector
+# Conn_01x09-Connector
 #
-DEF sch-rescue_Conn_01x09-Connector J 0 40 Y N 1 F N
+DEF Conn_01x09-Connector J 0 40 Y N 1 F N
 F0 "J" 0 500 50 H V C CNN
-F1 "sch-rescue_Conn_01x09-Connector" 0 -500 50 H V C CNN
+F1 "Conn_01x09-Connector" 0 -500 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -254,11 +175,11 @@ X Pin_9 9 -200 -400 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Crystal-device
+# Crystal-device
 #
-DEF sch-rescue_Crystal-device Y 0 40 N N 1 F N
+DEF Crystal-device Y 0 40 N N 1 F N
 F0 "Y" 0 150 50 H V C CNN
-F1 "sch-rescue_Crystal-device" 0 -150 50 H V C CNN
+F1 "Crystal-device" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -275,11 +196,11 @@ X 2 2 150 0 50 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_GND-power
+# GND-power
 #
-DEF sch-rescue_GND-power #PWR 0 0 Y Y 1 F P
+DEF GND-power #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "sch-rescue_GND-power" 0 -150 50 H V C CNN
+F1 "GND-power" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -288,11 +209,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_R-device
+# R-device
 #
-DEF sch-rescue_R-device R 0 0 N Y 1 F N
+DEF R-device R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "sch-rescue_R-device" 0 0 50 V V C CNN
+F1 "R-device" 0 0 50 V V C CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -306,11 +227,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_SW_Push-Switch
+# SW_Push-Switch
 #
-DEF sch-rescue_SW_Push-Switch SW 0 40 N N 1 F N
+DEF SW_Push-Switch SW 0 40 N N 1 F N
 F0 "SW" 50 100 50 H V L CNN
-F1 "sch-rescue_SW_Push-Switch" 0 -60 50 H V C CNN
+F1 "SW_Push-Switch" 0 -60 50 H V C CNN
 F2 "" 0 200 50 H I C CNN
 F3 "" 0 200 50 H I C CNN
 DRAW

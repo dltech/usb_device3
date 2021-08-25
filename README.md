@@ -5,3 +5,5 @@ Tested and working.
 It is based on libopencm3 makefile but with my own simplest USB driver.
 ![device](datasheet/pcb.JPG)
 ![eee](datasheet/gamepad.JPG)
+todo:
+to get rid of libopencm3, CMSIS and my reg def are instead

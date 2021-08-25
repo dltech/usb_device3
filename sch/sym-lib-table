@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name local)(type Legacy)(uri ${KIPRJMOD}/local.lib)(options "")(descr ""))
+  (lib (name sch-rescue)(type Legacy)(uri ${KIPRJMOD}/sch-rescue.lib)(options "")(descr ""))
 )
