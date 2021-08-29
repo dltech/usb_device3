@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1581521224 source:/home/nefraer/src/tl_replacement/lib/display.c
+	<stdint.h>
+	<stdio.h>
+	<stdarg.h>
+	<string.h>
+	"display.h"
+
+1581510795 /home/nefraer/src/tl_replacement/lib/display.h
+	<stdint.h>
+
+1581515563 source:/home/nefraer/src/test/testd/main.c
+	<stdio.h>
+	<stdlib.h>
+	"../../tl_replacement/lib/display.h"
+

@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1586079687 source:/home/nefraer/src/test/median/main.c
+	<stdio.h>
+	<stdlib.h>
+	"inttypes.h"
+
