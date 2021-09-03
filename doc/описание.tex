@@ -571,6 +571,7 @@ sendReport(gamepadPar.report, &cnt);
     их нужно забрать.
 \subsubsection{Ендпоинты}
 
+
 \subsection{Дескрипоры USB.}\label{158500}
     Во первых их несколько. Во вторых дескрипторы это база данных устройства.
     Как известно,
@@ -595,8 +596,9 @@ sendReport(gamepadPar.report, &cnt);
     написано во введении \ref{1}
     \item String - название устройства, которое можно увидеть по команде lsusb,
     хранится в дескрипторах данного типа.
+    \item Report - формат репорта
 \end{itemize}
-    
+
 
 
 \subsubsection{Device дескриптор.}
@@ -609,9 +611,42 @@ sendReport(gamepadPar.report, &cnt);
 
 \subsubsection{String дескриптор.}
 
+\subsubsection{Report дескриптор.}
 
 
 \subsection{Стандартный протокол USB.}
+    В USB имеется так называемый нулевой конфигурационный ендпоит, он же
+    ендпоинт по умолчанию. Он существует для того, чтобы обрабатывать setup
+    транзакции (транзакции настройки). В транзакциях данного типа упакованы
+    запросы. Среди них есть обязательные, те что определены в основном
+    стандарте. И дополнительные, те что определены в стандарте на какой
+    то из конкретных типов устройств, например HID реквесты \ref{2}.\\
+    Нумерация устройства, запрос дескрипторов, отключение ненужных ендпоинтов
+    и включение их обратно. Да и вообще вся служебная работа осуществляется
+    через стандартные запросы. Вот их список:
+\begin{itemize}
+    \item getStatus
+    \item clearFeature
+    \item setFeature
+    \item setAddress
+    \item getDescriptor
+    \item getConfiguration
+    \item setConfiguration
+    \item getInterface
+    \item setInterface
+\end{itemize}
+\subsubsection{getStatus дескриптор.}
+
+\subsubsection{clearFeature дескриптор.}
+
+\subsubsection{setFeature дескриптор.}
+
+\subsubsection{setAddress дескриптор.}
+
+\subsubsection{getDescriptor дескриптор.}
+
+\subsubsection{set Interface}
+
 
 \subsection{USB HID}
     HID устройства человеко машинного интерфейса. В это подмножество USB
@@ -633,7 +668,7 @@ sendReport(gamepadPar.report, &cnt);
     обсуждался в разделе \ref{158500}.
 
 
-\subsubsection{HID реквесты}
+\subsubsection{HID реквесты}\label{2}
     Для данного типа устройств определены реквесты, дополнительные к основным.
     Их на самом деле много, обязательных всего три, и те, как показала практика
     драйвер так ни разу и не запросил. Вот они:
