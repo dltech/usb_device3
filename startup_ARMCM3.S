@@ -47,20 +47,68 @@ __Vectors:
                 .long    0                                  /*     Reserved */
                 .long    PendSV_Handler                     /*  -2 PendSV Handler */
                 .long    SysTick_Handler                    /*  -1 SysTick Handler */
-
-                /* Interrupts */
-                .long    Interrupt0_Handler                 /*   0 Interrupt 0 */
-                .long    Interrupt1_Handler                 /*   1 Interrupt 1 */
-                .long    Interrupt2_Handler                 /*   2 Interrupt 2 */
-                .long    Interrupt3_Handler                 /*   3 Interrupt 3 */
-                .long    Interrupt4_Handler                 /*   4 Interrupt 4 */
-                .long    Interrupt5_Handler                 /*   5 Interrupt 5 */
-                .long    Interrupt6_Handler                 /*   6 Interrupt 6 */
-                .long    Interrupt7_Handler                 /*   7 Interrupt 7 */
-                .long    Interrupt8_Handler                 /*   8 Interrupt 8 */
-                .long    Interrupt9_Handler                 /*   9 Interrupt 9 */
-
-                .space   (214 * 4)                          /* Interrupts 10 .. 224 are left out */
+                /* STM32 Related Interrupts */
+                .long  WWDG_Handler
+                .long  PVD_Handler
+                .long  TAMPER_Handler
+                .long  RTC_Handler
+                .long  FLASH_Handler
+                .long  RCC_Handler
+                .long  EXTI0_Handler
+                .long  EXTI1_Handler
+                .long  EXTI2_Handler
+                .long  EXTI3_Handler
+                .long  EXTI4_Handler
+                .long  DMA1_Channel1_Handler
+                .long  DMA1_Channel2_Handler
+                .long  DMA1_Channel3_Handler
+                .long  DMA1_Channel4_Handler
+                .long  DMA1_Channel5_Handler
+                .long  DMA1_Channel6_Handler
+                .long  DMA1_Channel7_Handler
+                .long  ADC_Handler
+                .long  usb_hp_can_tx_Handler
+                .long  usb_hp_can_rx_Handler
+                .long  CAN_RX1_Handler
+                .long  CAN_SCE_Handler
+                .long  EXTI9_5_Handler
+                .long  TIM1_BRK_TIM15_Handler
+                .long  TIM1_UP_TIM16_Handler
+                .long  TIM1_TRG_COM_TIM17_Handler
+                .long  TIM1_CC_Handler
+                .long  TIM2_Handler
+                .long  TIM3_Handler
+                .long  TIM4_Handler
+                .long  I2C1_EV_Handler
+                .long  I2C1_ER_Handler
+                .long  I2C2_EV_Handler
+                .long  I2C2_ER_Handler
+                .long  SPI1_Handler
+                .long  SPI2_Handler
+                .long  USART1_Handler
+                .long  USART2_Handler
+                .long  USART3_Handler
+                .long  EXTI15_10_Handler
+                .long  RTCAlarm_Handler
+                .long  USB_Wakeup_Handler
+                .long  TIM8_BRK_Handler
+                .long  TIM8_UP_Handler
+                .long  TIM8_TRG_COM_Handler
+                .long  TIM8_CC_Handler
+                .long  ADC3_Handler
+                .long  FSMC_Handler
+                .long  SDIO_Handler
+                .long  TIM5_Handler
+                .long  SPI3_Handler
+                .long  UART4_Handler
+                .long  UART5_Handler
+                .long  TIM6_DAC_Handler
+                .long  TIM7_Handler
+                .lond  DMA2_Channel1_Handler
+                .long  DMA2_Channel2_Handler
+                .long  DMA2_Channel3_Handler
+                .long  DMA2_Channel4_5_Handler
+                .space   (155 * 4)       /* Interrupts 59 .. 224 are left out */
 __Vectors_End:
                 .equ     __Vectors_Size, __Vectors_End - __Vectors
                 .size    __Vectors, . - __Vectors
@@ -167,16 +215,46 @@ Default_Handler:
                 Set_Default_Handler  PendSV_Handler
                 Set_Default_Handler  SysTick_Handler
 
-                Set_Default_Handler  Interrupt0_Handler
-                Set_Default_Handler  Interrupt1_Handler
-                Set_Default_Handler  Interrupt2_Handler
-                Set_Default_Handler  Interrupt3_Handler
-                Set_Default_Handler  Interrupt4_Handler
-                Set_Default_Handler  Interrupt5_Handler
-                Set_Default_Handler  Interrupt6_Handler
-                Set_Default_Handler  Interrupt7_Handler
-                Set_Default_Handler  Interrupt8_Handler
-                Set_Default_Handler  Interrupt9_Handler
-
+                Set_Default_Handler  WWDG_Handler
+                Set_Default_Handler  PVD_Handler
+                Set_Default_Handler  TAMPER_Handler
+                Set_Default_Handler  RTC_Handler
+                Set_Default_Handler  FLASH_Handler
+                Set_Default_Handler  RCC_Handler
+                Set_Default_Handler  EXTI0_Handler
+                Set_Default_Handler  EXTI1_Handler
+                Set_Default_Handler  EXTI2_Handler
+                Set_Default_Handler  EXTI3_Handler
+                Set_Default_Handler  EXTI4_Handler
+                Set_Default_Handler  DMA1_Channel1_Handler
+                Set_Default_Handler  DMA1_Channel2_Handler
+                Set_Default_Handler  DMA1_Channel3_Handler
+                Set_Default_Handler  DMA1_Channel4_Handler
+                Set_Default_Handler  DMA1_Channel5_Handler
+                Set_Default_Handler  DMA1_Channel6_Handler
+                Set_Default_Handler  DMA1_Channel7_Handler
+                Set_Default_Handler  ADC1_Handler
+                Set_Default_Handler  EXTI9_5_Handler
+                Set_Default_Handler  TIM1_BRK_TIM15_Handler
+                Set_Default_Handler  TIM1_UP_TIM16_Handler
+                Set_Default_Handler  TIM1_TRG_COM_TIM17_Handler
+                Set_Default_Handler  TIM1_CC_Handler
+                Set_Default_Handler  TIM2_Handler
+                Set_Default_Handler  TIM3_Handler
+                Set_Default_Handler  TIM4_Handler
+                Set_Default_Handler  I2C1_EV_Handler
+                Set_Default_Handler  I2C1_ER_Handler
+                Set_Default_Handler  I2C2_EV_Handler
+                Set_Default_Handler  I2C2_ER_Handler
+                Set_Default_Handler  SPI1_Handler
+                Set_Default_Handler  SPI2_Handler
+                Set_Default_Handler  USART1_Handler
+                Set_Default_Handler  USART2_Handler
+                Set_Default_Handler  USART3_Handler
+                Set_Default_Handler  EXTI15_10_Handler
+                Set_Default_Handler  RTCAlarm_Handler
+                Set_Default_Handler  CEC_Handler
+                Set_Default_Handler  TIM6_DAC_Handler
+                Set_Default_Handler  TIM7_Handler
 
                 .end
