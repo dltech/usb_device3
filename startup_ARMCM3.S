@@ -233,7 +233,11 @@ Default_Handler:
                 Set_Default_Handler  DMA1_Channel5_Handler
                 Set_Default_Handler  DMA1_Channel6_Handler
                 Set_Default_Handler  DMA1_Channel7_Handler
-                Set_Default_Handler  ADC1_Handler
+                Set_Default_Handler  ADC_Handler
+                Set_Default_Handler  usb_hp_can_tx_Handler
+                Set_Default_Handler  usb_hp_can_rx_Handler
+                Set_Default_Handler  CAN_RX1_Handler
+                Set_Default_Handler  CAN_SCE_Handler
                 Set_Default_Handler  EXTI9_5_Handler
                 Set_Default_Handler  TIM1_BRK_TIM15_Handler
                 Set_Default_Handler  TIM1_UP_TIM16_Handler
@@ -253,8 +257,23 @@ Default_Handler:
                 Set_Default_Handler  USART3_Handler
                 Set_Default_Handler  EXTI15_10_Handler
                 Set_Default_Handler  RTCAlarm_Handler
-                Set_Default_Handler  CEC_Handler
+                Set_Default_Handler  USB_Wakeup_Handler
+                Set_Default_Handler  TIM8_BRK_Handler
+                Set_Default_Handler  TIM8_UP_Handler
+                Set_Default_Handler  TIM8_TRG_COM_Handler
+                Set_Default_Handler  TIM8_CC_Handler
+                Set_Default_Handler  ADC3_Handler
+                Set_Default_Handler  FSMC_Handler
+                Set_Default_Handler  SDIO_Handler
+                Set_Default_Handler  TIM5_Handler
+                Set_Default_Handler  SPI3_Handler
+                Set_Default_Handler  UART4_Handler
+                Set_Default_Handler  UART5_Handler
                 Set_Default_Handler  TIM6_DAC_Handler
                 Set_Default_Handler  TIM7_Handler
+                Set_Default_Handler  DMA2_Channel1_Handler
+                Set_Default_Handler  DMA2_Channel2_Handler
+                Set_Default_Handler  DMA2_Channel3_Handler
+                Set_Default_Handler  DMA2_Channel4_5_Handler
 
                 .end
