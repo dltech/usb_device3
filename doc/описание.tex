@@ -523,8 +523,12 @@ Set_Default_Handler  TAMPER_Handler
 Set_Default_Handler  RTC_Handler
 \end{lstlisting}
 
+\subsection{Makefile}
+    Стандартный мейкфайл будет выглядеть так.
 
 \subsection{Структура проекта.}
+    Нисмотря на кажущуюся простоту, проект все же состоит из 2к строчек кода.
+    Потому он очень аккуратно структурирован.
 
 \subsection{Опрос кнопок.}
     По стандарту геймпады и клавиатуры должны отправлять информацию о состоянии
@@ -563,7 +567,7 @@ sendReport(gamepadPar.report, &cnt);
     даже не какой нибудь отдельно взятой компанией. Его разработал форум
     компаний, таким образом крупные фирмы решили не городить каждый по своему,
     как это обычно бывает. А просто вместе создали стандарт, который
-    бы всех устраивал.\\
+    бы всех устраивал. К тому же USB Forum организация еще и некоммерческая\\
 \includegraphics[width=5cm]{plug.png}\\
     Еще один интересный факт, многие из вас помнят шутку про то сколько раз нужно
     перевернуть USB разъем, чтобы его подключить. Тем не менее, стандарт
@@ -573,7 +577,34 @@ sendReport(gamepadPar.report, &cnt);
     И как же рассказывать про интерфейс, не упоминая о его скорости.
     В самом лучшем случае, используя USB 2.0 full speed от технологии можно
     добиться 12 Мбит/с. Чего хватит для большинства приложений, например поток
-    несжатого аудио занимает всего лишь 1 мегабит.
+    несжатого аудио занимает всего лишь 1 мегабит. Шина дифференциальная,
+    потому вполне работает по длинным проводам.\\
+    Данный раздел по сути является переводом официального стандарта, по части
+    того, что понадобилось в проекте.
+    На всякий случай, приведу таблицу со стандартными типами USB устройств:
+\begin{center}
+  \begin{tabular}{ | l | l | l | }
+    \hline
+    00h &	N/A &	Не задано \\ \hline
+    01h &	Audio &	Звуковая карта, MIDI \\ \hline
+    02h &	Communication Device (CDC)  &	Модем, сетевая карта, COM-порт \\ \hline
+    03h &	Human Interface Device (HID) &	Клавиатура, мышь, джойстик \\ \hline
+    06h &	Image &	Веб-камера, сканер \\ \hline
+    07h &	Printer &	Принтер \\ \hline
+    08h &	Mass Storage Device (MSD) &	USB-накопитель, карта памяти, кардридер \\ \hline
+    05h &	Physical Interface Device (PID) &	Джойстик с поддержкой Force feedback \\ \hline
+    09h &	USB hub &	USB-хаб \\ \hline
+    0Ah &	CDC Data &	Сетевая карта, USB-COM \\ \hline
+    0Bh &	Smart Card Reader (CCID) &	Считыватель смарт-карт \\ \hline
+    0Dh &	Content security &	Биометрический сканер \\ \hline
+    0Eh &	Video Device Class &	Веб-камера \\ \hline
+    0Fh &	Personal Healthcare &	Индикатор пульса, медицинское оборудование \\ \hline
+    DCh &	Diagnostic Device &	USB устройства в отладке \\ \hline
+    E0h &	Wireless Controller &	Bluetooth-адаптер \\ \hline
+    EFh &	Miscellaneous &	все что не влезло в пр. классы \\ \hline
+    FEh &	Application-specific &	режим обновления прошивки (DFU) \\ \hline
+  \end{tabular}
+\end{center}
 
 \subsection{Краткий обзор технологии USB}\label{1}
     Несмотря на внешнюю простоту (штыревой разъем на четыре провода, куда уж
@@ -751,7 +782,7 @@ sendReport(gamepadPar.report, &cnt);
     \path{https://github.com/dltech/usb_device3/blob/main/lib/usb_hid.c}\\
     \path{https://github.com/dltech/usb_device3/blob/main/lib/usb_hid.h}\\
 
-
+\newpage
 \section{Отладка.}
     Я люблю писать рабочий код с первого раза, потому процесс отладки
     программы я производил очень примитивным способом. Отладчиком gdb через
