@@ -53,7 +53,11 @@
     всесторонне. Также нужно сказать что я не ставил цели написания
     подробной документации на все те программы, которые я использовал. Их вы
     можете найти по ссылкам в списке литературы, в данной статье только
-    комментарии к коду.
+    комментарии к коду. Ниже представлен внешний вид разработанной печатной
+    платы устройства и само устройство.\\
+\includegraphics[width=7cm]{pcb.jpg}
+\includegraphics[width=7cm]{gamepad.jpg}\\
+
 \newpage
 
 \section{Схемотехника.}
@@ -253,6 +257,8 @@ git clone repo.git
     и отладки ПО. Ровно как и подключенный на землю вывод BOOT0 означает
     запуск прошивки из основной flash памяти.\\
 \includegraphics[width=15cm]{sch.png}\\
+    А ниже печатная плата с тем самым нехорошим хаком.
+\includegraphics[width=8cm]{sch.png}\\    
 
 \newpage
 \section{Программное обеспечение.}
@@ -323,7 +329,7 @@ apt install build-essential
     -mcpu=cortex-m3 -mthumb - обязательно скажем, какой там процессор\\
     -ffreestanding - не подключаем ненужные функции\\
     -ggdb3 - данный параметр нужен для возможности отладки, перед релизом надо
-    не забыть его удалить, иначе в прошивке будет много лишних данных
+    не забыть его удалить, иначе в прошивке будет много лишних данных.
 
 \subsection{Что нового в CMSIS5.}
     CMSIS это слой абстракции, независимый от производителя. Это не просто
@@ -674,7 +680,7 @@ sendReport(gamepadPar.report, &cnt);
     очень весело. Пример записи пакета для отправки:
 \lstset{language=c}
 \begin{lstlisting}
-uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+uint16_t *bufferPtr=(uint16_t*)(USB_ADDR0_TX*2 +USB_CAN_SRAM_BASE_MY);
 for(int i=0 ; i<(size/2) ; ++i) {
     *bufferPtr = *input;
     input++;
@@ -690,12 +696,12 @@ for(int i=0 ; i<(size/2) ; ++i) {
     заготовленными заранее для каждого эндпоинта:
 \begin{lstlisting}
 // addresses of endpoint 1
-#define USB_ADDR1_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x08)*2)
-#define USB_COUNT1_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0a)*2)
-#define USB_ADDR1_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0c)*2)
-#define USB_COUNT1_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0e)*2)
+#define USB_ADDR1_TX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x08)*2)
+#define USB_COUNT1_TX MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0a)*2)
+#define USB_ADDR1_RX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0c)*2)
+#define USB_COUNT1_RX MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0e)*2)
 // addresses of endpoint 2
-#define USB_ADDR2_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x10)*2)
+#define USB_ADDR2_TX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x10)*2)
 ...
 \end{lstlisting}
     Где USB BTABLE это регистр, который хранит смещение, на случай если вы
