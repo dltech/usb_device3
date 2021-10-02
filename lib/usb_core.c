@@ -150,7 +150,6 @@ void usbReset()
         USB_ADDRN_RX(i) = 0;
         USB_COUNTN_RX(i) = 0;
     }
-    USB_DADDR = EF;
     USB_CNTR = 0;
     USB_ISTR = 0;
     rough_delay_us(1);
