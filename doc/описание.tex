@@ -17,6 +17,7 @@ keepspaces=true}
 %\usepackage{listings}                   % для вставок кода
 \usepackage{hyperref}                   % оформление ссылок
 \usepackage{blindtext}
+\usepackage{underscore}
 %\usepackage[obeyspaces]{url}        % для путей и ссылок
 %\UseRawInputEncoding
 
@@ -1107,7 +1108,42 @@ void usbHidEndpInit()
 \section{Отладка.}
     Я люблю писать рабочий код с первого раза, потому процесс отладки
     программы я производил очень примитивным способом. Отладчиком gdb через
-    терминал, складывая в глобальные переменные все что вызывало сомнения.
+    терминал, складывая в глобальные переменные все что вызывало сомнения.\\
+    Отдельная тема это вопрос питания устройства. Хорошо, что у меня была еще
+    одна плата с таким же процессором, на этот раз отладочная. Контроллер
+    в ней запитывался от программатора. Таким образом удавалось не разрывая
+    соединение с отладчиком подключать и отключать USB.\\
+    Периодически приглядывал за состоянием регистров эндпоинтов USB\_EP0R и
+    USB\_EP1R. Смотрел на то, какой присвоился адрес USB\_DADDR, а также
+    следил за тем, что происходит в контрольном регистре USB_CNTR.
+    Это нужно было что бы понять, правильно ли я взаимодействую с преиферией.\\
+    Но самая интересная отладка заключалась в счетчиках прерываний, подсчет
+    количества запрошенных сбросов, уходов в спячку, событий wakeup, CTRов, а
+    также просто ошибок.\\
+    А еще я ведь писал стандартный контрольный протокол опираясь только на
+    текст стандарта, и было интересно, насколько его будет понимать стандартный
+    драйвер. По итогу я занимался трассировкой стека. Складывал все данные, что
+    приходят по этому пайплайну в массив. По итогу выяснилось, что нужно быть
+    не настолько придирчивым, т.к. один из запросов не совсем строго
+    соответствовал стандарту, пришлось удалить несколько перепроверок и
+    в целом все заработало. Вот трассировка стека с момента запроса:\\
+    DEVICE_GET GET\_DESCRIPTOR DEVICE\_TYP 0 wlen=64 success\\
+    DEVICE\_SET SET\_ADDRESS wValue=9 0 wlen=0 success\\
+    DEVICE\_GET GET\_DESCRIPTOR DEVICE\_TYP 0 wlen=18 success\\
+    DEVICE\_GET GET\_DESCRIPTOR DEVICE\_QUALIFIER_TYP 0 wlen=10 error\\
+    DEVICE\_GET GET\_DESCRIPTOR DEVICE\_QUALIFIER_TYP 0 wlen=10 error\\
+    DEVICE\_GET GET\_DESCRIPTOR CONFIGURATION\_TYP 0 wlen=9 success\\
+    DEVICE\_GET GET\_DESCRIPTOR CONFIGURATION\_TYP 0 wlen=34 success\\
+    DEVICE\_GET GET\_DESCRIPTOR STRING\_TYP 0 wlen=255 success\\
+    DEVICE\_GET GET\_DESCRIPTOR STRING\_TYP,2 0 wlen=255 success\\
+    DEVICE\_GET GET\_DESCRIPTOR STRING\_TYP,1 0 wlen=255 success\\
+    DEVICE\_SET SET\_CONFIGURATION wValue=1 0 wlen=0 success\\
+    33 GET\_INTERFACE 0 0 wlen=0 success\\
+    INTERFACE\_GET GET\_DESCRIPTOR REPORT\_TYP 0 wlen=48 success\\
+    Надеюсь о существовании команды print и ее шестнадцатеричном варианте p/x
+     в gdb моей аудитории рассказывать не нужно.
+
+
 
 %\begin{thebibliography}{9}
 %\bibitem{lamport94}
