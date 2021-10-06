@@ -1,25 +1,18 @@
 #include "mysys.h"
-#include "../libopencm3/include/libopencm3/stm32/rcc.h"
-#include "../libopencm3/include/libopencm3/stm32/gpio.h"
-#include "../libopencm3/include/libopencm3/stm32/flash.h"
+#include "rcc.h"
 
 void sysClk()
 {
     // включаем кварц, ждем пока прогреется
-    RCC_CR |= (uint32_t)RCC_CR_HSEON;
+    RCC_CR |= HSEON;
     uint32_t timeout = 1e8;
-    while ( ((RCC_CR & RCC_CR_HSERDY) == 0) && (--timeout > 1) );
+    while ( ((RCC_CR & HSERDY) == 0) && (--timeout > 1) );
     // рассчет на тактирование от кварца 8 мГц, на максимальную частоту в 72 мГц
     // тактирование USB настроено нормально
     // AHB 72, APB1 36, APB2 72 (разрешенный максимум)
     // на АЦП забили, не используем.
-    uint32_t cfgr = (RCC_CFGR_USBPRE_PLL_CLK_DIV1_5 << 22)                  \
-                  | (RCC_CFGR_PLLMUL_PLL_CLK_MUL9 << RCC_CFGR_PLLMUL_SHIFT) \
-                  | (RCC_CFGR_PLLXTPRE_HSE_CLK << 17)                       \
-                  | (RCC_CFGR_PLLSRC_HSE_CLK << 16)                         \
-                  | (RCC_CFGR_PPRE2_HCLK_NODIV << RCC_CFGR_PPRE2_SHIFT)     \
-                  | (RCC_CFGR_PPRE1_HCLK_DIV2 << RCC_CFGR_PPRE1_SHIFT)     \
-                  | (RCC_CFGR_HPRE_SYSCLK_NODIV << RCC_CFGR_HPRE_SHIFT);
+    uint32_t cfgr = OTGFSPRE | PLLMUL9 | PLLSRC | PPRE2_HCLK_NODIV | \
+                    PPRE1_HCLK_DIV2 | HPRE_SYSCLK_NODIV;
     RCC_CFGR = cfgr;
     // что то с памятью, копипаста с функций stmhal
     FLASH_ACR |= (uint32_t)FLASH_ACR_PRFTBE;
@@ -27,29 +20,28 @@ void sysClk()
     FLASH_ACR |= (uint32_t)FLASH_ACR_LATENCY_2WS;
     // передергиваем PLL, что бы точно все включилось
     timeout = 9e6;
-    if ( (RCC_CFGR & RCC_CFGR_SWS) == (RCC_CFGR_SWS_SYSCLKSEL_PLLCLK << RCC_CFGR_SWS_SHIFT) )
+    if ( (RCC_CFGR & SWS_MASK) == SWS_PLLCLK )
     {
-        RCC_CFGR &= ~((uint32_t)RCC_CFGR_SW);
-        while ( ((RCC_CFGR & RCC_CFGR_SWS) != (RCC_CFGR_SWS_SYSCLKSEL_HSICLK << RCC_CFGR_SWS_SHIFT) ) && \
-                (--timeout > 1) );
+        RCC_CFGR &= ~(SW_MASK);
+        while ( ((RCC_CFGR & SWS_MASK) != SWS_HSI) && (--timeout > 1) );
     }
-    RCC_CR &= ~(uint32_t)(RCC_CR_PLLON);
+    RCC_CR &= ~(PLLON);
     timeout = 9e6;
-    while( ((RCC_CR & RCC_CR_PLLRDY) != 0) && (--timeout > 1) );
-    RCC_CR |= (uint32_t)RCC_CR_PLLON;
+    while( ((RCC_CR & PLLRDY) != 0) && (--timeout > 1) );
+    RCC_CR |= (uint32_t)PLLON;
     timeout = 9e6;
-    while( ((RCC_CR & RCC_CR_PLLRDY) == 0) && (--timeout > 1) );
+    while( ((RCC_CR & PLLRDY) == 0) && (--timeout > 1) );
 
     // включаем sysclk, ждем
-    RCC_CFGR |= (uint32_t)(RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT);
+    RCC_CFGR |= SW_PLL;
     timeout = 9e6;
-    while( ((RCC_CFGR & RCC_CFGR_SWS) != (RCC_CFGR_SWS_SYSCLKSEL_PLLCLK << RCC_CFGR_SWS_SHIFT)) && (--timeout > 1) );
+    while( ((RCC_CFGR & SWS_MASK) != SWS_PLL) && (--timeout > 1) );
 }
 
 void suspSysClk()
 {
     // off everything, only internal RC generator will work
-    RCC_CR = RCC_CR_HSION;
+    RCC_CR = HSION;
 }
 
 void delay_s(uint16_t s)

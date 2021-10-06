@@ -19,8 +19,8 @@
  * limitations under the License.
  */
 
-#include "../libopencm3/include/libopencm3/stm32/rcc.h"
-#include "../libopencm3/include/libopencm3/stm32/timer.h"
+#include "rcc.h"
+#include "tim_regs.h"
 #include "../libopencm3/include/libopencm3/cm3/nvic.h"
 #include "usb_hid.h"
 #include "gamepad_port.h"
@@ -39,14 +39,12 @@ void gpioInit()
 {
     // GPIO input mode with 3.3 pullup (0 if button pressed)
     RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA_CRL = GPIO_CNF_INPUT_PULL_UPDOWN << ((UP_PIN_INIT*4)+2) \
-              | GPIO_CNF_INPUT_PULL_UPDOWN << ((LEFT_PIN_INIT*4)+2) \
-              | GPIO_CNF_INPUT_PULL_UPDOWN << ((RIGHT_PIN_INIT*4)+2) \
-              | GPIO_CNF_INPUT_PULL_UPDOWN << ((DN_PIN_INIT*4)+2) \
-              | GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON1_PIN_INIT*4)+2);
+    GPIOA_CRL = CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
+                CNF_PUPD(RIGHT_PIN_INIT) | CNF_PUPD(DN_PIN_INIT) | \
+                CNF_PUPD(BUTTON1_PIN_INIT);
     GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN | DN_PIN | BUTTON1_PIN;
     RCC_APB2ENR |= RCC_APB2ENR_IOPBEN;
-    GPIOB_CRL = GPIO_CNF_INPUT_PULL_UPDOWN << ((BUTTON2_PIN_INIT*4)+2);
+    GPIOB_CRL = CNF_PUPD(BUTTON2_PIN_INIT);
     GPIOB_ODR |= BUTTON2_PIN;
 }
 
@@ -54,15 +52,15 @@ void pollIrqInit()
 {
     // Timer based interrupt which initiates port poll
     RCC_APB1ENR |= RCC_APB1ENR_TIM2EN;
-    TIM2_CR1   = (uint32_t) TIM_CR1_CKD_CK_INT;
+    TIM2_CR1   = (uint32_t) CKD_CK_INT;
     TIM2_PSC   = (uint32_t) POLL_PSC;
     TIM2_ARR   = (uint32_t) 1;
-    TIM2_DIER  = (uint32_t) TIM_DIER_UIE;
-    TIM2_CR1  |= (uint32_t) TIM_CR1_CEN;
-    nvic_enable_irq(NVIC_TIM2_IRQ);
-    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
+    TIM2_DIER  = (uint32_t) UIE;
+    TIM2_CR1  |= (uint32_t) CEN;
+    NVIC_EnableIRQ(NVIC_TIM2_IRQ);
+//    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
     TIM2_SR = 0;
-    TIM2_EGR  |= (uint32_t) TIM_EGR_UG;
+    TIM2_EGR  |= (uint32_t) UG;
 }
 
 void portInit()
