@@ -24,6 +24,7 @@
  */
 
 #include "ARMCM3.h"
+#include "../rcc.h"
 
 /*----------------------------------------------------------------------------
   Define clocks
@@ -49,6 +50,7 @@ uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
 void SystemCoreClockUpdate (void)
 {
   SystemCoreClock = SYSTEM_CLOCK;
+  sysClk();
 }
 
 /*----------------------------------------------------------------------------
@@ -62,4 +64,5 @@ void SystemInit (void)
 #endif
 
   SystemCoreClock = SYSTEM_CLOCK;
+  sysClk();
 }

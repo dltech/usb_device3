@@ -1,3 +1,6 @@
+#ifndef H_GPIO_REGS
+#define H_GPIO_REGS
+
 /* Port configuration register low */
 #define GPIOA_CRL   MMIO32(GPIOA_BASE + 0x00)
 #define GPIOB_CRL   MMIO32(GPIOB_BASE + 0x00)
@@ -271,3 +274,5 @@
 #define TIM11_REMAP 0x0080
 #define TIM10_REMAP 0x0040
 #define TIM9_REMAP  0x0020
+
+#endif

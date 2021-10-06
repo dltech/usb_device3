@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "../libopencm3/include/libopencm3/cm3/nvic.h"
-#include "../libopencm3/include/libopencm3/stm32/rcc.h"
-#include "mysys.h"
-#include "usb_device_regs.h"
+#include "STM32F103_CMSIS/stm32f103.h"
+#include "rcc.h"
+#include "regs/usb_device_regs.h"
 #include "usb_st_req.h"
 #include "usb_hid.h"
 #include "usb_core.h"
@@ -87,8 +86,8 @@ void usbItInit()
     // init unuserful interrupts
 //    USB_CNTR |= ERRM | PMAOVRM | SOFM;
 //    USB_CNTR |= ESOFM;
-    NVIC_EnableIRQ(NVIC_USB_LP_CAN_RX0_IRQ);
-    NVIC_EnableIRQ(NVIC_USB_WAKEUP_IRQ);
+    NVIC_EnableIRQ(usb_hp_can_tx_IRQn);
+    NVIC_EnableIRQ(USB_Wakeup_IRQn);
 //    nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
 }
 
@@ -446,7 +445,7 @@ int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t m
 }
 
 // yet another wakeup interrupt line
-void usb_wakeup_isr()
+void USB_Wakeup_Handler()
 {
     usbWkup();
 }

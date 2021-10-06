@@ -1,3 +1,6 @@
+#ifndef H_TIM_REGS
+#define H_TIM_REGS
+
 /* TIM1 control register 1 */
 #define TIM1_CR1    MMIO32(TIM1_BASE + 0x00)
 /* TIM8 control register 1 */
@@ -725,3 +728,5 @@
 #define TIM4_DMAR   MMIO32(TIM4_BASE + 0x4c)
 /* TIM5 DMA address for full transfer */
 #define TIM5_DMAR   MMIO32(TIM5_BASE + 0x4c)
+
+#endif

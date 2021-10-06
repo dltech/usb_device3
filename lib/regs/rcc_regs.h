@@ -1,3 +1,6 @@
+#ifndef H_RCC_REGS
+#define H_RCC_REGS
+
 #define RCC_BASE
 
 /* Clock control register */
@@ -179,8 +182,8 @@
 #define TIM6EN      0x00000010
 #define TIM5EN      0x00000008
 #define TIM4EN      0x00000004
-#define TIM2EN      0x00000002
-#define TIM1EN      0x00000001
+#define TIM3EN      0x00000002
+#define TIM2EN      0x00000001
 
 /* Backup domain control register */
 #define RCC_BCDR        MMIO32(RCC_BASE + 0x20)
@@ -266,3 +269,5 @@
 #define PREDDIV1_3  0x00000002
 #define PREDDIV1_2  0x00000001
 #define PREDDIV1_1  0x00000000
+
+#endif

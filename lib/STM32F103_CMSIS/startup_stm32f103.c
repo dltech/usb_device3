@@ -154,7 +154,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[240];
   EXTI0_Handler,				// EXTI Line0 interrupt
   EXTI1_Handler,				// EXTI Line1 interrupt
   EXTI2_Handler,				// EXTI Line2 interrupt
-  EXTI3_Handler,				// EXTI Line3 interrupt	
+  EXTI3_Handler,				// EXTI Line3 interrupt
   EXTI4_Handler,				// EXTI Line4 interrupt
   DMA1_Channel1_Handler,		// DMA Channel1 global interrupt
   DMA1_Channel2_Handler,		// DMA Channel2 global interrupt
@@ -165,7 +165,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[240];
   DMA1_Channel7_Handler,		// DMA Channel7 global interrupt
   ADC_Handler,					// ADC1 and ADC2 global interrupt
   usb_hp_can_tx_Handler,		// USB high priority or CAN TX interrupts
-  usb_hp_can_rx_Handler,		// USB Low priority or CAN RX0 interrupts
+  usb_lp_can_rx_Handler,		// USB Low priority or CAN RX0 interrupts
   CAN_RX1_Handler,				// CAN RX1 interrupt
   CAN_SCE_Handler,				// CAN SCE interrupt
   EXTI9_5_Handler,				// EXTI Line[9:5] interrupts
@@ -246,4 +246,3 @@ void Default_Handler(void)
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang diagnostic pop
 #endif
-

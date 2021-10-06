@@ -20,8 +20,7 @@
  */
 
 #include "rcc.h"
-#include "tim_regs.h"
-#include "../libopencm3/include/libopencm3/cm3/nvic.h"
+#include "regs/tim_regs.h"
 #include "usb_hid.h"
 #include "gamepad_port.h"
 
@@ -57,7 +56,7 @@ void pollIrqInit()
     TIM2_ARR   = (uint32_t) 1;
     TIM2_DIER  = (uint32_t) UIE;
     TIM2_CR1  |= (uint32_t) CEN;
-    NVIC_EnableIRQ(NVIC_TIM2_IRQ);
+    NVIC_EnableIRQ(TIM2_IRQn);
 //    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
     TIM2_SR = 0;
     TIM2_EGR  |= (uint32_t) UG;
@@ -150,7 +149,7 @@ void repTest()
     if(eeee>7000) eeee=0;
 }
 
-void tim2_isr()
+void TIM2_Handler()
 {
     static int cnt=0;
     portPoll();

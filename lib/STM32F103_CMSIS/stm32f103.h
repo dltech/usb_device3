@@ -67,7 +67,7 @@ typedef enum IRQn
   DMA1_Channel7_IRQn			= 17
   ADC_IRQn						= 18
   usb_hp_can_tx_IRQn			= 19
-  usb_hp_can_rx_IRQn			= 20
+  usb_lp_can_rx_IRQn			= 20
   CAN_RX1_IRQn					= 21
   CAN_SCE_IRQn					= 22
   EXTI9_5_IRQn				 	= 23
@@ -145,7 +145,7 @@ typedef enum IRQn
 #define __NVIC_PRIO_BITS          3U        /* Number of Bits used for Priority Levels */
 #define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
 
-#include "core_cm3.h"                       /* Processor and core peripherals */
+#include "../CMSIS_5/CMSIS/Core/Include/core_cm3.h"                       /* Processor and core peripherals */
 #include "system_ARMCM3.h"                  /* System Header */
 
 
