@@ -2,9 +2,6 @@
 STM32 based USB adapter for ZX spectrum joystick. You may connect gamepad
 with d-pad and two buttons to PC using USB.
 Tested and working.
-It is based on libopencm3 makefile but with my own simplest USB driver.
 ![device](datasheet/pcb.JPG)
 ![eee](datasheet/gamepad.JPG)
 ![eeee](datasheet/test.png)
-todo:
-to get rid of libopencm3, CMSIS and my reg def are instead

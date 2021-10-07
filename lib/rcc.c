@@ -1,4 +1,5 @@
 #include "rcc.h"
+#include "inttypes.h"
 
 enum{
     ETHMACRX,

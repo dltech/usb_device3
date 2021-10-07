@@ -1,7 +1,7 @@
 #ifndef H_RCC_REGS
 #define H_RCC_REGS
 
-#define RCC_BASE
+#include "memorymap.h"
 
 /* Clock control register */
 #define RCC_CR          MMIO32(RCC_BASE + 0x00)

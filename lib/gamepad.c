@@ -27,7 +27,7 @@ void gamepadInit()
 }
 
 // all usb events handled in interrupt
-void usb_hp_can_tx_Handler()
+void usb_lp_can_rx_Handler()
 {
     usbCore();
 }

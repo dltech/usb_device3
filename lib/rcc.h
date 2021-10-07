@@ -2,7 +2,8 @@
 #define H_RCC
 
 #include "regs/rcc_regs.h"
-#include "inttypes.h"
+
+
 // maximal frequency system clock
 void sysClk(void);
 // slowest system clock

@@ -87,7 +87,7 @@ void usbItInit()
     // init unuserful interrupts
 //    USB_CNTR |= ERRM | PMAOVRM | SOFM;
 //    USB_CNTR |= ESOFM;
-    NVIC_EnableIRQ(usb_hp_can_tx_IRQn);
+    NVIC_EnableIRQ(usb_lp_can_rx_IRQn);
     NVIC_EnableIRQ(USB_Wakeup_IRQn);
 //    nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
 }

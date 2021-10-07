@@ -39,7 +39,7 @@ void gpioInit()
 {
     // GPIO input mode with 3.3 pullup (0 if button pressed)
     RCC_APB2ENR |= IOPAEN;
-    GPIOA_CRL = (uint32_t)CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
+    GPIOA_CRL = CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
                 CNF_PUPD(RIGHT_PIN_INIT) | CNF_PUPD(DN_PIN_INIT) | \
                 CNF_PUPD(BUTTON1_PIN_INIT);
     GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN | DN_PIN | BUTTON1_PIN;
