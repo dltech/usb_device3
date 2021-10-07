@@ -3,13 +3,13 @@
 
 #include "regs/rcc_regs.h"
 #include "inttypes.h"
-//maximal frequency system clock
+// maximal frequency system clock
 void sysClk(void);
 // slowest system clock
 void suspSysClk(void);
 // simplified clock enable interface
-void enablePeriphClock(uint16_t periph);
+//void enablePeriphClock(uint16_t periph);
 // simplified clock disable interface
-void resetPeriphClock(uint16_t periph);
+//void resetPeriphClock(uint16_t periph);
 
 #endif

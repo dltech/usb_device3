@@ -30,6 +30,13 @@
 extern "C" {
 #endif
 
+/*----------------------------------------------------------------------------
+  Define clocks
+ *----------------------------------------------------------------------------*/
+#define  XTAL            (72000000UL)     /* Oscillator frequency */
+
+#define  SYSTEM_CLOCK    XTAL	// only maximum, another freqs a left out
+
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
@@ -47,65 +54,65 @@ typedef enum IRQn
   SysTick_IRQn                  =  -1,     /* 15 System Tick Interrupt */
 
 /* -------------------  Processor Interrupt Numbers  ------------------------------ */
-  WWDG_IRQn						= 0
-  PVD_IRQn						= 1
-  TAMPER_IRQn					= 2
-  RTC_IRQn						= 3
-  FLASH_IRQn					= 4
-  RCC_IRQn						= 5
-  EXTI0_IRQn					= 6
-  EXTI1_IRQn					= 7
-  EXTI2_IRQn					= 8
-  EXTI3_IRQn					= 9
-  EXTI4_IRQn					= 10
-  DMA1_Channel1_IRQn			= 11
-  DMA1_Channel2_IRQn			= 12
-  DMA1_Channel3_IRQn			= 13
-  DMA1_Channel4_IRQn			= 14
-  DMA1_Channel5_IRQn			= 15
-  DMA1_Channel6_IRQn			= 16
-  DMA1_Channel7_IRQn			= 17
-  ADC_IRQn						= 18
-  usb_hp_can_tx_IRQn			= 19
-  usb_lp_can_rx_IRQn			= 20
-  CAN_RX1_IRQn					= 21
-  CAN_SCE_IRQn					= 22
-  EXTI9_5_IRQn				 	= 23
-  TIM1_BRK_TIM15_IRQn			= 24
-  TIM1_UP_TIM16_IRQn			= 25
-  TIM1_TRG_COM_TIM17_IRQn		= 26
-  TIM1_CC_IRQn					= 27
-  TIM2_IRQn						= 28
-  TIM3_IRQn						= 29
-  TIM4_IRQn						= 30
-  I2C1_EV_IRQn					= 31
-  I2C1_ER_IRQn					= 32
-  I2C2_EV_IRQn					= 33
-  I2C2_ER_IRQn					= 34
-  SPI1_IRQn						= 35
-  SPI2_IRQn						= 36
-  USART1_IRQn					= 37
-  USART2_IRQn					= 38
-  USART3_IRQn					= 39
-  EXTI15_10_IRQn				= 40
-  RTCAlarm_IRQn					= 41
-  USB_Wakeup_IRQn				= 42
-  TIM8_BRK_IRQn					= 43
-  TIM8_UP_IRQn					= 44
-  TIM8_TRG_COM_IRQn				= 45
-  TIM8_CC_IRQn					= 46
-  ADC3_IRQn						= 47
-  FSMC_IRQn						= 48
-  SDIO_IRQn						= 49
-  TIM5_IRQn						= 50
-  SPI3_IRQn						= 51
-  UART4_IRQn					= 52
-  UART5_IRQn					= 53
-  TIM6_DAC_IRQn					= 54
-  TIM7_IRQn						= 55
-  DMA2_Channel1_IRQn			= 56
-  DMA2_Channel2_IRQn			= 57
-  DMA2_Channel3_IRQn			= 58
+  WWDG_IRQn						= 0,
+  PVD_IRQn						= 1,
+  TAMPER_IRQn					= 2,
+  RTC_IRQn						= 3,
+  FLASH_IRQn					= 4,
+  RCC_IRQn						= 5,
+  EXTI0_IRQn					= 6,
+  EXTI1_IRQn					= 7,
+  EXTI2_IRQn					= 8,
+  EXTI3_IRQn					= 9,
+  EXTI4_IRQn					= 10,
+  DMA1_Channel1_IRQn			= 11,
+  DMA1_Channel2_IRQn			= 12,
+  DMA1_Channel3_IRQn			= 13,
+  DMA1_Channel4_IRQn			= 14,
+  DMA1_Channel5_IRQn			= 15,
+  DMA1_Channel6_IRQn			= 16,
+  DMA1_Channel7_IRQn			= 17,
+  ADC_IRQn						= 18,
+  usb_hp_can_tx_IRQn			= 19,
+  usb_lp_can_rx_IRQn			= 20,
+  CAN_RX1_IRQn					= 21,
+  CAN_SCE_IRQn					= 22,
+  EXTI9_5_IRQn				 	= 23,
+  TIM1_BRK_TIM15_IRQn			= 24,
+  TIM1_UP_TIM16_IRQn			= 25,
+  TIM1_TRG_COM_TIM17_IRQn		= 26,
+  TIM1_CC_IRQn					= 27,
+  TIM2_IRQn						= 28,
+  TIM3_IRQn						= 29,
+  TIM4_IRQn						= 30,
+  I2C1_EV_IRQn					= 31,
+  I2C1_ER_IRQn					= 32,
+  I2C2_EV_IRQn					= 33,
+  I2C2_ER_IRQn					= 34,
+  SPI1_IRQn						= 35,
+  SPI2_IRQn						= 36,
+  USART1_IRQn					= 37,
+  USART2_IRQn					= 38,
+  USART3_IRQn					= 39,
+  EXTI15_10_IRQn				= 40,
+  RTCAlarm_IRQn					= 41,
+  USB_Wakeup_IRQn				= 42,
+  TIM8_BRK_IRQn					= 43,
+  TIM8_UP_IRQn					= 44,
+  TIM8_TRG_COM_IRQn				= 45,
+  TIM8_CC_IRQn					= 46,
+  ADC3_IRQn						= 47,
+  FSMC_IRQn						= 48,
+  SDIO_IRQn						= 49,
+  TIM5_IRQn						= 50,
+  SPI3_IRQn						= 51,
+  UART4_IRQn					= 52,
+  UART5_IRQn					= 53,
+  TIM6_DAC_IRQn					= 54,
+  TIM7_IRQn						= 55,
+  DMA2_Channel1_IRQn			= 56,
+  DMA2_Channel2_IRQn			= 57,
+  DMA2_Channel3_IRQn			= 58,
   DMA2_Channel4_5_IRQn  		= 59
   /* Interrupts 60 .. 224 are left out */
 } IRQn_Type;
@@ -146,7 +153,7 @@ typedef enum IRQn
 #define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
 
 #include "../CMSIS_5/CMSIS/Core/Include/core_cm3.h"                       /* Processor and core peripherals */
-#include "system_ARMCM3.h"                  /* System Header */
+#include "system_stm32f103.h"                  /* System Header */
 
 
 /* --------  End of section using anonymous unions and disabling warnings  -------- */

@@ -1,5 +1,24 @@
 #ifndef H_GPIO_REGS
 #define H_GPIO_REGS
+/*
+ * Part of Belkin STM32 HAL, gpio registers of STMF103 MCU.
+ *
+ * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "memorymap.h"
 
 /* Port configuration register low */
 #define GPIOA_CRL   MMIO32(GPIOA_BASE + 0x00)
@@ -14,12 +33,9 @@
 #define GPIOD_CRH   MMIO32(GPIOD_BASE + 0x04)
 #define GPIOE_CRH   MMIO32(GPIOE_BASE + 0x04)
 // port x configuration in input mode
-#define CNF_ANALOG       0x00000000
-#define CNF_FLOATING     0x00000004
-#define CNF_PUPD         0x00000008
 #define CNF_ANALOG(n)    0x00000000
-#define CNF_FLOATING(n)  (0x4 << (n*4))
-#define CNF_PUPD(n)      (0x8 << (n*4))
+#define CNF_FLOATING(n)  ((uint32_t)(0x4 << (n*4)))
+#define CNF_PUPD(n)      ((uint32_t)(0x8 << (n*4)))
 #define CNF0_ANALOG      0x00000000
 #define CNF0_FLOATING    0x00000004
 #define CNF0_PUPD        0x00000008
@@ -45,14 +61,10 @@
 #define CNF7_FLOATING    0x40000000
 #define CNF7_PUPD        0x80000000
 // port x configuration in output mode
-#define CNF_PUSH_PULL        0x00000000
-#define CNF_OPEN_DRAIN       0x00000004
-#define CNF_AF_PUSH_PULL     0x00000008
-#define CNF_AF_OPEN_DRAIN    0x0000000c
 #define CNF_PUSH_PULL(n)     0x00000000
-#define CNF_OPEN_DRAIN(n)    (0x4 << (n*4))
-#define CNF_AF_PUSH_PULL(n)  (0x8 << (n*4))
-#define CNF_AF_OPEN_DRAIN(n) (0xc << (n*4))
+#define CNF_OPEN_DRAIN(n)    ((uint32_t)(0x4 << (n*4)))
+#define CNF_AF_PUSH_PULL(n)  ((uint32_t)(0x8 << (n*4)))
+#define CNF_AF_OPEN_DRAIN(n) ((uint32_t)(0xc << (n*4)))
 #define CNF0_PUSH_PULL       0x00000000
 #define CNF0_OPEN_DRAIN      0x00000004
 #define CNF0_AF_PUSH_PULL    0x00000008
@@ -86,37 +98,42 @@
 #define CNF7_AF_PUSH_PULL    0x80000000
 #define CNF7_AF_OPEN_DRAIN   0xc0000000
 // Port mode bits
-#define MODE_INPUT       0x00000000
-#define MODE_OUTPUT10    0x00000001
-#define MODE_OUTPUT2     0x00000002
-#define MODE_OUTPUT50    0x00000003
-#define CNF_ANALOG(n)    0x00000000
-#define CNF_FLOATING(n)  (0x4 << (n*4))
-#define CNF_PUPD(n)      (0x8 << (n*4))
-#define CNF0_ANALOG      0x00000000
-#define CNF0_FLOATING    0x00000004
-#define CNF0_PUPD        0x00000008
-#define CNF1_ANALOG      0x00000000
-#define CNF1_FLOATING    0x00000040
-#define CNF1_PUPD        0x00000080
-#define CNF2_ANALOG      0x00000000
-#define CNF2_FLOATING    0x00000400
-#define CNF2_PUPD        0x00000800
-#define CNF3_ANALOG      0x00000000
-#define CNF3_FLOATING    0x00004000
-#define CNF3_PUPD        0x00008000
-#define CNF4_ANALOG      0x00000000
-#define CNF4_FLOATING    0x00040000
-#define CNF4_PUPD        0x00080000
-#define CNF5_ANALOG      0x00000000
-#define CNF5_FLOATING    0x00400000
-#define CNF5_PUPD        0x00800000
-#define CNF6_ANALOG      0x00000000
-#define CNF6_FLOATING    0x04000000
-#define CNF6_PUPD        0x08000000
-#define CNF7_ANALOG      0x00000000
-#define CNF7_FLOATING    0x40000000
-#define CNF7_PUPD        0x80000000
+#define MODE_INPUT(n)    0x00000000
+#define MODE_OUTPUT10(n) ((uint32_t)(0x1 << (n*4)))
+#define MODE_OUTPUT2(n)  ((uint32_t)(0x2 << (n*4)))
+#define MODE_OUTPUT50(n) ((uint32_t)(0x3 << (n*4)))
+#define MODE0_INPUT       0x00000000
+#define MODE0_OUTPUT10    0x00000001
+#define MODE0_OUTPUT2     0x00000002
+#define MODE0_OUTPUT50    0x00000003
+#define MODE1_INPUT       0x00000000
+#define MODE1_OUTPUT10    0x00000010
+#define MODE1_OUTPUT2     0x00000020
+#define MODE1_OUTPUT50    0x00000030
+#define MODE2_INPUT       0x00000000
+#define MODE2_OUTPUT10    0x00000100
+#define MODE2_OUTPUT2     0x00000200
+#define MODE2_OUTPUT50    0x00000300
+#define MODE3_INPUT       0x00000000
+#define MODE3_OUTPUT10    0x00001000
+#define MODE3_OUTPUT2     0x00002000
+#define MODE3_OUTPUT50    0x00003000
+#define MODE4_INPUT       0x00000000
+#define MODE4_OUTPUT10    0x00010000
+#define MODE4_OUTPUT2     0x00020000
+#define MODE4_OUTPUT50    0x00030000
+#define MODE5_INPUT       0x00000000
+#define MODE5_OUTPUT10    0x00100000
+#define MODE5_OUTPUT2     0x00200000
+#define MODE5_OUTPUT50    0x00300000
+#define MODE6_INPUT       0x00000000
+#define MODE6_OUTPUT10    0x01000000
+#define MODE6_OUTPUT2     0x02000000
+#define MODE6_OUTPUT50    0x03000000
+#define MODE7_INPUT       0x00000000
+#define MODE7_OUTPUT10    0x10000000
+#define MODE7_OUTPUT2     0x20000000
+#define MODE7_OUTPUT50    0x30000000
 
 /* Port input data register */
 #define GPIOA_IDR   MMIO32(GPIOA_BASE + 0x08)
@@ -140,7 +157,7 @@
 #define GPIO12  0x1000
 #define GPIO13  0x2000
 #define GPIO14  0x4000
-#define GPIO14  0x8000
+#define GPIO15  0x8000
 // IDR Port input data
 #define IDR(n)  (1 << n)
 
@@ -160,9 +177,9 @@
 #define GPIOD_BSRR  MMIO32(GPIOD_BASE + 0x10)
 #define GPIOE_BSRR  MMIO32(GPIOE_BASE + 0x10)
 // Port reset bit
-#define BR(n)   (1 << n+16)
+#define BR(n)   ((uint32_t)(1 << n+16))
 // Port set bit
-#define BS(n)   (1 << n)
+#define BS(n)   ((uint32_t)(1 << n))
 
 /* Port bit reset register */
 #define GPIOA_BRR   MMIO32(GPIOA_BASE + 0x14)
@@ -180,7 +197,7 @@
 // Lock key
 #define LCKK    0x00010000
 // Port lock bit
-#define LCK(n)   (1 << n)
+#define LCK_GPIO(n)   ((uint32_t)(1 << n))
 
 /* Event control register */
 #define AFIO_EVCR    MMIO32(AFIO_BASE + 0x00)
@@ -252,13 +269,13 @@
 
 /* External interrupt configuration register 1 */
 #define AFIO_EXTICR1 MMIO32(AFIO_BASE + 0x08)
-#define EXTI_PA(n)  (0x0 << (n*4))
-#define EXTI_PB(n)  (0x1 << (n*4))
-#define EXTI_PC(n)  (0x2 << (n*4))
-#define EXTI_PD(n)  (0x3 << (n*4))
-#define EXTI_PE(n)  (0x4 << (n*4))
-#define EXTI_PF(n)  (0x5 << (n*4))
-#define EXTI_PG(n)  (0x6 << (n*4))
+#define EXTI_PA(n)  ((uint32_t)(0x0 << (n*4)))
+#define EXTI_PB(n)  ((uint32_t)(0x1 << (n*4)))
+#define EXTI_PC(n)  ((uint32_t)(0x2 << (n*4)))
+#define EXTI_PD(n)  ((uint32_t)(0x3 << (n*4)))
+#define EXTI_PE(n)  ((uint32_t)(0x4 << (n*4)))
+#define EXTI_PF(n)  ((uint32_t)(0x5 << (n*4)))
+#define EXTI_PG(n)  ((uint32_t)(0x6 << (n*4)))
 /* External interrupt configuration register 2 */
 #define AFIO_EXTICR2 MMIO32(AFIO_BASE + 0x0c)
 /* External interrupt configuration register 3 */

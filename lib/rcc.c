@@ -39,8 +39,7 @@ enum{
     TIM6,
     TIM5,
     TIM4,
-    TIM2,
-    TIM1
+    TIM2
 } periphClock;
 
 void sysClk()
@@ -57,20 +56,19 @@ void sysClk()
                     PPRE1_HCLK_DIV2 | HPRE_SYSCLK_NODIV;
     RCC_CFGR = cfgr;
     // что то с памятью, копипаста с функций stmhal
-    FLASH_ACR |= (uint32_t)FLASH_ACR_PRFTBE;
-    FLASH_ACR &= ((uint32_t)~FLASH_ACR_LATENCY_MASK);
-    FLASH_ACR |= (uint32_t)FLASH_ACR_LATENCY_2WS;
+    FLASH_ACR |= (uint32_t)PRFTBE;
+    FLASH_ACR |= (uint32_t)LATENCY_72M;
     // передергиваем PLL, что бы точно все включилось
     timeout = 9e6;
-    if ( (RCC_CFGR & SWS_MASK) == SWS_PLLCLK )
+    if ( (RCC_CFGR & SWS_MASK) == SWS_PLL )
     {
-        RCC_CFGR &= ~(SW_MASK);
+        RCC_CFGR &= ~((uint32_t)SW_MASK);
         while ( ((RCC_CFGR & SWS_MASK) != SWS_HSI) && (--timeout > 1) );
     }
-    RCC_CR &= ~(PLLON);
+    RCC_CR &= ~((uint32_t)PLLON);
     timeout = 9e6;
     while( ((RCC_CR & PLLRDY) != 0) && (--timeout > 1) );
-    RCC_CR |= (uint32_t)PLLON;
+    RCC_CR |= PLLON;
     timeout = 9e6;
     while( ((RCC_CR & PLLRDY) == 0) && (--timeout > 1) );
 
@@ -86,6 +84,7 @@ void suspSysClk()
     RCC_CR = HSION;
 }
 
+/*
 void enablePeriphClock(uint16_t periph)
 {
     switch (periph) {
@@ -322,3 +321,4 @@ void resetPeriphClock(uint16_t periph)
             break;
     }
 }
+*/

@@ -23,15 +23,8 @@
  * limitations under the License.
  */
 
-#include "ARMCM3.h"
+#include "stm32f103.h"
 #include "../rcc.h"
-
-/*----------------------------------------------------------------------------
-  Define clocks
- *----------------------------------------------------------------------------*/
-#define  XTAL            (72000000UL)     /* Oscillator frequency */
-
-#define  SYSTEM_CLOCK    XTAL	// only maximum, another freqs a left out
 
 /*----------------------------------------------------------------------------
   Exception / Interrupt Vector table

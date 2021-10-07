@@ -18,6 +18,7 @@
  */
 #include "STM32F103_CMSIS/stm32f103.h"
 #include "rcc.h"
+#include "delay.h"
 #include "regs/usb_device_regs.h"
 #include "usb_st_req.h"
 #include "usb_hid.h"
@@ -50,7 +51,7 @@ void reqHandler(void);
 
 void usbGpioInit()
 {
-    RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
+    RCC_APB2ENR |= IOPAEN;
     // does not affect anything
 /*    GPIOA_CRH = (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDM_PIN_INIT*4)+2)) \
               | (GPIO_CNF_OUTPUT_ALTFN_PUSHPULL << ((USBDP_PIN_INIT*4)+2)) \
@@ -65,13 +66,13 @@ void usbGpioInit()
 
 void usbClockInit()
 {
-    RCC_APB1ENR |= RCC_APB1ENR_USBEN;
+    RCC_APB1ENR |= USBEN;
     // usb on
-    USB_CNTR &= ~PDWN;
+    USB_CNTR &= ~((uint32_t)PDWN);
     rough_delay_us(2);
     USB_ISTR = 0;
     // reset usb
-    USB_CNTR &= ~FRES;
+    USB_CNTR &= ~((uint32_t)FRES);
     uint32_t timeout = 1e6;
     while( ((USB_ISTR & RESET) == 0) && (--timeout < 2) );
     USB_ISTR = 0;
@@ -301,7 +302,7 @@ void reqCopy(requestTyp *request)
       uint8_t* b;
       uint16_t* w;
     } pBuf;
-    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE_MY);
+    pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
     request->bmRequestType = *pBuf.b++;
     request->bRequest = *pBuf.b++;
     pBuf.w++;
@@ -348,7 +349,7 @@ void reportTx(uint8_t report)
 {
 //    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
     // put data into buffer
     *bufferPtr =  ((uint16_t)report);
     USB_COUNT1_TX = 1 & COUNT_TX_MASK;
@@ -386,7 +387,7 @@ int epHaltClear(int ep)
 void controlTxData0()
 {
     USB_COUNT0_TX = 0;
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     *bufferPtr = 0;
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
@@ -396,7 +397,7 @@ void controlTxData0()
 
 void controlTxData1(uint8_t data)
 {
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     *bufferPtr = (uint16_t)data;
     USB_COUNT0_TX = 1 & COUNT_TX_MASK;
     controlDtogInit();
@@ -406,7 +407,7 @@ void controlTxData1(uint8_t data)
 
 void controlTxData2(uint16_t data)
 {
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     *bufferPtr = data;
     USB_COUNT0_TX = 2 & COUNT_TX_MASK;
     controlDtogInit();
@@ -418,7 +419,7 @@ void controlTxDataN(uint8_t *data, int size)
 {
     if(size <= 2) return;
     uint16_t *input = (uint16_t*)data;
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE_MY);
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     for(int i=0 ; i<(size/2) ; ++i) {
         *bufferPtr = *input;
         input++;

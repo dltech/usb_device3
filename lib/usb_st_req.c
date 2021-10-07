@@ -18,7 +18,6 @@
  */
 #include "usb_core.h"
 #include "gamepad_desc.h"
-#include "mysys.h"
 #include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;
@@ -269,7 +268,7 @@ int getDescriptorReqHandler(requestTyp *request)
 //    }
     // concatenation buffer init
     uint8_t tmp[request->wLength];
-    uint8_t prev = 0;
+    int prev = 0;
 
     switch(request->wValue)
     {

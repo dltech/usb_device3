@@ -11,7 +11,7 @@ CFILES += usb_hid.c
 CFILES += usb_st_req.c
 CFILES += usb_device_regs.c
 
-
+DEFINES = ARMCM3
 DEVICE=stm32f103C8T6
 OOCD_FILE = board/stm32f0discovery.cfg
 

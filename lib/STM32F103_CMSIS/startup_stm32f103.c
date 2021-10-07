@@ -23,7 +23,7 @@
  */
 
 #if defined (ARMCM3)
-  #include "ARMCM3.h"
+  #include "stm32f103.h"
 #else
   #error device not specified!
 #endif
@@ -75,7 +75,7 @@ void DMA1_Channel6_Handler	(void) __attribute__ ((weak, alias("Default_Handler")
 void DMA1_Channel7_Handler	(void) __attribute__ ((weak, alias("Default_Handler")));
 void ADC_Handler			(void) __attribute__ ((weak, alias("Default_Handler")));
 void usb_hp_can_tx_Handler	(void) __attribute__ ((weak, alias("Default_Handler")));
-void usb_hp_can_rx_Handler	(void) __attribute__ ((weak, alias("Default_Handler")));
+void usb_lp_can_rx_Handler	(void) __attribute__ ((weak, alias("Default_Handler")));
 void CAN_RX1_Handler		(void) __attribute__ ((weak, alias("Default_Handler")));
 void CAN_SCE_Handler		(void) __attribute__ ((weak, alias("Default_Handler")));
 void EXTI9_5_Handler		(void) __attribute__ ((weak, alias("Default_Handler")));

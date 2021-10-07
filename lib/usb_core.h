@@ -18,7 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "../libopencm3/include/libopencm3/stm32/gpio.h"
+#include "regs/gpio_regs.h"
 #include <inttypes.h>
 
 #define EP0_BUFFER_SIZE         64

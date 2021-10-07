@@ -11,9 +11,11 @@ SOURCES += $(PROJECT_DIR)gamepad.c
 SOURCES += $(PROJECT_DIR)usb_core.c
 SOURCES += $(PROJECT_DIR)usb_hid.c
 SOURCES += $(PROJECT_DIR)usb_st_req.c
-SOURCES += $(REG_DIR)usb_device_regs.c
 SOURCES += $(PROJECT_DIR)rcc.c
+SOURCES += $(PROJECT_DIR)delay.c
+SOURCES += $(REG_DIR)usb_device_regs.c
 
+DEFINES = ARMCM3
 
 INCLUDES   = -I$(PROJECT_DIR)
 INCLUDES  += -I$(REG_DIR)
@@ -29,9 +31,10 @@ LD_SCRIPT = $(VENDOR_DIR)/gcc_arm.ld
 
 CFLAGS +=-ffunction-sections -fdata-sections
 CFLAGS +=-Wall -Wextra -Werror -Wconversion -Wundef -Wformat=2 -Wformat-truncation
-CFLAGS +=-Wdouble-promotion -Wshadow -Wpadded -Wimplicit-function-declaration
+CFLAGS +=-Wdouble-promotion -Wshadow -Wimplicit-function-declaration
 CFLAGS +=-fno-common -Os -mcpu=cortex-m3 -mthumb -ffreestanding
 CFLAGS +=-ggdb3
+CFLAGS += -specs=nosys.specs -D$(DEFINES)
 
 LFLAGS= -T$(LD_SCRIPT)
 

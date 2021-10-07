@@ -19,13 +19,11 @@
  * limitations under the License.
  */
 
-#include "../libopencm3/include/libopencm3/cm3/common.h"
-// base addresses
-#define USB_DEVICE_FS_BASE   0x40005C00
-#define USB_CAN_SRAM_BASE_MY 0x40006000
+#include "memorymap.h"
+#include "inttypes.h"
 
 /* USB Control register */
-#define USB_CNTR	(MMIO32(USB_DEVICE_FS_BASE + 0x40))
+#define USB_CNTR	(MMIO32(USB_DEVICE_BASE + 0x40))
 // correct transfer interrupt mask (rw)
 #define CTRM                0x8000
 // packet memory area over/underrun interrupt mask (rw)
@@ -54,7 +52,7 @@
 #define FRES                0x0001
 
 /* USB Interrupt status register */
-#define USB_ISTR	(MMIO32(USB_DEVICE_FS_BASE + 0x44))
+#define USB_ISTR	(MMIO32(USB_DEVICE_BASE + 0x44))
 // correct transfer (r)
 #define CTR                 0x8000
 // packet memory area over/underrun (rc_w0)
@@ -78,7 +76,7 @@
 #define EP_ID_OFFS          0
 
 /* USB Frame number register */
-#define USB_FNR		(MMIO32(USB_DEVICE_FS_BASE + 0x48))
+#define USB_FNR		(MMIO32(USB_DEVICE_BASE + 0x48))
 // receive data + line status (r)
 #define RXDP                0x8000
 // receive data - line status (r)
@@ -93,7 +91,7 @@
 #define FN_OFFS             0
 
 /* USB Device address register */
-#define USB_DADDR	(MMIO32(USB_DEVICE_FS_BASE + 0x4C))
+#define USB_DADDR	(MMIO32(USB_DEVICE_BASE + 0x4C))
 // enable function (rw)
 #define EF                  0x0080
 // device address (rw)
@@ -101,20 +99,20 @@
 #define ADD_OFFS            0
 
 /* USB Buffer table address register */
-#define USB_BTABLE  (MMIO32(USB_DEVICE_FS_BASE + 0x50))
+#define USB_BTABLE  (MMIO32(USB_DEVICE_BASE + 0x50))
 // buffer table (rw)
 #define BTABLE_MASK         0xfff8
 
 /* USB endpoint registers */
-#define USB_EP0R    (MMIO32(USB_DEVICE_FS_BASE + 0x00))
-#define USB_EP1R	(MMIO32(USB_DEVICE_FS_BASE + 0x04))
-#define USB_EP2R	(MMIO32(USB_DEVICE_FS_BASE + 0x08))
-#define USB_EP3R	(MMIO32(USB_DEVICE_FS_BASE + 0x0c))
-#define USB_EP4R	(MMIO32(USB_DEVICE_FS_BASE + 0x10))
-#define USB_EP5R	(MMIO32(USB_DEVICE_FS_BASE + 0x14))
-#define USB_EP6R	(MMIO32(USB_DEVICE_FS_BASE + 0x18))
-#define USB_EP7R	(MMIO32(USB_DEVICE_FS_BASE + 0x1c))
-#define USB_EPNR(n) (MMIO32(USB_DEVICE_FS_BASE + 0x04*n))
+#define USB_EP0R    (MMIO32(USB_DEVICE_BASE + 0x00))
+#define USB_EP1R	(MMIO32(USB_DEVICE_BASE + 0x04))
+#define USB_EP2R	(MMIO32(USB_DEVICE_BASE + 0x08))
+#define USB_EP3R	(MMIO32(USB_DEVICE_BASE + 0x0c))
+#define USB_EP4R	(MMIO32(USB_DEVICE_BASE + 0x10))
+#define USB_EP5R	(MMIO32(USB_DEVICE_BASE + 0x14))
+#define USB_EP6R	(MMIO32(USB_DEVICE_BASE + 0x18))
+#define USB_EP7R	(MMIO32(USB_DEVICE_BASE + 0x1c))
+#define USB_EPNR(n) (MMIO32(USB_DEVICE_BASE + 0x04*n))
 // correct transfer for reception (rc_w0)
 #define CTR_RX              0x8000
 // data toggle for reception transfers (t)
@@ -155,21 +153,21 @@
 
 /* USB RAM table */
 /* Transmission buffer address 0 */
-#define USB_ADDR0_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x00)*2)
+#define USB_ADDR0_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x00)*2)
 // 16bit aligned addr (rw)
 #define ADDR_TX_MASK   0xfffe
 
 /* Transmission byte count 0 */
-#define USB_COUNT0_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x02)*2)
+#define USB_COUNT0_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x02)*2)
 // transmission byte count (rw)
 #define COUNT_TX_MASK  0x03ff
 
 /* Reception buffer address 0 */
-#define USB_ADDR0_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x04)*2)
+#define USB_ADDR0_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x04)*2)
 #define ADDR_RX_MASK   0xfffe
 
 /* Reception byte count 0 */
-#define USB_COUNT0_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x06)*2)
+#define USB_COUNT0_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x06)*2)
 // block size (rw)
 #define BL_SIZE_2B      0x0000
 #define BL_SIZE_32B     0x8000
@@ -180,45 +178,45 @@
 #define COUNT_RX_MASK   0x03ff
 
 // addresses of endpoint 1
-#define USB_ADDR1_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x08)*2)
-#define USB_COUNT1_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0a)*2)
-#define USB_ADDR1_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0c)*2)
-#define USB_COUNT1_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x0e)*2)
+#define USB_ADDR1_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x08)*2)
+#define USB_COUNT1_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x0a)*2)
+#define USB_ADDR1_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x0c)*2)
+#define USB_COUNT1_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x0e)*2)
 // addresses of endpoint 2
-#define USB_ADDR2_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x10)*2)
-#define USB_COUNT2_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x12)*2)
-#define USB_ADDR2_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x14)*2)
-#define USB_COUNT2_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x16)*2)
+#define USB_ADDR2_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x10)*2)
+#define USB_COUNT2_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x12)*2)
+#define USB_ADDR2_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x14)*2)
+#define USB_COUNT2_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x16)*2)
 // addresses of endpoint 3
-#define USB_ADDR3_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x18)*2)
-#define USB_COUNT3_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x1a)*2)
-#define USB_ADDR3_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x1c)*2)
-#define USB_COUNT3_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x1e)*2)
+#define USB_ADDR3_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x18)*2)
+#define USB_COUNT3_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x1a)*2)
+#define USB_ADDR3_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x1c)*2)
+#define USB_COUNT3_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x1e)*2)
 // addresses of endpoint 4
-#define USB_ADDR4_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x20)*2)
-#define USB_COUNT4_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x22)*2)
-#define USB_ADDR4_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x24)*2)
-#define USB_COUNT4_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x26)*2)
+#define USB_ADDR4_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x20)*2)
+#define USB_COUNT4_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x22)*2)
+#define USB_ADDR4_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x24)*2)
+#define USB_COUNT4_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x26)*2)
 // addresses of endpoint 5
-#define USB_ADDR5_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x28)*2)
-#define USB_COUNT5_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x2a)*2)
-#define USB_ADDR5_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x2c)*2)
-#define USB_COUNT5_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x2e)*2)
+#define USB_ADDR5_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x28)*2)
+#define USB_COUNT5_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x2a)*2)
+#define USB_ADDR5_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x2c)*2)
+#define USB_COUNT5_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x2e)*2)
 // addresses of endpoint 6
-#define USB_ADDR6_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x30)*2)
-#define USB_COUNT6_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x32)*2)
-#define USB_ADDR6_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x34)*2)
-#define USB_COUNT6_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x36)*2)
+#define USB_ADDR6_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x30)*2)
+#define USB_COUNT6_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x32)*2)
+#define USB_ADDR6_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x34)*2)
+#define USB_COUNT6_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x36)*2)
 // addresses of endpoint 7
-#define USB_ADDR7_TX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x38)*2)
-#define USB_COUNT7_TX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x3a)*2)
-#define USB_ADDR7_RX    MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x3c)*2)
-#define USB_COUNT7_RX   MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x3e)*2)
+#define USB_ADDR7_TX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x38)*2)
+#define USB_COUNT7_TX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3a)*2)
+#define USB_ADDR7_RX    MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3c)*2)
+#define USB_COUNT7_RX   MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x3e)*2)
 // addresses of endpoint n
-#define USB_ADDRN_TX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x00 + 0x08*n)*2)
-#define USB_COUNTN_TX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x02 + 0x08*n)*2)
-#define USB_ADDRN_RX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x04 + 0x08*n)*2)
-#define USB_COUNTN_RX(n) MMIO32(USB_CAN_SRAM_BASE_MY + ((uint16_t)USB_BTABLE + 0x06 + 0x08*n)*2)
+#define USB_ADDRN_TX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x00 + 0x08*n)*2)
+#define USB_COUNTN_TX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x02 + 0x08*n)*2)
+#define USB_ADDRN_RX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x04 + 0x08*n)*2)
+#define USB_COUNTN_RX(n) MMIO32(USB_CAN_SRAM_BASE + ((uint16_t)USB_BTABLE + 0x06 + 0x08*n)*2)
 
 // ep ass-tricky register, control functions
 void epTxStatusSet(int ep, uint16_t status);

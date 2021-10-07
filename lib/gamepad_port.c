@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 
+#include "STM32F103_CMSIS/stm32f103.h"
 #include "rcc.h"
 #include "regs/tim_regs.h"
 #include "usb_hid.h"
@@ -37,12 +38,12 @@ void repTest(void);
 void gpioInit()
 {
     // GPIO input mode with 3.3 pullup (0 if button pressed)
-    RCC_APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA_CRL = CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
+    RCC_APB2ENR |= IOPAEN;
+    GPIOA_CRL = (uint32_t)CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
                 CNF_PUPD(RIGHT_PIN_INIT) | CNF_PUPD(DN_PIN_INIT) | \
                 CNF_PUPD(BUTTON1_PIN_INIT);
     GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN | DN_PIN | BUTTON1_PIN;
-    RCC_APB2ENR |= RCC_APB2ENR_IOPBEN;
+    RCC_APB2ENR |= IOPBEN;
     GPIOB_CRL = CNF_PUPD(BUTTON2_PIN_INIT);
     GPIOB_ODR |= BUTTON2_PIN;
 }
@@ -50,7 +51,7 @@ void gpioInit()
 void pollIrqInit()
 {
     // Timer based interrupt which initiates port poll
-    RCC_APB1ENR |= RCC_APB1ENR_TIM2EN;
+    RCC_APB1ENR |= TIM2EN;
     TIM2_CR1   = (uint32_t) CKD_CK_INT;
     TIM2_PSC   = (uint32_t) POLL_PSC;
     TIM2_ARR   = (uint32_t) 1;
