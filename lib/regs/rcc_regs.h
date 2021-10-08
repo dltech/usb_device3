@@ -52,7 +52,7 @@
 #define MCO_HSE             0x06000000
 #define MCO_PLL_DIV2        0x07000000
 // USB prescaler
-#define OTGFSPRE            0x00400000
+#define USBPRE              0x00400000
 // PLL multiplication factor
 #define PLLMUL16            0x003c0000
 //#define PLLMUL16            0x00380000

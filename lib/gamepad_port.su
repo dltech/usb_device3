@@ -1,0 +1,7 @@
+gamepad_port.c:38:6:gpioInit	0	static
+gamepad_port.c:51:6:pollIrqInit	0	static
+gamepad_port.c:66:6:portInit	8	static
+gamepad_port.c:81:6:portPoll	0	static
+gamepad_port.c:115:6:reportUpdate	0	static
+gamepad_port.c:140:6:repTest	0	static
+gamepad_port.c:153:6:TIM2_Handler	8	static

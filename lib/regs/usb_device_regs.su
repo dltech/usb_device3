@@ -1,0 +1,4 @@
+usb_device_regs.c:21:6:controlDtogInit	0	static
+usb_device_regs.c:32:6:defaultDtogInit	0	static
+usb_device_regs.c:44:6:epTxStatusSet	0	static
+usb_device_regs.c:56:6:epRxStatusSet	0	static

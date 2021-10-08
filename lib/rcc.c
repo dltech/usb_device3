@@ -53,12 +53,11 @@ void sysClk()
     // тактирование USB настроено нормально
     // AHB 72, APB1 36, APB2 72 (разрешенный максимум)
     // на АЦП забили, не используем.
-    uint32_t cfgr = OTGFSPRE | PLLMUL9 | PLLSRC | PPRE2_HCLK_NODIV | \
+    uint32_t cfgr = PLLMUL9 | PLLSRC | PPRE2_HCLK_NODIV | \
                     PPRE1_HCLK_DIV2 | HPRE_SYSCLK_NODIV;
     RCC_CFGR = cfgr;
     // что то с памятью, копипаста с функций stmhal
-    FLASH_ACR |= (uint32_t)PRFTBE;
-    FLASH_ACR |= (uint32_t)LATENCY_72M;
+    FLASH_ACR = PRFTBE | LATENCY_72M;
     // передергиваем PLL, что бы точно все включилось
     timeout = 9e6;
     if ( (RCC_CFGR & SWS_MASK) == SWS_PLL )

@@ -1,0 +1,5 @@
+usb_hid.c:44:5:getReportReqHandler	8	static
+usb_hid.c:59:5:getIdleReqHandler	8	static
+usb_hid.c:69:5:setIdleReqHandler	0	static
+usb_hid.c:29:5:hidReqHandler	0	static
+usb_hid.c:79:6:sendReport	8	static
