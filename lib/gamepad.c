@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include "STM32F103_CMSIS/stm32f103.h"
 #include "usb_core.h"
 #include "gamepad_port.h"
 #include "gamepad.h"
