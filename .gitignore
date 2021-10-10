@@ -2,8 +2,8 @@
 *.d
 *.ld
 *.bin
-*.elf
 core
+bin
 
 .tags
 fp-info-cache

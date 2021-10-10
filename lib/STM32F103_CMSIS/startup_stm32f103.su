@@ -1,3 +1,0 @@
-startup_stm32f103.c:233:6:HardFault_Handler	0	static
-startup_stm32f103.c:241:6:Default_Handler	0	static
-startup_stm32f103.c:218:18:Reset_Handler	8	static

@@ -1,2 +1,0 @@
-gamepad.c:23:6:gamepadInit	8	static
-gamepad.c:30:6:usb_lp_can_rx_Handler	0	static
