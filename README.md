@@ -6,7 +6,7 @@ Tested and working.
 ![eee](result/gamepad.JPG)
 ![eeee](result/test.png)
 
-\Project structure:\
+Project structure:\
 /result - here is all usefull files to try this project (firmware binary, schematic and pcb template)\
 /lib - basic code directory\
 /lib/regs - stm32 MCU registers (lowest micriocontroller API level)\

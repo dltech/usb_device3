@@ -1,5 +1,5 @@
 #paths
-TARGET = button.elf
+TARGET = result/button.elf
 LIB_DIR = lib
 REG_DIR	= $(LIB_DIR)/regs
 ODIR = bin
