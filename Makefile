@@ -32,9 +32,10 @@ DEFINES = ARMCM3
 CFLAGS +=-ffunction-sections -fdata-sections
 CFLAGS +=-Wall -Wextra -Werror -Wconversion -Wundef -Wformat=2 -Wformat-truncation
 CFLAGS +=-Wdouble-promotion -Wshadow -Wimplicit-function-declaration
+CFLAGS +=-Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 CFLAGS +=-fno-common -Os -ffreestanding
 CFLAGS +=-mcpu=cortex-m3 -mthumb
-CFLAGS +=-mfloat-abi=soft -std=gnu11
+CFLAGS +=-mfloat-abi=soft -std=gnu2x
 CFLAGS +=-D$(DEFINES)
 #CFLAGS +=-ggdb3
 LFLAGS  = -T"$(LD_SCRIPT)" --specs=nano.specs -Wl,--gc-sections
@@ -56,7 +57,7 @@ $(ODIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) -c $< -o $@
 #link
-$(TARGET): $(OBJECTS) $(LD_SCRIPT)
+$(TARGET): $(OBJECTS)
 	@echo "[LD] $@"
 	@$(LD) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $@
 

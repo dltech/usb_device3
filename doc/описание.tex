@@ -326,7 +326,7 @@ apt install build-essential
     -ffunction-sections, -fdata-sections - позволит оптимизатору не добавлять в
     прошивку неиспользуемые функции\\
     -Wall -Wextra -Werror -Wconversion -Wundef -Wformat=2 -Wformat-truncation
-    -Wdouble-promotion -Wshadow -Wpadded -Wimplicit-function-declaration
+    -Wdouble-promotion -Wshadow -Wimplicit-function-declaration
     -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes
     - ворнинги, нужно включить все, какие только возможны,
     понятное дело, что в пяти килобайтах код должен быть вылизан полностью\\
@@ -335,8 +335,21 @@ apt install build-essential
     -Os - логично, флеша у нас не террабайт, экономим\\
     -mcpu=cortex-m3 -mthumb - обязательно скажем, какой там процессор\\
     -ffreestanding - не подключаем ненужные функции\\
+    -mfloat-abi=soft -std=gnu2x - еще раз скажем что FPU тут нету, стандарт
+    пускай будет последний\\
     -ggdb3 - данный параметр нужен для возможности отладки, перед релизом надо
-    не забыть его удалить, иначе в прошивке будет много лишних данных.
+    не забыть его закомментить.\\
+    Есть еще флаги компоновщика:\\
+    -Wl,--gc-sections - ответная часть -ffunction-sections -fdata-sections,
+    теперь компоновщик не будет включать не используемые функции\\
+    -T \$(LD_SCRIPT) - нужно обязательно передать компоновщику скрипт,
+    написанный специально для выбранного контроллера\\
+    --specs=nano.specs - должно было бы хватить этого параметра, для того,
+    чтобы сказать, что собирается код под микроконтроллер. Но на деле, нужно
+    еще передать параметр -lnosys, который сообщит о том, что используется
+    стандартная си библиотекаа для МК, а не для ОС.\\
+    -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group - параметры
+    стандартной Си библиотеки
 
 \subsection{Что нового в CMSIS5.}
     CMSIS это слой абстракции, независимый от производителя. Это не просто
@@ -499,7 +512,7 @@ AT (ldadr) определяет адрес загрузки секции как 
     Пролистав и эту унылую теоретическую справку, вы можете догадаться,
     что и здесь со стандартным скриптом компоновщика все в порядке,
     ничего трогать не нужно.
-\subsection{startup файл}
+\subsection{startup файл}\label{1999}
     Если коротко, то это такой исходник, который не виден обычным пользователям,
     но именно он вызывает функцию main. Раньше всегда были ассемблерными,
     сегодняшняя версия говорит что он устарел, нужен сишный. Его стандартный
@@ -544,7 +557,12 @@ RTC_Handler,    // RTC global interrupt
   TAMPER_IRQn = 2
   RTC_IRQn    = 3
 \end{lstlisting}
-    Вот и адаптировали, теперь немного комментариев. Функция Reset\textunderscore handler
+    В этот же заголовочник копируем прототипы вида
+    \lstinline{void WWDG_Handler(void);} что бы даже ворнингов не было.
+    Все эти операции не займут много времени, т.к. названия можно скопировать
+    один раз из reference guide. А позже редактировать весь список целиком
+    с помощью функции автозамены текстового редактора.\\
+    Вот и адаптировали, теперь немного комментариев. Функция Reset\_handler
     вызывается после сброса микроконтроллера (в момент начального включения
     контроллер так же в состоянии сброса). Она вызывает системную инициализацию
     SystemInit() из файла
@@ -560,13 +578,44 @@ __NO_RETURN void Reset_Handler(void)
 
 \subsection{Makefile}
     Внезапно, замороченно навороченный CMSIS не имеет примеров мейков, в
-    которых бы заранее были прописаны все его пути. А так стандартный мейкфайл
-    на лиж бы запустилось будет выглядеть так:
+    которых бы заранее были прописаны все его пути. Оно и логично, ведь его
+    планировали использовать в среде keil. Хотя в документации все же
+    упоминается возможность сборки в командной строке, но остатков этого кода
+    так и не получилось найти. Но по итогу ничего сложного, нужно только
+    подключить к коду проекта вышеописанные файлы, и добавить в пути инклюда
+    папку с самим CMSIS \path{/CMSIS_5/CMSIS/Core/Include}. Именно так, CMSIS
+    весь на макросах и плотно склеен со стандартной библиотекой Си. Единственное
+    чего я не понял, так это то, зачем компоновщику понадобились параметры
+    компилятора для успешной сборки (без них код не запускается). Все же приведу
+    сюда стандартный мейкфайл проекта (в интернете их не так много под
+    микроконтроллеры):
 \begin{lstlisting}
-  WWDG_IRQn   = 0
-  PVD_IRQn    = 1
-  TAMPER_IRQn = 2
-  RTC_IRQn    = 3
+#paths
+TARGET = button.elf
+LIB_DIR = lib
+REG_DIR	= $(LIB_DIR)/regs
+ODIR = bin
+
+...
+
+#object files list
+OBJECTS = $(SOURCES:%.c=$(ODIR)/%.o)
+#main rule
+all: $(TARGET)
+#compile
+$(ODIR)/%.o: %.c
+	@echo "[CC] $@"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) -c $< -o $@
+#link
+$(TARGET): $(OBJECTS)
+	@echo "[LD] $@"
+	@$(LD) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $@
+# Clean rule
+#.PHONY:
+clean:
+	@rm -rf $(ODIR)
+	@rm -r $(TARGET)
 \end{lstlisting}
 
 \subsection{Тактирование}
@@ -599,7 +648,10 @@ __NO_RETURN void Reset_Handler(void)
     важно не забыть указать задержку для считывания flash памяти. Т.к. при
     такой тактовой память окажется медленнее чем проц, и возможно будут
     проблемы. В общем вот этот регистр:\\
-    \lstinline{FLASH_ACR |= (uint32_t)FLASH_ACR_LATENCY_2WS;}
+    \lstinline{FLASH_ACR = PRFTBE | LATENCY_72M;}\\
+    Вышеописанный конфигурация включается  с помощью функции
+    \lstinline{void sysClk()}, и вызывается в функции
+    \lstinline{void Reset_Handler(void)} startup файла\ref{1999}.
 
 \subsection{Структура проекта.}
     Несмотря на кажущуюся простоту, проект все же состоит из 2к строчек кода.
@@ -803,7 +855,7 @@ sendReport(gamepadPar.report, &cnt);
     очень весело. Пример записи пакета для отправки:
 \lstset{language=c}
 \begin{lstlisting}
-uint16_t *bufferPtr=(uint16_t*)(USB_ADDR0_TX*2 +USB_CAN_SRAM_BASE_MY);
+uint16_t *bufferPtr=(uint16_t*)(USB_ADDR0_TX*2 +USB_CAN_SRAM_BASE);
 for(int i=0 ; i<(size/2) ; ++i) {
     *bufferPtr = *input;
     input++;
@@ -819,12 +871,12 @@ for(int i=0 ; i<(size/2) ; ++i) {
     заготовленными заранее для каждого эндпоинта:
 \begin{lstlisting}
 // addresses of endpoint 1
-#define USB_ADDR1_TX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x08)*2)
-#define USB_COUNT1_TX MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0a)*2)
-#define USB_ADDR1_RX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0c)*2)
-#define USB_COUNT1_RX MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x0e)*2)
+#define USB_ADDR1_TX  MMIO32(USB_CAN_SRAM_BASE+((uint16_t)USB_BTABLE+0x08)*2)
+#define USB_COUNT1_TX MMIO32(USB_CAN_SRAM_BASE+((uint16_t)USB_BTABLE+0x0a)*2)
+#define USB_ADDR1_RX  MMIO32(USB_CAN_SRAM_BASE+((uint16_t)USB_BTABLE+0x0c)*2)
+#define USB_COUNT1_RX MMIO32(USB_CAN_SRAM_BASE+((uint16_t)USB_BTABLE+0x0e)*2)
 // addresses of endpoint 2
-#define USB_ADDR2_TX  MMIO32(USB_CAN_SRAM_BASE_MY+((uint16_t)USB_BTABLE+0x10)*2)
+#define USB_ADDR2_TX  MMIO32(USB_CAN_SRAM_BASE+((uint16_t)USB_BTABLE+0x10)*2)
 ...
 \end{lstlisting}
     Где USB BTABLE это регистр, который хранит смещение, на случай если вы
@@ -1102,7 +1154,29 @@ void usbHidEndpInit()
     \path{https://github.com/dltech/usb_device3/blob/main/lib/usb_hid.h}\\
 
 \newpage
-\section{Отладка.}
+\section{Отладка и сборка.}
+    Я уже упоминал, что все инструменты отладки и сборки далеко не редкость,
+    они стандартные и есть в репозиториях ubuntu. Давайте попробуем собрать
+    данный проект на вашем компьютере.\\
+    Сперва нужно установить все зависимости:\\
+    \lstset{language=bash}
+    \lstinline{apt install gcc-arm-none-eabi libnewlib-arm-none-eabi}\\
+    \lstinline{apt install gdb-multiarch git stlink-tools}\\
+    Потом клонируем проект:\\
+    \lstinline{git clone https://github.com/dltech/usb_device3}\\
+    Дальше можно запускать make all, никаких дополнительных действий не
+    требуется.\\
+    Все же если у вас есть какая нибудь отладочная плата с STM32F103 и St-Link,
+    можете попробовать еще и прошить. Для xubuntu написан скрипт \path{fpjat}.
+    Но если у вас другая версия linux, то после сборки в одном окне терминала
+    вам нужно запустить утилиту прошивальщика \lstinline{st-util -p 5555 -n},
+    а в другом отладчик\\
+    \lstinline{gdb-multiarch --init-command="lib/init_gdb" button.elf}.\\
+    Отладчик, выполняя инструкции из скрипта \path{lib/init_gdb}, закинет
+    нашу прошивку в контроллер с помощью прошивальщика.
+
+
+\subsection{Отладка с помощью gdb.}
     Я люблю писать рабочий код с первого раза, потому процесс отладки
     программы я производил очень примитивным способом. Отладчиком gdb через
     терминал, складывая в глобальные переменные все что вызывало сомнения.\\

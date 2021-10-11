@@ -33,7 +33,7 @@
  *----------------------------------------------------------------------------*/
 extern uint32_t __INITIAL_SP;
 
-extern __NO_RETURN void __PROGRAM_START(void);
+//extern __NO_RETURN void __PROGRAM_START(void);
 
 /*----------------------------------------------------------------------------
   Internal References

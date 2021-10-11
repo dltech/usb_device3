@@ -37,6 +37,67 @@ extern "C" {
 
 #define  SYSTEM_CLOCK    XTAL	// only maximum, another freqs a left out
 
+// prototypes of irqs again fo -wmissingprototypes ok
+void WWDG_Handler(void);
+void PVD_Handler(void);
+void TAMPER_Handler(void);
+void RTC_Handler(void);
+void FLASH_Handler(void);
+void RCC_Handler(void);
+void EXTI0_Handler(void);
+void EXTI1_Handler(void);
+void EXTI2_Handler(void);
+void EXTI3_Handler(void);
+void EXTI4_Handler(void);
+void DMA1_Channel1_Handler(void);
+void DMA1_Channel2_Handler(void);
+void DMA1_Channel3_Handler(void);
+void DMA1_Channel4_Handler(void);
+void DMA1_Channel5_Handler(void);
+void DMA1_Channel6_Handler(void);
+void DMA1_Channel7_Handler(void);
+void ADC_Handler(void);
+void usb_hp_can_tx_Handler(void);
+void usb_lp_can_rx_Handler(void);
+void CAN_RX1_Handler(void);
+void CAN_SCE_Handler(void);
+void EXTI9_5_Handler(void);
+void TIM1_BRK_TIM15_Handler(void);
+void TIM1_UP_TIM16_Handler(void);
+void TIM1_TRG_COM_TIM17_Handler(void);
+void TIM1_CC_Handler(void);
+void TIM2_Handler(void);
+void TIM3_Handler(void);
+void TIM4_Handler(void);
+void I2C1_EV_Handler(void);
+void I2C1_ER_Handler(void);
+void I2C2_EV_Handler(void);
+void I2C2_ER_Handler(void);
+void SPI1_Handler(void);
+void SPI2_Handler(void);
+void USART1_Handler(void);
+void USART2_Handler(void);
+void USART3_Handler(void);
+void EXTI15_10_Handler(void);
+void RTCAlarm_Handler(void);
+void USB_Wakeup_Handler(void);
+void TIM8_BRK_Handler(void);
+void TIM8_UP_Handler(void);
+void TIM8_TRG_COM_Handler(void);
+void TIM8_CC_Handler(void);
+void ADC3_Handler(void);
+void FSMC_Handler(void);
+void SDIO_Handler(void);
+void TIM5_Handler(void);
+void SPI3_Handler(void);
+void UART4_Handler(void);
+void UART5_Handler(void);
+void TIM6_DAC_Handler(void);
+void TIM7_Handler(void);
+void DMA2_Channel1_Handler(void);
+void DMA2_Channel2_Handler(void);
+void DMA2_Channel3_Handler(void);
+void DMA2_Channel4_5_Handler(void);
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
