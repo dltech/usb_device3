@@ -1,6 +1,5 @@
 *.o
 *.d
-*.ld
 *.bin
 core
 bin
