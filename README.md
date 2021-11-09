@@ -1,4 +1,5 @@
 # usb_device3
+USB HID gamepad.
 STM32 based USB adapter for ZX spectrum joystick. You may connect gamepad
 with d-pad and two buttons to PC using USB.
 Tested and working.
