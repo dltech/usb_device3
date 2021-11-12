@@ -17,7 +17,7 @@ fpjat - build and upload script (for xubuntu, needs gcc arm toolchain and st-lin
 /doc - project documentation in tex\
 /datasheet - all related documentation (datasheets, standards)\
 /sch - KiCAD schematic project
-More information about device in blog:
-https://dltecc.blogspot.com/2021/10/continue-on-your-own-risk-cmsis-v5.html
-https://dltecc.blogspot.com/2021/09/report-descriptor-example.html
-https://dltecc.blogspot.com/2021/11/usb-hid-driver-for-stm32.html
+More information about device in blog:\
+https://dltecc.blogspot.com/2021/10/continue-on-your-own-risk-cmsis-v5.html \
+https://dltecc.blogspot.com/2021/09/report-descriptor-example.html \
+https://dltecc.blogspot.com/2021/11/usb-hid-driver-for-stm32.html \
