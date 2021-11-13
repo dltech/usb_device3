@@ -11,4 +11,5 @@ fp-info-cache
 *.log
 *.out
 *.toc
+*.lst
 /vid

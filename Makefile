@@ -1,5 +1,5 @@
 #paths
-TARGET = result/button.elf
+TARGET = result/button
 LIB_DIR = lib
 REG_DIR	= $(LIB_DIR)/regs
 ODIR = bin
@@ -43,6 +43,8 @@ LFLAGS += -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 #utilities
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-gcc
+OBJCOPY	= arm-none-eabi-objcopy
+OBJDUMP	= arm-none-eabi-objdump
 
 ### making-taking aaaa #########################################################
 
@@ -50,19 +52,28 @@ LD = arm-none-eabi-gcc
 OBJECTS = $(SOURCES:%.c=$(ODIR)/%.o)
 
 #main rule
-all: $(TARGET)
+all: $(TARGET).elf $(TARGET).bin $(TARGET).lst
 #compile
 $(ODIR)/%.o: %.c
 	@echo "[CC] $@"
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) -c $< -o $@
 #link
-$(TARGET): $(OBJECTS)
+$(TARGET).elf: $(OBJECTS)
 	@echo "[LD] $@"
 	@$(LD) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $@
+
+$(TARGET).bin: $(TARGET).elf
+	@echo "[OBJCOPY] $@"
+	@$(OBJCOPY) -O binary  $< $@
+
+$(TARGET).lst: $(TARGET).elf
+	@$(OBJDUMP) -S $< > $@
 
 # Clean rule
 #.PHONY:
 clean:
 	@rm -rf $(ODIR)
-	@rm -r $(TARGET)
+	@rm -r $(TARGET).elf
+	@rm -r $(TARGET).bin
+	@rm -r $(TARGET).lst
