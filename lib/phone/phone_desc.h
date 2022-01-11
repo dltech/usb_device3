@@ -30,8 +30,8 @@
     gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
 #define gamepadReportDescSize   48
 #define stringLangIdSize 4
-#define gamepadStringVendorSize 6
-#define gamepadStringProductSize 8
+#define gamepadStringVendorSize 14
+#define gamepadStringProductSize 30
 
 // descriptors
 const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
@@ -151,14 +151,15 @@ const uint8_t gamepadStringVendor[gamepadStringVendorSize] =
 {
     gamepadStringVendorSize,
     0x03,
-    'z',0,'x',0
+    'd',0,'l',0,'t',0,'e',0,'c',0,'h',0
 };
 
 const uint8_t gamepadStringProduct[gamepadStringProductSize] =
 {
     gamepadStringProductSize,
     0x03,
-    'j',0,'o',0,'y',0
+    'p',0,'h',0,'o',0,'n',0,'e',0,' ',0,
+    'e',0,'x',0,'c',0,'h',0,'a',0,'n',0,'g',0,'e',0
 };
 
 #endif
