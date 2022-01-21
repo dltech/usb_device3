@@ -2,7 +2,8 @@
 #define H_PHONE_DESC
 /*
  * Part of USB HID gamepad STM32 based solution.
- * All descriptors for simplest USB 2.0 HID gamepad with D-pad and two buttons
+ * All descriptors for simplest USB 2.0 HID phone exchange, who can be
+ * connected as keyboard.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *

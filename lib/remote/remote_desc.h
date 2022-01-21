@@ -158,7 +158,7 @@ const uint8_t gamepadStringProduct[gamepadStringProductSize] =
 {
     gamepadStringProductSize,
     0x03,
-    't',0,'v',0,' ',0
+    't',0,'v',0,' ',0,
     'r',0,'e',0,'m',0,'o',0,'t',0,'e',0
 };
 
