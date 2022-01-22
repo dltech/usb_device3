@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name sch-rescue)(type Legacy)(uri /home/dltech/src/usb_device3/sch/sch-rescue.lib)(options "")(descr ""))
+  (lib (name local)(type Legacy)(uri /home/dltech/src/usb_device3/sch/local.lib)(options "")(descr ""))
+)
