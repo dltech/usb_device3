@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
+Title "IR remote USB stick"
+Date "2022-01-23"
 Rev ""
 Comp ""
 Comment1 ""
-Comment2 ""
+Comment2 "Mikhail Belkin (dltech174@gmail.com, +7-960-961-54-27)"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -908,7 +908,7 @@ Wire Bus Line
 Wire Bus Line
 	4100 4350 4100 5700
 Wire Bus Line
-	6300 2900 6300 5650
+	6300 2900 6300 5700
 Wire Bus Line
 	5900 3550 5900 5700
 $EndSCHEMATC

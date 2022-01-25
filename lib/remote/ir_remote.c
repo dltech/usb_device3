@@ -21,11 +21,13 @@
 
 #include "STM32F103_CMSIS/stm32f103.h"
 #include "rcc.h"
+#include "regs/dma.h"
 #include "regs/tim_regs.h"
 #include "usb_hid.h"
 #include "gamepad_port.h"
 
 volatile gamepadParamStruct gamepadPar;
+uint32_t irFrame[SEQUENCE_LEN];
 
 void gpioInit(void);
 void pollIrqInit(void);
@@ -37,30 +39,31 @@ void repTest(void);
 
 void gpioInit()
 {
-    // GPIO input mode with 3.3 pullup (0 if button pressed)
+    // GPIO input mode
     RCC_APB2ENR |= IOPAEN;
-    GPIOA_CRL = CNF_PUPD(UP_PIN_INIT) | CNF_PUPD(LEFT_PIN_INIT) | \
-                CNF_PUPD(RIGHT_PIN_INIT) | CNF_PUPD(DN_PIN_INIT) | \
-                CNF_PUPD(BUTTON1_PIN_INIT);
-    GPIOA_ODR |= UP_PIN | LEFT_PIN | RIGHT_PIN | DN_PIN | BUTTON1_PIN;
-    RCC_APB2ENR |= IOPBEN;
-    GPIOB_CRL = CNF_PUPD(BUTTON2_PIN_INIT);
-    GPIOB_ODR |= BUTTON2_PIN;
+    GPIOA_CRL = CNF_PUPD(IR_PIN_INIT);
+//    GPIOA_ODR = IR_PIN;
 }
 
 void pollIrqInit()
 {
-    // Timer based interrupt which initiates port poll
+// initiate saving IR receivers data in the array through DMA
     RCC_APB1ENR |= TIM2EN;
     TIM2_CR1   = (uint32_t) CKD_CK_INT;
     TIM2_PSC   = (uint32_t) POLL_PSC;
     TIM2_ARR   = (uint32_t) 1;
     TIM2_DIER  = (uint32_t) UIE;
     TIM2_CR1  |= (uint32_t) CEN;
-    NVIC_EnableIRQ(TIM2_IRQn);
+//    NVIC_EnableIRQ(TIM2_IRQn);
 //    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
-    TIM2_SR = 0;
+    TIM2_SR    = 0;
     TIM2_EGR  |= (uint32_t) UG;
+    // dma circular read of port
+    RCC_AHBENR |= RCC_AHBENR_DMA1EN;
+    DMA1_CPAR2  = (uint32_t) &IR_PORT;
+    DMA1_CMAR2  = (uint32_t) irFrame;
+    DMA1_CNDTR2 = (uint32_t) SEQUENCE_LEN;
+    DMA1_CCR2 = MINC | MSIZE_32BIT | PSIZE_32BIT | PL_LOW | CIRC | TEIE;
 }
 
 void portInit()
