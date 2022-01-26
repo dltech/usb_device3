@@ -29,14 +29,24 @@
 // symbol decode rate in ms
 #define READ_RATE       SEQUENCE_TIME
 // calculating for fre prog
-#define POLL_PSC    (SYSTEM_CLOCK / POLLRATE) - 1
-#define SEQUENCE_LEN     SEQUENCE_TIME * 1000 / POLLRATE
-
+#define POLL_PSC        ((SYSTEM_CLOCK / 1000000) * POLL_RATE) - 1
+#define SEQUENCE_LEN    SEQUENCE_TIME * 1000 / POLLRATE
+#define MAXIMAL_PSC     65535
+#define DECODE_RATE_ARR (((SYSTEM_CLOCK / MAXIMAL_PSC) * SEQUENCE_TIME) / 1000) -1
 
 // pin definitions
 #define IR_PORT     GPIOA_IDR
 #define IR_PIN      GPIO0
 #define IR_PIN_INIT 0U
+
+// ir information
+typedef struct {
+    // address of remote control
+    uint32_t   address;
+    // code table (ir codes according to keyboard codes)
+    uint8_t codeTable[255];
+} remotePropStruct;
+
 
 // report map
 // hat switch
@@ -48,23 +58,9 @@
 #define BUTTON1ON   0x10
 #define BUTTON2ON   0x20
 
-#define cntPressed  READ_RATE / POLLRATE
 #define reportSize  1
 
-uint32_t portData[]
-
-// buttons condition data
-typedef struct {
-    int upCnt;
-    int dnCnt;
-    int leftCnt;
-    int rightCnt;
-    int button1Cnt;
-    int button2Cnt;
-    uint8_t report;
-} gamepadParamStruct;
-
 // call this to init port poll
-void portInit(void);
+void irInit(void);
 
 #endif

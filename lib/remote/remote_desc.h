@@ -1,8 +1,8 @@
 #ifndef H_REMOTE_DESC
 #define H_REMOTE_DESC
 /*
- * Part of USB HID gamepad STM32 based solution.
- * All descriptors for simplest USB 2.0 HID gamepad with D-pad and two buttons
+ * Part of USB HID ledlessKbd STM32 based solution.
+ * All descriptors for simplest USB 2.0 HID ledlessKbd with D-pad and two buttons
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -21,22 +21,22 @@
  #include <inttypes.h>
 
 // descriptor size
-#define gamepadDeviseDescSize 18
-#define gamepadConfigurationDescSize 9
-#define gamepadInterfaceDescSize 9
-#define gamepadInEndpDescSize 7
-#define gamepadHidDescSize  9
-#define gamepadConfTotalSize    gamepadConfigurationDescSize + \
-    gamepadInterfaceDescSize + gamepadInEndpDescSize + gamepadHidDescSize
-#define gamepadReportDescSize   48
+#define ledlessKbdDeviseDescSize 18
+#define ledlessKbdConfigurationDescSize 9
+#define ledlessKbdInterfaceDescSize 9
+#define ledlessKbdInEndpDescSize 7
+#define ledlessKbdHidDescSize  9
+#define ledlessKbdConfTotalSize    ledlessKbdConfigurationDescSize + \
+ ledlessKbdInterfaceDescSize + ledlessKbdInEndpDescSize + ledlessKbdHidDescSize
+#define ledlessKbdReportDescSize   45
 #define stringLangIdSize 4
-#define gamepadStringVendorSize 14
-#define gamepadStringProductSize 18
+#define ledlessKbdStringVendorSize 14
+#define ledlessKbdStringProductSize 18
 
 // descriptors
-const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
+const uint8_t ledlessKbdDeviseDesc[ledlessKbdDeviseDescSize] =
 {
-    gamepadDeviseDescSize,       // bLenght
+    ledlessKbdDeviseDescSize,       // bLenght
     0x01,       // bDescriptorType, Device descriptor
     0x00,0x02,  // bcdUSB, usb 2.0
     0x03,       // bDeviceClass, HID
@@ -52,11 +52,11 @@ const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
     0x01        // bNumConfigurations
 };
 
-const uint8_t gamepadConfigurationDesc[gamepadConfigurationDescSize] =
+const uint8_t ledlessKbdConfigurationDesc[ledlessKbdConfigurationDescSize] =
 {
-    gamepadConfigurationDescSize,       // bLenght
+    ledlessKbdConfigurationDescSize,       // bLenght
     0x02,       // bDescriptorType, Configuration descriptor
-    gamepadConfTotalSize, 0x00, // TotalLenght
+    ledlessKbdConfTotalSize, 0x00, // TotalLenght
     0x01,       // bNumInterfaces
     0x01,       // bConfigurationValue
     0x00,       // iConfiguration
@@ -64,9 +64,9 @@ const uint8_t gamepadConfigurationDesc[gamepadConfigurationDescSize] =
     0x32        // maxPower, 100mA
 };
 
-const uint8_t gamepadInterfaceDesc[gamepadInterfaceDescSize] =
+const uint8_t ledlessKbdInterfaceDesc[ledlessKbdInterfaceDescSize] =
 {
-    gamepadInterfaceDescSize,       // bLenght
+    ledlessKbdInterfaceDescSize,       // bLenght
     0x04,       // bDescriptorType, Interface descriptor
     0x00,       // bInterfaceNumber
     0x00,       // bAlternateSetting
@@ -77,65 +77,56 @@ const uint8_t gamepadInterfaceDesc[gamepadInterfaceDescSize] =
     0x00        // bInterface
 };
 
-const uint8_t gamepadInEndpDesc[gamepadInEndpDescSize] =
+const uint8_t ledlessKbdInEndpDesc[ledlessKbdInEndpDescSize] =
 {
-    gamepadInEndpDescSize,       // bLenght
+    ledlessKbdInEndpDescSize,       // bLenght
     0x05,       // bDescriptorType, endpoint descriptor
     0x81,       // bEndpointAddress, IN endpoint 1
     0x03,       // bMattributes, interrupt endpoint
-    0x04,0x00,  // MaxPacketSize, 4 bytes
+    0x08,0x00,  // MaxPacketSize, 8 bytes
     0x20        // bInterval 32 ms
 };
 
-const uint8_t gamepadHidDesc[gamepadHidDescSize] =
+const uint8_t ledlessKbdHidDesc[ledlessKbdHidDescSize] =
 {
-    0x09,       // bLenght
+    ledlessKbdHidDescSize,       // bLenght
     0x21,       // bDescriptorType, HID descriptor
-    0x00,0x01,  // bcdHID, HID spec 1.01
-    0x33,       // country code SU 0x33
+    0x01,0x01,  // bcdHID, HID spec 1.01
+    0x00,       // country code SU 0x33
     0x01,       // bNumDescriptors
     0x22,       // bDescriptorType, report descriptor
-    gamepadReportDescSize,0x00  // wDescriptorLenght
+    ledlessKbdReportDescSize,0x00  // wDescriptorLenght
 };
 
-// report descriptor for gamepad w d-pad and two buttons
-const uint8_t gamepadReportDesc[gamepadReportDescSize] =
+// standard keyboard descriptor (even boot compatible)
+const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
 {
     0x05, 0x01,         // usage_page(Generic Desctop)
-    0x09, 0x05,         // usage(Game pad)
+    0x09, 0x06,         // usage(Keyboard)
     0xa1, 0x01,         // collection(Application)
-//    0x05, 0x01,         //  usage_page(Generic Desctop)
-    0x09, 0x01,         //   usage(Pointer)
-    0xa1, 0x00,         //   collection(Physical)
-    0x09, 0x30,         //   usage(X)
-    0x09, 0x31,         //   usage(Y)
-    0x15, 0xff,         //   logical minimum(-1)
+    0x05, 0x07,         //  usage_page(Keyboard)
+    0x19, 0xe0,         //   usage_minimum(Keyboard LeftControl)
+    0x29, 0xe7,         //   usage_maximum(Keyboard Right GUI)
+    0x15, 0x00,         //   logical minimum(0)
     0x25, 0x01,         //   logical maximum(1)
-    0x95, 0x02,         //   report_count(2)
-    0x75, 0x02,         //   report_size(2)
+    // modifier byte (ctrl, alt, win)
+    0x75, 0x01,         //   report_size(1);  (standard obliges)
+    0x95, 0x08,         //   report_count(8)
     0x81, 0x02,         //   input(Data,Var,Abs)
-//    0x09, 0x39,         //   usage(Hat switch)
-//    0x15, 0x01,         //   logical minimum(1)
-//    0x25, 0x08,         //   logical maximum(8)
-//    0x35, 0x00,         //   physical minimum(0)
-//    0x46, 0x3b, 0x01,   //   physical maximum(315)
-//    0x65, 0x14,         //   unit(Eng Rot:Angular Pos)
-//    0x95, 0x01,         //   report_count(1)
-//    0x75, 0x04,         //   report_size(4)
-//    0x81, 0x06,         //   input(Data,Var,Relative,Null)
-    0x05, 0x09,         //  usage_page(Button)
-    0x19, 0x01,         //  usage_minimum(button1)
-    0x29, 0x02,         //  usage_maximum(button2)
-    0x15, 0x00,         //  logical minimum(0)
-    0x25, 0x01,         //  logical maximum(1)
-    0x95, 0x02,         //  report_count(2)
-    0x75, 0x01,         //  report_size(1)
-    0x81, 0x02,         //  input(Data,Var,Abs)
-// byte alingment
-    0x95, 0x02,         //  report_count(2)
-    0x75, 0x01,         //  report_size(1)
-    0x81, 0x01,         //  input(Const)
-    0xc0,               // end_collection (physical)
+    // reserved byte
+    0x95, 0x01,         //   report_count(1)
+    0x75, 0x08,         //   report_size(8)
+    0x81, 0x03,         //   input(Cnst,Var,Abs)
+    // no leds
+    // buttons array (6 buttons pressed simulateously)
+    0x95, 0x06,         //   report_count(6)
+    0x75, 0x08,         //   report_size(8)
+    0x15, 0x00,         //   logical minimum(0)
+    0x25, 0x65,         //   logical maximum(101)
+    0x05, 0x07,         //  usage_page(Keyboard)
+    0x19, 0x00,         //  usage_minimum(0)
+    0x29, 0x65,         //  usage_maximum(Keyboard Application)
+    0x81, 0x00,         //  input(Data,Ary,Abs)
     0xc0                // end_collection (application)
 };
 
@@ -147,16 +138,16 @@ const uint8_t stringLangId[stringLangIdSize] =
     0x04
 };
 
-const uint8_t gamepadStringVendor[gamepadStringVendorSize] =
+const uint8_t remoteStringVendor[remoteStringVendorSize] =
 {
-    gamepadStringVendorSize,
+    ledlessKbdStringVendorSize,
     0x03,
     'd',0,'l',0,'t',0,'e',0,'c',0,'h',0
 };
 
-const uint8_t gamepadStringProduct[gamepadStringProductSize] =
+const uint8_t remoteKbdStringProduct[remoteStringProductSize] =
 {
-    gamepadStringProductSize,
+    ledlessKbdStringProductSize,
     0x03,
     't',0,'v',0,' ',0,
     'r',0,'e',0,'m',0,'o',0,'t',0,'e',0
