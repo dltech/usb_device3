@@ -45,5 +45,7 @@
 int hidReqHandler(requestTyp *request);
 // send HID gamepad report
 void sendReport(uint8_t report, int *ms);
+void sendKbdReport(uint8_t *report);
+
 
 #endif

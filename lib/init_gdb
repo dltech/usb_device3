@@ -1,3 +1,0 @@
-target remote localhost:5555
-load result/button.elf
-continue

@@ -18,7 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include <inttypes.h>
+#include <inttypes.h>
+#include "usb_core.h"
 
 // descriptor size
 #define ledlessKbdDeviseDescSize 18
@@ -30,8 +31,8 @@
  ledlessKbdInterfaceDescSize + ledlessKbdInEndpDescSize + ledlessKbdHidDescSize
 #define ledlessKbdReportDescSize   45
 #define stringLangIdSize 4
-#define ledlessKbdStringVendorSize 14
-#define ledlessKbdStringProductSize 18
+#define remoteStringVendorSize 14
+#define remoteStringProductSize 20
 
 // descriptors
 const uint8_t ledlessKbdDeviseDesc[ledlessKbdDeviseDescSize] =
@@ -140,17 +141,39 @@ const uint8_t stringLangId[stringLangIdSize] =
 
 const uint8_t remoteStringVendor[remoteStringVendorSize] =
 {
-    ledlessKbdStringVendorSize,
+    remoteStringVendorSize,
     0x03,
     'd',0,'l',0,'t',0,'e',0,'c',0,'h',0
 };
 
 const uint8_t remoteKbdStringProduct[remoteStringProductSize] =
 {
-    ledlessKbdStringProductSize,
+    remoteStringProductSize,
     0x03,
     't',0,'v',0,' ',0,
     'r',0,'e',0,'m',0,'o',0,'t',0,'e',0
+};
+
+const descriptorsTyp remoteDesc = {
+    ledlessKbdDeviseDescSize,
+    ledlessKbdConfigurationDescSize,
+    ledlessKbdInterfaceDescSize,
+    ledlessKbdInEndpDescSize,
+    ledlessKbdHidDescSize,
+    ledlessKbdConfTotalSize,
+    ledlessKbdReportDescSize,
+    stringLangIdSize,
+    remoteStringVendorSize,
+    remoteStringProductSize,
+    ledlessKbdDeviseDesc,
+    ledlessKbdConfigurationDesc,
+    ledlessKbdInterfaceDesc,
+    ledlessKbdInEndpDesc,
+    ledlessKbdHidDesc,
+    ledlessKbdReportDesc,
+    stringLangId,
+    remoteStringVendor,
+    remoteKbdStringProduct
 };
 
 #endif

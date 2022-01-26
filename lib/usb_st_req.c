@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 #include "usb_core.h"
-#include "gamepad_desc.h"
+//#include "gamepad_desc.h"
 #include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;
@@ -273,44 +273,44 @@ int getDescriptorReqHandler(requestTyp *request)
     switch(request->wValue)
     {
         case DEVICE_TYP<<8:
-            prev = descCat(gamepadDeviseDesc, tmp, 0, gamepadDeviseDescSize, request->wLength);
+            prev = descCat(usbProp.desc->devise, tmp, 0, usbProp.desc->deviseSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case CONFIGURATION_TYP<<8:
-            prev = descCat(gamepadConfigurationDesc, tmp, 0, gamepadConfigurationDescSize, request->wLength);
-            prev = descCat(gamepadInterfaceDesc, tmp, prev, gamepadInterfaceDescSize, request->wLength);
-            prev = descCat(gamepadHidDesc, tmp, prev, gamepadHidDescSize, request->wLength);
-            prev = descCat(gamepadInEndpDesc, tmp, prev, gamepadInEndpDescSize, request->wLength);
+            prev = descCat(usbProp.desc->configuration, tmp, 0, usbProp.desc->configurationSize, request->wLength);
+            prev = descCat(usbProp.desc->interface, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->hid, tmp, prev, usbProp.desc->hidSize, request->wLength);
+            prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->inEndpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case STRING_TYP<<8:
-            prev = descCat(stringLangId, tmp, 0, stringLangIdSize, request->wLength);
+            prev = descCat(usbProp.desc->stringLangId, tmp, 0, usbProp.desc->stringLangIdSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case (STRING_TYP<<8)+1:
-            prev = descCat(gamepadStringVendor, tmp, prev, gamepadStringVendorSize, request->wLength);
+            prev = descCat(usbProp.desc->stringVendor, tmp, prev, usbProp.desc->stringVendorSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case (STRING_TYP<<8)+2:
-            prev = descCat(gamepadStringProduct, tmp, prev, gamepadStringProductSize, request->wLength);
+            prev = descCat(usbProp.desc->stringProduct, tmp, prev, usbProp.desc->stringProductSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case INTERFACE_TYP<<8:
-            prev = descCat(gamepadInterfaceDesc, tmp, 0, gamepadInterfaceDescSize, request->wLength);
+            prev = descCat(usbProp.desc->interface, tmp, 0, usbProp.desc->interfaceSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case ENDPOINT_TYP<<8:
-            prev = descCat(gamepadInEndpDesc, tmp, 0, gamepadInEndpDescSize, request->wLength);
+            prev = descCat(usbProp.desc->inEndp, tmp, 0, usbProp.desc->inEndpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case DEVICE_QUALIFIER_TYP<<8:
             return REQ_ERROR;
         case ((uint16_t)HID_TYP)<<8:
-            prev = descCat(gamepadHidDesc, tmp, 0, gamepadHidDescSize, request->wLength);
+            prev = descCat(usbProp.desc->hid, tmp, 0, usbProp.desc->hidSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case ((uint16_t)REPORT_TYP)<<8:
-            prev = descCat(gamepadReportDesc, tmp, 0, gamepadReportDescSize, request->wLength);
+            prev = descCat(usbProp.desc->report, tmp, 0, usbProp.desc->reportSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
     }

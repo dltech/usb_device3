@@ -63,6 +63,27 @@ typedef struct {
     int epState;
 } epProp;
 typedef struct {
+    const uint16_t deviseSize;
+    const uint16_t configurationSize;
+    const uint16_t interfaceSize;
+    const uint16_t inEndpSize;
+    const uint16_t hidSize;
+    const uint16_t confTotalSize;
+    const uint16_t reportSize;
+    const uint16_t stringLangIdSize;
+    const uint16_t stringVendorSize;
+    const uint16_t stringProductSize;
+    const uint8_t *devise;
+    const uint8_t *configuration;
+    const uint8_t *interface;
+    const uint8_t *inEndp;
+    const uint8_t *hid;
+    const uint8_t *report;
+    const uint8_t *stringLangId;
+    const uint8_t *stringVendor;
+    const uint8_t *stringProduct;
+} descriptorsTyp;
+typedef struct {
     int isRepCompl;
     int isSusp;
     epProp epProps[NUM_OF_EP];
@@ -70,6 +91,7 @@ typedef struct {
     int reportDuration;
     int controlStage;
     uint8_t address;
+    const descriptorsTyp *desc;
 } usbPropStruct;
 
 // standard request package
@@ -89,7 +111,7 @@ enum reqType {
 };
 
 // usb init
-void usbCoreInit(void);
+void usbCoreInit(const descriptorsTyp *descr);
 // this function handles all USB events
 void usbCore(void);
 // functions for request handler
@@ -102,6 +124,7 @@ void controlTxData2(uint16_t data);
 void controlTxDataN(uint8_t *data, int size);
 // for gamepad port poll function
 void reportTx(uint8_t report);
+void reportTxN(uint8_t *report, int size);
 
 // descriptor concatenator (a part of GetDescr request)
 int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);

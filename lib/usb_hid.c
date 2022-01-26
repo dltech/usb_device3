@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "gamepad_port.h"
+//#include "gamepad_port.h"
 #include "usb_hid.h"
 
 extern volatile usbPropStruct usbProp;
-extern volatile gamepadParamStruct gamepadPar;
+//extern volatile gamepadParamStruct gamepadPar;
 
-int getReportReqHandler(requestTyp *request);
+//int getReportReqHandler(requestTyp *request);
 int getIdleReqHandler(requestTyp *request);
 int setIdleReqHandler(requestTyp *request);
 
@@ -30,7 +30,8 @@ int hidReqHandler(requestTyp *request)
 {
     switch (request->bRequest) {
         case GET_REPORT:
-            return getReportReqHandler(request);
+            return REQ_ERROR;
+//            return getReportReqHandler(request);
         case GET_IDLE:
             return getIdleReqHandler(request);
         case SET_IDLE:
@@ -41,7 +42,7 @@ int hidReqHandler(requestTyp *request)
     return REQ_ERROR;
 }
 
-int getReportReqHandler(requestTyp *req)
+/*int getReportReqHandler(requestTyp *req)
 {
     // error check
     if( (req->bmRequestType != HID_GET) || (usbProp.deviceState != CONFIGURED) ) {
@@ -54,7 +55,7 @@ int getReportReqHandler(requestTyp *req)
         return DATA_STAGE;
     }
     return NULL_REQ;
-}
+}*/
 
 int getIdleReqHandler(requestTyp *requestt)
 {
@@ -74,6 +75,14 @@ int setIdleReqHandler(requestTyp *requestt)
     }
     usbProp.reportDuration = REPORT_DURATION(requestt->wValue);
     return NULL_REQ;
+}
+
+void sendKbdReport(uint8_t *report)
+{
+    if( (usbProp.deviceState != CONFIGURED) || (usbProp.epProps[1].isHalt == 1) ) {
+        return;
+    }
+    reportTxN(report, 8);
 }
 
 void sendReport(uint8_t report, int *ms)

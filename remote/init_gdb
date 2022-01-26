@@ -1,0 +1,3 @@
+target remote localhost:5555
+load ../result/remote.elf
+continue

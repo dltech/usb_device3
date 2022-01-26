@@ -18,12 +18,12 @@
  * limitations under the License.
  */
 
-#include "STM32F103_CMSIS/stm32f103.h"
+#include "stm32f103.h"
 #include "rcc.h"
-#include "dma.h"
+#include "dma_regs.h"
 #include "tim_regs.h"
 #include "usb_hid.h"
-#include "gamepad_port.h"
+#include "ir_remote.h"
 
 // A little of global variables, in order to keep data between interrupt calls
 volatile uint32_t irFrame[SEQUENCE_LEN];
@@ -35,7 +35,7 @@ void gpioInit(void);
 void periodicPortPollTimerInit(void);
 void periodicPortPollDmaInit(void);
 void sendReportIrqInit(void);
-void remoteInit(void);
+void remotePropInit(void);
 
 
 uint8_t keyTest(void);
@@ -47,7 +47,7 @@ void gpioInit()
     // GPIO input mode
     RCC_APB2ENR |= IOPAEN;
     GPIOA_CRL = CNF_PUPD(IR_PIN_INIT);
-//    GPIOA_ODR = IR_PIN;
+    GPIOA_ODR = 0;//IR_PIN;
 }
 
 // setting up timer of IR receiver periodical reading
@@ -68,7 +68,7 @@ void periodicPortPollTimerInit()
 // dma circular read of port with cyclical save in array
 void periodicPortPollDmaInit()
 {
-    RCC_AHBENR |= RCC_AHBENR_DMA1EN;
+    RCC_AHBENR |= DMA1EN;
     DMA1_CPAR2  = (uint32_t) &IR_PORT;
     DMA1_CMAR2  = (uint32_t) irFrame;
     DMA1_CNDTR2 = (uint32_t) SEQUENCE_LEN;
@@ -91,11 +91,11 @@ void sendReportIrqInit()
 }
 
 // initialisation of a IR remote (it's address and it's button codes)
-void remoteInit()
+void remotePropInit()
 {
     remoteProp.address = 0;
     remoteProp.codeTable[100] = 0x5d;
-    remoteProp.codeTable[100] = 0x57;
+    remoteProp.codeTable[200] = 0x57;
 }
 
 // main init
@@ -105,13 +105,13 @@ void irInit()
     periodicPortPollTimerInit();
     periodicPortPollDmaInit();
     sendReportIrqInit();
-    remoteInit();
+    remotePropInit();
 }
 
 uint8_t keyTest()
 {
     static int eeee=0;
-    static int key=0;
+    static uint8_t key=0;
     if((eeee++)<1000) return 0;
     for( ; key<255 ; ++key) if(remoteProp.codeTable[key] > 0) return key;
     if(key > 254) key = 0;
@@ -120,6 +120,9 @@ uint8_t keyTest()
 
 void TIM3_Handler()
 {
+    uint8_t report[8] = {0};
+    report[2] = keyTest();
+    sendKbdReport(report);
     TIM3_SR = 0;
 }
 

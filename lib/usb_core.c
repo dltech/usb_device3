@@ -23,7 +23,9 @@
 #include "usb_st_req.h"
 #include "usb_hid.h"
 #include "usb_core.h"
-#include "gamepad_port.h"
+//#include "gamepad_port.h"
+
+//#include "remote/remote_desc.h"
 
 volatile usbPropStruct usbProp;
 
@@ -92,13 +94,14 @@ void usbItInit()
 //    nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x00);
 }
 
-void usbCoreInit()
+void usbCoreInit(const descriptorsTyp *descr)
 {
     usbGpioInit();
     usbClockInit();
     usbProp.isSusp = 0;
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 33;
+    usbProp.desc = descr;
     usbItInit();
     USB_DADDR = EF;
 }
@@ -353,6 +356,29 @@ void reportTx(uint8_t report)
     // put data into buffer
     *bufferPtr =  ((uint16_t)report);
     USB_COUNT1_TX = 1 & COUNT_TX_MASK;
+    usbProp.isRepCompl = 0;
+    // change the endpoint state
+    epTxStatusSet(1, STAT_TX_VALID);
+}
+
+void reportTxN(uint8_t *report, int size)
+{
+    if(size <= 2) return;
+//    if(usbProp.isRepCompl == 0) return;
+    // get the poiner to packet buffer from table
+    uint16_t *input = (uint16_t*)report;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
+    // put data into buffer
+    for(int i=0 ; i<(size/2) ; ++i) {
+        *bufferPtr = *input;
+        input++;
+        bufferPtr += 2;
+    }
+    // last byte to 16 bit
+    if( (size%2) > 0 ) {
+        *bufferPtr = (uint16_t)report[size-1];
+    }
+    USB_COUNT0_TX = size & COUNT_TX_MASK;
     usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(1, STAT_TX_VALID);

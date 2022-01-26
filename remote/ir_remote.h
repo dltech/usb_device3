@@ -1,5 +1,5 @@
-#ifndef H_GAMEPAD_PORT
-#define H_GAMEPAD_PORT
+#ifndef H_IR_REMOTE
+#define H_IR_REMOTE
 /*
  * Part of USB HID gamepad STM32 based solution.
  *
@@ -19,19 +19,19 @@
  */
 
 #include "inttypes.h"
-#include "regs/gpio_regs.h"
-#include "STM32F103_CMSIS/system_stm32f103.h"
+#include "gpio_regs.h"
+#include "system_stm32f103.h"
 
 // port poll frequency in us
-#define POLLRATE        200
+#define POLL_RATE        200
 // port read frame in ms
 #define SEQUENCE_TIME   25
 // symbol decode rate in ms
 #define READ_RATE       SEQUENCE_TIME
 // calculating for fre prog
 #define POLL_PSC        ((SYSTEM_CLOCK / 1000000) * POLL_RATE) - 1
-#define SEQUENCE_LEN    SEQUENCE_TIME * 1000 / POLLRATE
-#define MAXIMAL_PSC     65535
+#define SEQUENCE_LEN    SEQUENCE_TIME * 1000 / POLL_RATE
+#define MAXIMAL_PSC     65534
 #define DECODE_RATE_ARR (((SYSTEM_CLOCK / MAXIMAL_PSC) * SEQUENCE_TIME) / 1000) -1
 
 // pin definitions
@@ -47,20 +47,7 @@ typedef struct {
     uint8_t codeTable[255];
 } remotePropStruct;
 
-
-// report map
-// hat switch
-#define XM1   0x02
-#define XP1   0x01
-#define YM1   0x08
-#define YP1   0x04
-// buttons
-#define BUTTON1ON   0x10
-#define BUTTON2ON   0x20
-
-#define reportSize  1
-
-// call this to init port poll
+// call this to init receiving of IR codes
 void irInit(void);
 
 #endif
