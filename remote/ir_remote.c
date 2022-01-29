@@ -28,8 +28,6 @@
 // A little of global variables, in order to keep data between interrupt calls
 volatile uint32_t irFrame[SEQUENCE_LEN];
 volatile remotePropStruct remoteProp;
-// remote information
-
 
 void gpioInit(void);
 void periodicPortPollTimerInit(void);
@@ -46,7 +44,7 @@ void gpioInit()
 {
     // GPIO input mode
     RCC_APB2ENR |= IOPAEN;
-    GPIOA_CRL = CNF_PUPD(IR_PIN_INIT);
+    GPIOA_CRL = CNF_FLOATING(IR_PIN_INIT);
     GPIOA_ODR = 0;//IR_PIN;
 }
 
@@ -96,6 +94,7 @@ void remotePropInit()
     remoteProp.address = 0;
     remoteProp.codeTable[100] = 0x5d;
     remoteProp.codeTable[200] = 0x57;
+    remoteProp.isKeyPressed = 0;
 }
 
 // main init
@@ -108,21 +107,40 @@ void irInit()
     remotePropInit();
 }
 
+int keys=0;
+
 uint8_t keyTest()
 {
     static int eeee=0;
-    static uint8_t key=0;
-    if((eeee++)<1000) return 0;
-    for( ; key<255 ; ++key) if(remoteProp.codeTable[key] > 0) return key;
-    if(key > 254) key = 0;
-    return 0;
+//    static uint8_t key=0;
+    eeee++;
+    if(eeee<100) return 0;
+    ++keys;
+    if(eeee>150) eeee = 0;
+//    if(key > 254) key = 0;
+//    for( ; key<255 ; ++key) if(remoteProp.codeTable[key] > 0) return key;
+    return 0x04;
 }
 
+volatile uint32_t readcnt;
 void TIM3_Handler()
 {
-    uint8_t report[8] = {0};
-    report[2] = keyTest();
-    sendKbdReport(report);
+    ++readcnt;
+    static int repCnt = 0;
+    static int sendCnt = 0;
+    uint8_t report[8] = {0,0,0,0,0,0,0,0};
+    ++repCnt;
+    if( remoteProp.isKeyPressed == 1 ) {
+        sendKbdReport(report);
+        remoteProp.isKeyPressed = 0;
+    }
+    if( (remoteProp.isKeyPressed == 0) && (repCnt>10) && (sendCnt < 10)) {
+        sendCnt++;
+        report[2] = 0x04;
+        sendKbdReport(report);
+        remoteProp.isKeyPressed = 1;
+        repCnt = 0;
+    }
     TIM3_SR = 0;
 }
 

@@ -62,9 +62,11 @@ int stReqHandler(requestTyp *request)
 }
 
 /* Request handlers */
-
+int statusD = 0;
+int requesto = 0;
 int getStatusReqHandler(requestTyp *request)
 {
+    statusD = 0;
     // error check
     if( (request->wValue != 0) || (request->wLength != 2) ) {
         return REQ_ERROR;
@@ -75,15 +77,19 @@ int getStatusReqHandler(requestTyp *request)
     if( (request->wIndex >= NUM_OF_EP) && (request->bRequest == ENDPOINT_GET) ) {
         return REQ_ERROR;
     }
+    statusD = 1;
     // request handler
-    switch( (uint8_t)request->bRequest ) {
+    switch( request->bRequest ) {
         case DEVICE_GET:
+        case DEVICE_SET:
             controlTxData2(BUS_POWERED);
             return DATA_STAGE;
         case INTERFACE_GET:
+        case INTERFACE_SET:
             controlTxData2(INTERFACE_STATUS);
             return DATA_STAGE;
         case ENDPOINT_GET:
+        case ENDPOINT_SET:
             if(usbProp.epProps[request->wIndex].isHalt > 0) {
                 controlTxData2(ENDP_HALT_STATUS);
             } else {
@@ -91,6 +97,8 @@ int getStatusReqHandler(requestTyp *request)
             }
             return DATA_STAGE;
     }
+    requesto = request->bRequest;
+    statusD = 2;
     return REQ_ERROR;
 }
 
@@ -113,6 +121,8 @@ int setAddressReqHandler(requestTyp *request)
     }
     return REQ_ERROR;
 }
+
+int confDebug=0;
 
 int setConfigurationReqHandler(requestTyp *request)
 {
@@ -168,11 +178,15 @@ int getConfigurationReqHandler(requestTyp *request)
 }
 
 // that is cup functions for the standard compability
-// because this is devise with only one default interface
+// because linux test utility tries to set single
+// default null interface
 int setInterfaceReqHandler(requestTyp *request)
 {
-    request->wLength = 0;
-    return REQ_ERROR;
+    if( ((request->wValue != 0) && (request->wIndex != 0)) || \
+        (usbProp.deviceState != CONFIGURED) ) {
+        return REQ_ERROR;
+    }
+    return NULL_REQ;
 }
 
 int getInterfaceReqHandler(requestTyp *request)
@@ -304,7 +318,9 @@ int getDescriptorReqHandler(requestTyp *request)
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case DEVICE_QUALIFIER_TYP<<8:
-            return REQ_ERROR;
+            prev = descCat(usbProp.desc->deviceQualifier, tmp, 0, usbProp.desc->deviceQualifierSize, request->wLength);
+            controlTxDataN(tmp, prev);
+            return DATA_STAGE;
         case ((uint16_t)HID_TYP)<<8:
             prev = descCat(usbProp.desc->hid, tmp, 0, usbProp.desc->hidSize, request->wLength);
             controlTxDataN(tmp, prev);

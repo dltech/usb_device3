@@ -102,6 +102,8 @@ void usbCoreInit(const descriptorsTyp *descr)
     usbProp.deviceState = DEFAULT;
     usbProp.reportDuration = 33;
     usbProp.desc = descr;
+    usbProp.isBoot = 1;
+    usbProp.overflow = 0;
     usbItInit();
     USB_DADDR = EF;
 }
@@ -219,7 +221,7 @@ void ctrF()
     } else if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_TX) ) {
         controlEpTx();
     }
-    if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP0R & CTR_TX) ) {
+    if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP1R & CTR_TX) ) {
         interruptEpTx();
     }
 }
@@ -235,6 +237,7 @@ void controlEpRx()
     }
 }
 
+volatile int controlAckn = 0;
 void controlEpTx()
 {
     USB_ISTR = 0;
@@ -245,6 +248,19 @@ void controlEpTx()
         controlTxData0();
         return;
     }
+    ++controlAckn;
+
+    // case of multipackage response (in my case 2 packages are possible)
+    if(usbProp.overflow > 0) {
+        USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
+        epRxStatusSet(0, STAT_RX_VALID);
+        epTxStatusSet(0, STAT_TX_NAK);
+        controlDtogInit();
+
+        controlTxDataN((uint8_t*)usbProp.mBuffer, usbProp.overflow);
+        usbProp.overflow = 0;
+        return;
+    }
     // status stage of control transaction
     if(usbProp.controlStage == CONTROL_DATA) {
         usbProp.controlStage = CONTROL_STATUS;
@@ -252,8 +268,7 @@ void controlEpTx()
         return;
     }
     // In all other cases, usually after TX ACK is received, come
-    // back again in the idle state. Cause data sequence in my core
-    // consists of only one packet.
+    // back again in the idle state.
     USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_NAK);
@@ -269,17 +284,29 @@ void interruptEpTx()
     usbProp.isRepCompl = 1;
 }
 
+volatile uint16_t requestss[200];
 void reqHandler()
 {
     requestTyp request;
+    int reqStatus = -5;
     // set to NAK first, cause USB device is busy while handle requests
 //    epRxStatusSet(0, STAT_RX_NAK);
 //    epTxStatusSet(0, STAT_TX_NAK);
     // work with request
     reqCopy(&request);
-    int reqStatus = stReqHandler(&request);
-    if( reqStatus == NOT_ST_REQ ) {
+    static int i=0;
+    if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
+    requestss[i++] = request.bRequest;
+    if(request.bRequest == 6) requestss[i++] = request.wValue;
+    if(request.bRequest == 6) requestss[i++] = request.wLength;
+    if(request.bRequest == 9) requestss[i++] = request.wValue;
+    if(request.bRequest == 9) requestss[i++] = request.wIndex;
+    if(request.bRequest == 9) requestss[i++] = request.wLength;
+
+    if( isHidReqTyp(&request) ) {
         reqStatus = hidReqHandler(&request);
+    } else {
+        reqStatus = stReqHandler(&request);
     }
     if( reqStatus == DATA_STAGE ) {
         usbProp.controlStage = CONTROL_DATA;
@@ -296,6 +323,9 @@ void reqHandler()
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
+    requestss[i++] = (uint16_t)usbProp.controlStage;
+    requestss[i++] = 0xffff;
+    if(i>200) i = 0;
 }
 
 // Сopies request for control endpoint 0 from rx buffer
@@ -361,9 +391,13 @@ void reportTx(uint8_t report)
     epTxStatusSet(1, STAT_TX_VALID);
 }
 
+uint8_t keyyyy[500];
 void reportTxN(uint8_t *report, int size)
 {
-    if(size <= 2) return;
+    if(size < 2) return;
+    static int ii=0;
+    keyyyy[ii++] = report[2];
+    if(ii>500) ii=0;
 //    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
     uint16_t *input = (uint16_t*)report;
@@ -378,7 +412,7 @@ void reportTxN(uint8_t *report, int size)
     if( (size%2) > 0 ) {
         *bufferPtr = (uint16_t)report[size-1];
     }
-    USB_COUNT0_TX = size & COUNT_TX_MASK;
+    USB_COUNT1_TX = size & COUNT_TX_MASK;
     usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(1, STAT_TX_VALID);
@@ -441,9 +475,19 @@ void controlTxData2(uint16_t data)
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
+volatile uint8_t txDump[2000];
 void controlTxDataN(uint8_t *data, int size)
 {
     if(size <= 2) return;
+    // a case with > 64 bytes
+    if(size > EP0_BUFFER_SIZE) {
+        usbProp.overflow = size - EP0_BUFFER_SIZE;
+        if(usbProp.overflow > EP0_BUFFER_SIZE) usbProp.overflow = EP0_BUFFER_SIZE;
+        for(int i=0 ; i<usbProp.overflow ; ++i) {
+            usbProp.mBuffer[i] = data[i+EP0_BUFFER_SIZE];
+        }
+        size = EP0_BUFFER_SIZE;
+    }
     uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     for(int i=0 ; i<(size/2) ; ++i) {
@@ -459,6 +503,15 @@ void controlTxDataN(uint8_t *data, int size)
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
+    static int txi=0;
+    txDump[txi++] = (uint8_t)size;
+    for(int i=0 ; i<size ; ++i) {
+        txDump[i+txi] = data[i];
+    }
+    txi += size;
+    txDump[txi++] = 0xff;
+    txDump[txi++] = 0xff;
+    txDump[txi++] = 0xff;
 }
 
 // Concatenation to make descriptors in request readable form

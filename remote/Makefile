@@ -2,7 +2,8 @@
 TARGET = ../result/remote
 LIB_DIR = ../lib
 REG_DIR	= $(LIB_DIR)/regs
-ODIR = bin
+ODIR = bin/remote
+BINDIR = bin
 
 # code is here
 SOURCES = main.c
@@ -38,7 +39,7 @@ CFLAGS +=-fno-common -Os -ffreestanding
 CFLAGS +=-mcpu=cortex-m3 -mthumb
 CFLAGS +=-mfloat-abi=soft -std=gnu2x
 CFLAGS +=-D$(DEFINES)
-#CFLAGS +=-ggdb3
+CFLAGS +=-ggdb3
 LFLAGS  = -T"$(LD_SCRIPT)" --specs=nano.specs -Wl,--gc-sections
 LFLAGS += -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 #utilities
@@ -74,7 +75,7 @@ $(TARGET).lst: $(TARGET).elf
 # Clean rule
 #.PHONY:
 clean:
-	@rm -rf $(ODIR)
+	@rm -rf $(BINDIR)
 	@rm -r $(TARGET).elf
 	@rm -r $(TARGET).bin
 	@rm -r $(TARGET).lst

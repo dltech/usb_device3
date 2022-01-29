@@ -23,8 +23,11 @@ extern volatile usbPropStruct usbProp;
 //extern volatile gamepadParamStruct gamepadPar;
 
 //int getReportReqHandler(requestTyp *request);
+int setReportReqHandler(requestTyp *request);
 int getIdleReqHandler(requestTyp *request);
 int setIdleReqHandler(requestTyp *request);
+int setProtocol(requestTyp *request);
+int getProtocol(requestTyp *request);
 
 int hidReqHandler(requestTyp *request)
 {
@@ -32,14 +35,29 @@ int hidReqHandler(requestTyp *request)
         case GET_REPORT:
             return REQ_ERROR;
 //            return getReportReqHandler(request);
+        case SET_REPORT:
+            return setReportReqHandler(request);
         case GET_IDLE:
             return getIdleReqHandler(request);
         case SET_IDLE:
             return setIdleReqHandler(request);
+        case GET_PROTOCOL:
+            return getProtocol(request);
+        case SET_PROTOCOL:
+            return setProtocol(request);
         default:
             return REQ_ERROR;
     }
     return REQ_ERROR;
+}
+
+int isHidReqTyp(requestTyp *request)
+{
+    if( (request->bmRequestType == HID_GET) || \
+        (request->bmRequestType == HID_SET) ) {
+        return 1;
+    }
+    return 0;
 }
 
 /*int getReportReqHandler(requestTyp *req)
@@ -56,6 +74,16 @@ int hidReqHandler(requestTyp *request)
     }
     return NULL_REQ;
 }*/
+
+// cup function for request set in case of kbd leds
+int setReportReqHandler(requestTyp *req)
+{
+    // error check
+    if( (req->bmRequestType != HID_SET) || (usbProp.deviceState != CONFIGURED) ) {
+        return REQ_ERROR;
+    }
+    return NULL_REQ;
+}
 
 int getIdleReqHandler(requestTyp *requestt)
 {
@@ -74,6 +102,26 @@ int setIdleReqHandler(requestTyp *requestt)
         return REQ_ERROR;
     }
     usbProp.reportDuration = REPORT_DURATION(requestt->wValue);
+    return NULL_REQ;
+}
+
+// boot devices supports boot and report protocols, in my case it doesn't mean
+// anything
+int getProtocol(requestTyp *request)
+{
+    if( (request->bmRequestType != HID_GET) ) {
+        return REQ_ERROR;
+    }
+    controlTxData1(usbProp.isBoot);
+    return DATA_STAGE;
+}
+
+int setProtocol(requestTyp *request)
+{
+    if( (request->bmRequestType != HID_SET) || (request->wValue > 1) ) {
+        return REQ_ERROR;
+    }
+    usbProp.isBoot = (uint8_t)request->wValue;
     return NULL_REQ;
 }
 

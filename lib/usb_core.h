@@ -22,7 +22,7 @@
 #include <inttypes.h>
 
 #define EP0_BUFFER_SIZE         64
-#define EP1_BUFFER_SIZE         4
+#define EP1_BUFFER_SIZE         8
 // buffer table
 #define USB_TABLE_ADDR          0
 #define USB_TABLE_END           (USB_TABLE_ADDR + 0x40)
@@ -37,6 +37,9 @@
 #define USBDP_PIN_INIT          4
 #define USBDM_PIN               GPIO11
 #define USBDP_PIN               GPIO12
+// properties
+#define MULTIPACKAGE_BUFFER_SIZE    128
+
 
 enum deviceStates {
     DEV_RESET = 0,
@@ -73,6 +76,7 @@ typedef struct {
     const uint16_t stringLangIdSize;
     const uint16_t stringVendorSize;
     const uint16_t stringProductSize;
+    const uint16_t deviceQualifierSize;
     const uint8_t *devise;
     const uint8_t *configuration;
     const uint8_t *interface;
@@ -82,6 +86,7 @@ typedef struct {
     const uint8_t *stringLangId;
     const uint8_t *stringVendor;
     const uint8_t *stringProduct;
+    const uint8_t *deviceQualifier;
 } descriptorsTyp;
 typedef struct {
     int isRepCompl;
@@ -91,7 +96,10 @@ typedef struct {
     int reportDuration;
     int controlStage;
     uint8_t address;
+    uint8_t isBoot;
     const descriptorsTyp *desc;
+    uint8_t mBuffer[EP0_BUFFER_SIZE];
+    int overflow;
 } usbPropStruct;
 
 // standard request package

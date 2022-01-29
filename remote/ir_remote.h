@@ -25,9 +25,9 @@
 // port poll frequency in us
 #define POLL_RATE        200
 // port read frame in ms
-#define SEQUENCE_TIME   25
+#define SEQUENCE_TIME   300
 // symbol decode rate in ms
-#define READ_RATE       SEQUENCE_TIME
+#define READ_RATE       25
 // calculating for fre prog
 #define POLL_PSC        ((SYSTEM_CLOCK / 1000000) * POLL_RATE) - 1
 #define SEQUENCE_LEN    SEQUENCE_TIME * 1000 / POLL_RATE
@@ -45,6 +45,7 @@ typedef struct {
     uint32_t   address;
     // code table (ir codes according to keyboard codes)
     uint8_t codeTable[255];
+    int isKeyPressed;
 } remotePropStruct;
 
 // call this to init receiving of IR codes

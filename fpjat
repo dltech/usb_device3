@@ -1,8 +1,8 @@
 #!/bin/bash
 TARRGET="remote"
 
-cd $TARRGET/
-make clean
-make all
+#cd $TARRGET/
+make -C $TARRGET clean 
+make -C $TARRGET all
 st-flash erase
-xfce4-terminal -e "st-util -p 5555 -n" --tab -e "gdb-multiarch --init-command="init_gdb" $TARRGET.elf"
+xfce4-terminal -e "st-util -p 5555 -n" --tab -e "gdb-multiarch --init-command="$TARRGET/init_gdb" result/$TARRGET.elf"

@@ -46,7 +46,7 @@
 #define INTERFACE_TYP        0x04
 #define ENDPOINT_TYP         0x05
 #define DEVICE_QUALIFIER_TYP 0x06
-// hid descriptor types 
+// hid descriptor types
 #define HID_TYP         0x21
 #define REPORT_TYP      0x22
 #define PHYSICAL_TYP    0x23

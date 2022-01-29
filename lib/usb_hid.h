@@ -43,6 +43,9 @@
 
 // this function is just a part of main request handler
 int hidReqHandler(requestTyp *request);
+// checks is request of HID type (ret 1) or not (0)
+int isHidReqTyp(requestTyp *request);
+
 // send HID gamepad report
 void sendReport(uint8_t report, int *ms);
 void sendKbdReport(uint8_t *report);

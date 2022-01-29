@@ -1,0 +1,60 @@
+первый дескриптор совсем непонятный, да еще и под два репорта
+05 0C
+09 01
+A1 01   collection(Application)
+85 01   report_id(1)
+19 00   usage_minimum(0)
+2A 3C
+02
+15 00   logical_minimum(0)
+26
+3C 02
+95 01   report_count(1)
+75 10   report_size(16)
+81 00   input(Data,Ary,Abs)
+C0      end_collection (application)
+
+05 01   usage_page(Generic Desctop)
+09 80
+A1 01   collection(Application)
+85 02   report_id(2)
+19 81   usage_minimum(0x81)
+29 83   usage_maximum(0x97)
+25 01   logical_maximum(1)
+75 01   report_size(1)
+95 03   report_count(3)
+81 02   input(Data,Var,Abs)
+95 05   report_count(5)
+81 01   input(Cnst,Var,Abs)
+C0      end_collection (application)
+
+второй дескриптор, вроде бы понятный
+05 01   usage_page(Generic Desctop)
+09 06   usage(Keyboard)
+A1 01   collection(Application)
+// тут диоды
+05 08   usage_page(leds)
+19 01   usage_minimum(1)
+29 03   usage_maximum(3)
+15 00   logical_minimum(0)
+25 01   logical_maximum(1)
+75 01   report_size(1)
+95 03   report_count(3)
+91 02   OUTPUT (Data,Var,Abs)
+95 05   report_count(5)
+91 01   OUTPUT(...)
+//клавиатура
+05 07   usage_page(Keyboard)
+19 E0   usage_minimum(Keyboard LeftControl)
+29 E7   usage_maximum(Keyboard Right GUI)
+95 08   report_count(8)
+81 02   input(Data,Var,Abs)
+75 08   report_size(8)
+95 01   REPORT_COUNT(1)
+81 01   input(Cnst,Var,Abs)
+19 00   usage_minimum(0)
+29 91   usage_maximum(keyboard lang 2)
+26 FF 00    logical_maximum(ff)
+95 06   report_count(6)
+81 00   input(Data,Ary,Abs)
+C0      end_collection (application)
