@@ -1,13 +1,14 @@
 #paths
-TARGET = result/button
-LIB_DIR = lib
+TARGET = ../result/gamepad
+LIB_DIR = ../lib
 REG_DIR	= $(LIB_DIR)/regs
-ODIR = bin
+ODIR = bin/gamepad
+BINDIR = bin
 
 # code is here
 SOURCES = main.c
-SOURCES += $(LIB_DIR)/gamepad_port.c
-SOURCES += $(LIB_DIR)/gamepad.c
+SOURCES += gamepad_port.c
+SOURCES += gamepad.c
 SOURCES += $(LIB_DIR)/usb_core.c
 SOURCES += $(LIB_DIR)/usb_hid.c
 SOURCES += $(LIB_DIR)/usb_st_req.c
@@ -17,6 +18,7 @@ SOURCES += $(REG_DIR)/usb_device_regs.c
 
 INCLUDES   = -I $(LIB_DIR)/
 INCLUDES  += -I $(REG_DIR)/
+INCLUDES  += -I /
 
 # VENDOR SPECIFIC CODE
 CMSIS_INC  = $(LIB_DIR)/CMSIS_5/CMSIS/Core/Include
@@ -37,7 +39,7 @@ CFLAGS +=-fno-common -Os -ffreestanding
 CFLAGS +=-mcpu=cortex-m3 -mthumb
 CFLAGS +=-mfloat-abi=soft -std=gnu2x
 CFLAGS +=-D$(DEFINES)
-#CFLAGS +=-ggdb3
+CFLAGS +=-ggdb3
 LFLAGS  = -T"$(LD_SCRIPT)" --specs=nano.specs -Wl,--gc-sections
 LFLAGS += -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 #utilities
@@ -52,7 +54,7 @@ OBJDUMP	= arm-none-eabi-objdump
 OBJECTS = $(SOURCES:%.c=$(ODIR)/%.o)
 
 #main rule
-all: $(TARGET).elf $(TARGET).bin $(TARGET).lst
+all: $(TARGET).elf $(ODIR).bin $(ODIR).lst
 #compile
 $(ODIR)/%.o: %.c
 	@echo "[CC] $@"
@@ -63,17 +65,17 @@ $(TARGET).elf: $(OBJECTS)
 	@echo "[LD] $@"
 	@$(LD) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $@
 
-$(TARGET).bin: $(TARGET).elf
+$(ODIR).bin: $(TARGET).elf
 	@echo "[OBJCOPY] $@"
 	@$(OBJCOPY) -O binary  $< $@
 
-$(TARGET).lst: $(TARGET).elf
+$(ODIR).lst: $(TARGET).elf
 	@$(OBJDUMP) -S $< > $@
 
 # Clean rule
 #.PHONY:
 clean:
-	@rm -rf $(ODIR)
+	@rm -rf $(BINDIR)
 	@rm -r $(TARGET).elf
 	@rm -r $(TARGET).bin
 	@rm -r $(TARGET).lst

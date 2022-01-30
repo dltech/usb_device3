@@ -18,7 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include <inttypes.h>
+#include <inttypes.h>
+#include "usb_core.h"
 
 // descriptor size
 #define gamepadDeviseDescSize 18
@@ -32,6 +33,8 @@
 #define stringLangIdSize 4
 #define gamepadStringVendorSize 6
 #define gamepadStringProductSize 8
+#define gamepadDeviceQualifierSize   10
+
 
 // descriptors
 const uint8_t gamepadDeviseDesc[gamepadDeviseDescSize] =
@@ -159,6 +162,43 @@ const uint8_t gamepadStringProduct[gamepadStringProductSize] =
     gamepadStringProductSize,
     0x03,
     'j',0,'o',0,'y',0
+};
+
+const uint8_t gamepadDeviceQualifier[gamepadDeviceQualifierSize] =
+{
+    gamepadDeviceQualifierSize,  // bLenght
+    0x06,       // device qualifier type
+    0x00,0x02,  // bcdUSB, usb 2.0
+    0x00,       // bDeviceClass,
+    0x00,       // bDeviceSubclass, not used
+    0x00,       // bDeviceProtocol
+    0x40,       // bMaxPacketSize0, maximum pack size for the other conf
+    0x00,       // bNumConfigurations, number of the other speed conf
+    0x00,       // bReserved
+};
+
+const descriptorsTyp gamepadDesc = {
+    gamepadDeviseDescSize,
+    gamepadConfigurationDescSize,
+    gamepadInterfaceDescSize,
+    gamepadInEndpDescSize,
+    gamepadHidDescSize,
+    gamepadConfTotalSize,
+    gamepadReportDescSize,
+    stringLangIdSize,
+    gamepadStringVendorSize,
+    gamepadStringProductSize,
+    gamepadDeviceQualifierSize,
+    gamepadDeviseDesc,
+    gamepadConfigurationDesc,
+    gamepadInterfaceDesc,
+    gamepadInEndpDesc,
+    gamepadHidDesc,
+    gamepadReportDesc,
+    stringLangId,
+    gamepadStringVendor,
+    gamepadStringProduct,
+    gamepadDeviceQualifier
 };
 
 #endif

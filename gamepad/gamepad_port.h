@@ -25,7 +25,8 @@
 // port poll frequency in ms
 #define POLLRATE    1
 #define READ_RATE   7
-#define POLL_PSC    (SYSTEM_CLOCK / POLLRATE / 1000) - 1
+#define MAXIMAL_PSC     65535
+#define POLL_ARR    (((SYSTEM_CLOCK / MAXIMAL_PSC) * POLLRATE) / 1000)
 
 // pin definitions
 #define PORT1           GPIOA_IDR

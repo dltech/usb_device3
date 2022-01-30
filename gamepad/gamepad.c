@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-#include "STM32F103_CMSIS/stm32f103.h"
+#include "stm32f103.h"
 #include "usb_core.h"
 #include "gamepad_port.h"
 #include "gamepad.h"
+#include "gamepad_desc.h"
 
 void gamepadInit()
 {
     portInit();
-    usbCoreInit();
+    usbCoreInit(&gamepadDesc);
 }
 
 // all usb events handled in interrupt

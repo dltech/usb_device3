@@ -1,4 +1,4 @@
-#include "lib/gamepad.h"
+#include "gamepad.h"
 
 int main(void) {
 	gamepadInit();

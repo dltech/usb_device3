@@ -133,15 +133,15 @@ void sendKbdReport(uint8_t *report)
     reportTxN(report, 8);
 }
 
-void sendReport(uint8_t report, int *ms)
+int sendReport(uint8_t report, int *ms)
 {
-    static uint8_t prevReport;
     if( (usbProp.deviceState != CONFIGURED) || (usbProp.epProps[1].isHalt == 1) ) {
-        return;
+        return 0;
     }
-    if( ((usbProp.reportDuration == 0) && (prevReport != report)) || \
-        ((usbProp.reportDuration > 0) && ((*ms) > usbProp.reportDuration)) ) {
-        reportTx(report);
-        *ms = 0;
+    if( (usbProp.reportDuration > 0) && ((*ms) < usbProp.reportDuration) ) {
+        return *ms - usbProp.reportDuration;
     }
+    reportTx(report);
+    *ms = 0;
+    return 0;
 }

@@ -29,7 +29,7 @@
 #define ledlessKbdHidDescSize  9
 #define ledlessKbdConfTotalSize    ledlessKbdConfigurationDescSize + \
  ledlessKbdInterfaceDescSize + ledlessKbdInEndpDescSize + ledlessKbdHidDescSize
-#define ledlessKbdReportDescSize   63//43//54
+#define ledlessKbdReportDescSize   63//54
 #define remoteDeviceQualifierSize   10
 #define stringLangIdSize 4
 #define remoteStringVendorSize 14
@@ -121,14 +121,14 @@ const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
     0x75, 0x08,         //   report_size(8)
     0x81, 0x01,         //   input(Cnst,Var,Abs)
     // no leds
-    0x95, 0x05, //   REPORT_COUNT (5)
+    0x95, 0x01, //   REPORT_COUNT (5)
 	0x75, 0x01, //   REPORT_SIZE (1)
 	0x05, 0x08, //   USAGE_PAGE (LEDs)
 	0x19, 0x01, //   USAGE_MINIMUM (Num Lock)
-	0x29, 0x05, //   USAGE_MAXIMUM (Kana)
+	0x29, 0x01, //   USAGE_MAXIMUM (Num Lock)
 	0x91, 0x02, //   OUTPUT (Data,Var,Abs) ; LED report
 	0x95, 0x01, //   REPORT_COUNT (1)
-	0x75, 0x03, //   REPORT_SIZE (3)
+	0x75, 0x07, //   REPORT_SIZE (3)
 	0x91, 0x01, //   OUTPUT (Cnst,Var,Abs) ; LED report padding
     // buttons array (6 buttons pressed simulateously)
     0x95, 0x06,         //   report_count(6)
@@ -137,7 +137,7 @@ const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
     0x25, 0x65,         //   logical maximum(101)
     0x05, 0x07,         //  usage_page(Keyboard)
     0x19, 0x00,         //   usage_minimum(0)
-    0x29, 0x65,         //   usage_maximum(Keyboard Application)
+    0x29, 0x81,         //   usage_maximum(Keyboard Application)65
     0x81, 0x00,         //   input(Data,Ary,Abs)
     0xc0                // end_collection (application)
 };
@@ -172,37 +172,6 @@ const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
     0x29, 0x91,         //   usage_maximum(Keyboard Application) 65 по скромному
     0x26, 0xff, 0x00,   //   logical_maximum(1)
     0x95, 0x06,         //   report_count(6)
-    0x81, 0x00,         //   input(Data,Ary,Abs)
-    0xc0                // end_collection (application)
-};*/
-
-// standard keyboard descriptor (even boot compatible)
-/*const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
-{
-    0x05, 0x01,         // usage_page(Generic Desctop)
-    0x09, 0x06,         // usage(Keyboard)
-    0xa1, 0x01,         // collection(Application)
-    // modifier byte (ctrl, alt, win)
-    0x05, 0x07,         //  usage_page(Keyboard)
-    0x19, 0xe0,         //   usage_minimum(Keyboard LeftControl)
-    0x29, 0xe7,         //   usage_maximum(Keyboard Right GUI)
-    0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x01,         //   logical maximum(1)
-    0x75, 0x01,         //   report_size(1);  (standard obliges)
-    0x95, 0x08,         //   report_count(8)
-    0x81, 0x02,         //   input(Data,Var,Abs)
-    // reserved byte
-    0x95, 0x01,         //   report_count(1)
-    0x75, 0x08,         //   report_size(8)
-    0x81, 0x01,         //   input(Cnst,Var,Abs) иногда тут 3
-    // buttons array (6 buttons pressed simulateously)
-    0x95, 0x06,         //   report_count(6)
-    0x75, 0x08,         //   report_size(8)
-    0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x97,         //   logical maximum(101)
-//    0x05, 0x07,         //  usage_page(Keyboard)
-    0x19, 0x01,         //   usage_minimum(0)
-    0x29, 0x91,         //   usage_maximum(Keyboard Application) 65 по скромному
     0x81, 0x00,         //   input(Data,Ary,Abs)
     0xc0                // end_collection (application)
 };*/

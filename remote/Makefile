@@ -54,7 +54,7 @@ OBJDUMP	= arm-none-eabi-objdump
 OBJECTS = $(SOURCES:%.c=$(ODIR)/%.o)
 
 #main rule
-all: $(TARGET).elf $(TARGET).bin $(TARGET).lst
+all: $(TARGET).elf $(ODIR).bin $(ODIR).lst
 #compile
 $(ODIR)/%.o: %.c
 	@echo "[CC] $@"
@@ -65,11 +65,11 @@ $(TARGET).elf: $(OBJECTS)
 	@echo "[LD] $@"
 	@$(LD) $(CFLAGS) $(LFLAGS) $(OBJECTS) -o $@
 
-$(TARGET).bin: $(TARGET).elf
+$(ODIR).bin: $(TARGET).elf
 	@echo "[OBJCOPY] $@"
 	@$(OBJCOPY) -O binary  $< $@
 
-$(TARGET).lst: $(TARGET).elf
+$(ODIR).lst: $(TARGET).elf
 	@$(OBJDUMP) -S $< > $@
 
 # Clean rule

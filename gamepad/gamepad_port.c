@@ -53,8 +53,8 @@ void pollIrqInit()
     // Timer based interrupt which initiates port poll
     RCC_APB1ENR |= TIM2EN;
     TIM2_CR1   = (uint32_t) CKD_CK_INT;
-    TIM2_PSC   = (uint32_t) POLL_PSC;
-    TIM2_ARR   = (uint32_t) 1;
+    TIM2_PSC   = (uint32_t) MAXIMAL_PSC;
+    TIM2_ARR   = (uint32_t) POLL_ARR;
     TIM2_DIER  = (uint32_t) UIE;
     TIM2_CR1  |= (uint32_t) CEN;
     NVIC_EnableIRQ(TIM2_IRQn);
@@ -153,11 +153,18 @@ void repTest()
 void TIM2_Handler()
 {
     static int cnt=0;
+    static uint8_t prevRep = 0;
+    static int timeout = 0;
     portPoll();
     reportUpdate();
     ++cnt;
 //    repTest();
-    sendReport(gamepadPar.report, &cnt);
+    if(gamepadPar.report != prevRep) {
+        prevRep = gamepadPar.report;
+        timeout  = sendReport(gamepadPar.report, &cnt);
+    } else if( (gamepadPar.report == 0) && (timeout > 0) ) {
+        timeout  = sendReport(gamepadPar.report, &cnt);
+    }
     TIM2_SR = 0;
 //    wkupByPress();
 }
