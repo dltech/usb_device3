@@ -1,6 +1,6 @@
 #!/bin/bash
-#TARRGET="remote"
-TARRGET="gamepad"
+TARRGET="remote"
+#TARRGET="gamepad"
 
 make -C $TARRGET clean
 make -C $TARRGET all

@@ -41,6 +41,9 @@
 // vice versa for Get_Idle
 #define DURATION_TO_PARAM(ms)   ((uint8_t)(ms/4))
 
+#define KBD_REPORT_SIZE     8
+#define KBD_SYMBOL_POINTER  2
+
 // this function is just a part of main request handler
 int hidReqHandler(requestTyp *request);
 // checks is request of HID type (ret 1) or not (0)

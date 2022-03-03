@@ -47,7 +47,6 @@ void gpioInit()
     GPIOA_ODR = 0;//IR_PIN;
 }
 
-
 // setting up timer of IR receiver periodical reading
 void periodicPortPollTimerInit()
 {

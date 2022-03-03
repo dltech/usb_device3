@@ -284,7 +284,7 @@ void interruptEpTx()
     usbProp.isRepCompl = 1;
 }
 
-volatile uint16_t requestss[200];
+//volatile uint16_t requestss[200];
 void reqHandler()
 {
     requestTyp request;
@@ -294,14 +294,14 @@ void reqHandler()
 //    epTxStatusSet(0, STAT_TX_NAK);
     // work with request
     reqCopy(&request);
-    static int i=0;
-    if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
-    requestss[i++] = request.bRequest;
-    if(request.bRequest == 6) requestss[i++] = request.wValue;
-    if(request.bRequest == 6) requestss[i++] = request.wLength;
-    if(request.bRequest == 9) requestss[i++] = request.wValue;
-    if(request.bRequest == 9) requestss[i++] = request.wIndex;
-    if(request.bRequest == 9) requestss[i++] = request.wLength;
+    // static int i=0;
+    // if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
+    // requestss[i++] = request.bRequest;
+    // if(request.bRequest == 6) requestss[i++] = request.wValue;
+    // if(request.bRequest == 6) requestss[i++] = request.wLength;
+    // if(request.bRequest == 9) requestss[i++] = request.wValue;
+    // if(request.bRequest == 9) requestss[i++] = request.wIndex;
+    // if(request.bRequest == 9) requestss[i++] = request.wLength;
 
     if( isHidReqTyp(&request) ) {
         reqStatus = hidReqHandler(&request);
@@ -323,9 +323,9 @@ void reqHandler()
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
-    requestss[i++] = (uint16_t)usbProp.controlStage;
-    requestss[i++] = 0xffff;
-    if(i>200) i = 0;
+    // requestss[i++] = (uint16_t)usbProp.controlStage;
+    // requestss[i++] = 0xffff;
+    // if(i>200) i = 0;
 }
 
 // Сopies request for control endpoint 0 from rx buffer
@@ -391,13 +391,13 @@ void reportTx(uint8_t report)
     epTxStatusSet(1, STAT_TX_VALID);
 }
 
-uint8_t keyyyy[500];
+// uint8_t keyyyy[500];
 void reportTxN(uint8_t *report, int size)
 {
     if(size < 2) return;
-    static int ii=0;
-    keyyyy[ii++] = report[2];
-    if(ii>500) ii=0;
+    // static int ii=0;
+    // keyyyy[ii++] = report[2];
+    // if(ii>500) ii=0;
 //    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
     uint16_t *input = (uint16_t*)report;
@@ -475,7 +475,7 @@ void controlTxData2(uint16_t data)
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
-volatile uint8_t txDump[2000];
+// volatile uint8_t txDump[2000];
 void controlTxDataN(uint8_t *data, int size)
 {
     if(size <= 2) return;
@@ -503,15 +503,15 @@ void controlTxDataN(uint8_t *data, int size)
     controlDtogInit();
     epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
-    static int txi=0;
-    txDump[txi++] = (uint8_t)size;
-    for(int i=0 ; i<size ; ++i) {
-        txDump[i+txi] = data[i];
-    }
-    txi += size;
-    txDump[txi++] = 0xff;
-    txDump[txi++] = 0xff;
-    txDump[txi++] = 0xff;
+    // static int txi=0;
+    // txDump[txi++] = (uint8_t)size;
+    // for(int i=0 ; i<size ; ++i) {
+    //     txDump[i+txi] = data[i];
+    // }
+    // txi += size;
+    // txDump[txi++] = 0xff;
+    // txDump[txi++] = 0xff;
+    // txDump[txi++] = 0xff;
 }
 
 // Concatenation to make descriptors in request readable form
