@@ -1,8 +1,8 @@
-#ifndef H_REMOTE_DESC
-#define H_REMOTE_DESC
+#ifndef H_LOGER_DESC
+#define H_LOGER_DESC
 /*
- * Part of USB HID ledlessKbd STM32 based solution.
- * All descriptors for simplest USB 2.0 HID ledlessKbd with D-pad and two buttons
+ * Part of USB HID vcp STM32 based solution.
+ * All descriptors for simplest USB 2.0 HID vcp with D-pad and two buttons
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -22,87 +22,122 @@
 #include "usb_core.h"
 
 // descriptor size
-#define ledlessKbdDeviseDescSize 18
-#define ledlessKbdConfigurationDescSize 9
-#define ledlessKbdInterfaceDescSize 9
-#define ledlessKbdInEndpDescSize 7
-#define ledlessKbdHidDescSize  9
-#define ledlessKbdConfTotalSize    ledlessKbdConfigurationDescSize + \
- ledlessKbdInterfaceDescSize + ledlessKbdInEndpDescSize + ledlessKbdHidDescSize
-#define ledlessKbdReportDescSize   63//54
-#define remoteDeviceQualifierSize   10
+#define vcpDeviseDescSize 18
+#define vcpConfigurationDescSize 9
+#define vcpInterfaceDescSize 9
+#define vcpInEndpDescSize 7
+#define vcpHidDescSize  9
+#define vcpConfTotalSize    vcpConfigurationDescSize + \
+ vcpInterfaceDescSize + vcpInEndpDescSize + vcpHidDescSize
+#define vcpReportDescSize   63//54
+#define vcpDeviceQualifierSize   10
 #define stringLangIdSize 4
-#define remoteStringVendorSize 14
-#define remoteStringProductSize 20
+#define vcpStringVendorSize 14
+#define vcpStringProductSize 12
 
 
 // descriptors
-const uint8_t ledlessKbdDeviseDesc[ledlessKbdDeviseDescSize] =
+const uint8_t vcpDeviseDesc[vcpDeviseDescSize] =
 {
-    ledlessKbdDeviseDescSize,       // bLenght
+    vcpDeviseDescSize,       // bLenght
     0x01,       // bDescriptorType, Device descriptor
     0x00,0x02,  // bcdUSB, usb 2.0
-    0x00,       // bDeviceClass, not used
-    0x00,       // bDeviceSubclass, not used
-    0x00,       // bDeviceProtocol, not used
+    0x02,       // bDeviceClass, CDC
+    0x02,       // bDeviceSubclass, abstract control model
+    0x02,       // bDeviceProtocol, not used
     0x40,       // bMaxPacketSize0, maximum size 64 byte
-    0x6d,0x04,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
-    0x21,0xc2,  // idProduct st 0x2c 0x57
-    0x00,0x01,  // bcdDevice
+    0x04,0x83,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
+    0x57,0x40,  // idProduct st 0x2c 0x57
+    0x00,0x02,  // bcdDevice
     0x01,       // iManufacter
     0x02,       // iProduct
     0x00,       // iSerialNumber
     0x01        // bNumConfigurations
 };
 
-const uint8_t ledlessKbdConfigurationDesc[ledlessKbdConfigurationDescSize] =
+const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
 {
-    ledlessKbdConfigurationDescSize,       // bLenght
+    vcpConfigurationDescSize,       // bLenght
     0x02,       // bDescriptorType, Configuration descriptor
-    ledlessKbdConfTotalSize, 0x00, // TotalLenght
-    0x01,       // bNumInterfaces
+    vcpConfTotalSize, 0x00, // TotalLenght
+    0x02,       // bNumInterfaces
     0x01,       // bConfigurationValue
     0x00,       // iConfiguration
     0xa0,       // bmAttributes, self-powered
     0x32        // maxPower, 100mA
 };
 
-const uint8_t ledlessKbdInterfaceDesc[ledlessKbdInterfaceDescSize] =
+// configuration interface (CDC standard obliges)
+const uint8_t vcpInterface0Desc[vcpInterfaceDescSize] =
 {
-    ledlessKbdInterfaceDescSize,       // bLenght
+    vcpInterfaceDescSize,       // bLenght
     0x04,       // bDescriptorType, Interface descriptor
     0x00,       // bInterfaceNumber
     0x00,       // bAlternateSetting
     0x01,       // bNumEndpoints
-    0x03,       // bInterfaceClass, HID
-    0x01,       // bInterfaceSubClass, bootable (you can use it in bios)
-    0x01,       // bInterfaceProtocol, keyboard
+    0x02,       // bInterfaceClass, Communication interface class
+    0x02,       // bInterfaceSubClass, Abstract control Model
+    0x01,       // bInterfaceProtocol, AT commands
     0x00        // bInterface
 };
 
-const uint8_t ledlessKbdInEndpDesc[ledlessKbdInEndpDescSize] =
+// input/output interface
+const uint8_t vcpInterface1Desc[vcpInterfaceDescSize] =
 {
-    ledlessKbdInEndpDescSize,       // bLenght
-    0x05,       // bDescriptorType, endpoint descriptor
-    0x81,       // bEndpointAddress, IN endpoint 1
-    0x03,       // bMattributes, interrupt endpoint
-    0x08,0x00,  // MaxPacketSize, 8 bytes
-    0x20        // bInterval 32 ms
+    vcpInterfaceDescSize,       // bLenght
+    0x04,       // bDescriptorType, Interface descriptor
+    0x01,       // bInterfaceNumber
+    0x00,       // bAlternateSetting
+    0x02,       // bNumEndpoints
+    0x02,       // bInterfaceClass, Communication interface class
+    0x00,       // bInterfaceSubClass, not used
+    0x00,       // bInterfaceProtocol, not used
+    0x00        // bInterface
 };
 
-const uint8_t ledlessKbdHidDesc[ledlessKbdHidDescSize] =
+const uint8_t vcpInEndpDesc[vcpEndpDescSize] =
 {
-    ledlessKbdHidDescSize,       // bLenght
+    vcpEndpDescSize,       // bLenght
+    0x05,       // bDescriptorType, endpoint descriptor
+    0x81,       // bEndpointAddress, IN endpoint 1
+    0x02,       // bMattributes, bulk
+    0x40,0x00,  // MaxPacketSize, 64 bytes
+    0x00        // bInterval ignore
+};
+
+const uint8_t vcpOutEndpDesc[vcpEndpDescSize] =
+{
+    vcpEndpDescSize,       // bLenght
+    0x05,       // bDescriptorType, endpoint descriptor
+    0x02,       // bEndpointAddress, IN endpoint 1
+    0x02,       // bMattributes, bulk
+    0x40,0x00,  // MaxPacketSize, 64 bytes
+    0x00        // bInterval ignore
+};
+
+const uint8_t vcpConfEndpDesc[vcpEndpDescSize] =
+{
+    vcpEndpDescSize,       // bLenght
+    0x05,       // bDescriptorType, endpoint descriptor
+    0x83,       // bEndpointAddress, IN endpoint 3
+    0x03,       // bMattributes, Interrupt
+    0x40,0x00,  // MaxPacketSize, 64 bytes
+    0xff        // bInterval ignore
+};
+
+const uint8_t vcpHidDesc[vcpHidDescSize] =
+{
+    vcpHidDescSize,       // bLenght
     0x21,       // bDescriptorType, HID descriptor
     0x10,0x01,  // bcdHID, HID spec 1.01
     0x00,       // country code SU 0x21
     0x01,       // bNumDescriptors
     0x22,       // bDescriptorType, report descriptor
-    ledlessKbdReportDescSize,0x00  // wDescriptorLenght
+    vcpReportDescSize,0x00  // wDescriptorLenght
 };
 
 // 63 byte variant from standard
-const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
+const uint8_t vcpReportDesc[vcpReportDescSize] =
 {
     0x05, 0x01,         // usage_page(Generic Desctop)
     0x09, 0x06,         // usage(Keyboard)
@@ -142,43 +177,9 @@ const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
     0xc0                // end_collection (application)
 };
 
-/*// china keyboard
-const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
+const uint8_t vcpDeviceQualifier[vcpDeviceQualifierSize] =
 {
-    0x05, 0x01,         // usage_page(Generic Desctop)
-    0x09, 0x06,         // usage(Keyboard)
-    0xa1, 0x01,         // collection(Application)
-    // тут диоды
-    0x05, 0x08,   //usage_page(leds)
-    0x19, 0x01,   //usage_minimum(1)
-    0x29, 0x03,   //usage_maximum(3)
-    0x15, 0x00,   //logical_minimum(0)
-    0x25, 0x01,   //logical_maximum(1)
-    0x75, 0x01,   //report_size(1)
-    0x95, 0x03,   //report_count(3)
-    0x91, 0x02,   //OUTPUT (Data,Var,Abs)
-    0x95, 0x05,   //report_count(5)
-    0x91, 0x01,   //OUTPUT(...)
-    // modifier byte (ctrl, alt, win)
-    0x05, 0x07,         //  usage_page(Keyboard)
-    0x19, 0xe0,         //   usage_minimum(Keyboard LeftControl)
-    0x29, 0xe7,         //   usage_maximum(Keyboard Right GUI)
-    0x95, 0x08,         //   report_count(8)
-    0x81, 0x02,         //   input(Data,Var,Abs)
-    0x75, 0x08,         //   report_size(8)
-    0x95, 0x01,         //   report_count(1)
-    0x81, 0x01,         //   input(Cnst,Var,Abs) иногда тут 3
-    0x19, 0x00,         //   usage_minimum(0)
-    0x29, 0x91,         //   usage_maximum(Keyboard Application) 65 по скромному
-    0x26, 0xff, 0x00,   //   logical_maximum(1)
-    0x95, 0x06,         //   report_count(6)
-    0x81, 0x00,         //   input(Data,Ary,Abs)
-    0xc0                // end_collection (application)
-};*/
-
-const uint8_t remoteDeviceQualifier[remoteDeviceQualifierSize] =
-{
-    remoteDeviceQualifierSize,  // bLenght
+    vcpDeviceQualifierSize,  // bLenght
     0x06,       // device qualifier type
     0x00,0x02,  // bcdUSB, usb 2.0
     0x00,       // bDeviceClass,
@@ -197,39 +198,38 @@ const uint8_t stringLangId[stringLangIdSize] =
     0x04
 };
 
-const uint8_t remoteStringVendor[remoteStringVendorSize] =
+const uint8_t vcpStringVendor[remoteStringVendorSize] =
 {
     remoteStringVendorSize,
     0x03,
     'd',0,'l',0,'t',0,'e',0,'c',0,'h',0
 };
 
-const uint8_t remoteKbdStringProduct[remoteStringProductSize] =
+const uint8_t vcpKbdStringProduct[remoteStringProductSize] =
 {
     remoteStringProductSize,
     0x03,
-    't',0,'v',0,' ',0,
-    'r',0,'e',0,'m',0,'o',0,'t',0,'e',0
+    'l',0,'o',0,'g',0,'e',0,'r',0
 };
 
 const descriptorsTyp remoteDesc = {
-    ledlessKbdDeviseDescSize,
-    ledlessKbdConfigurationDescSize,
-    ledlessKbdInterfaceDescSize,
-    ledlessKbdInEndpDescSize,
-    ledlessKbdHidDescSize,
-    ledlessKbdConfTotalSize,
-    ledlessKbdReportDescSize,
+    vcpDeviseDescSize,
+    vcpConfigurationDescSize,
+    vcpInterfaceDescSize,
+    vcpInEndpDescSize,
+    vcpHidDescSize,
+    vcpConfTotalSize,
+    vcpReportDescSize,
     stringLangIdSize,
     remoteStringVendorSize,
     remoteStringProductSize,
     remoteDeviceQualifierSize,
-    ledlessKbdDeviseDesc,
-    ledlessKbdConfigurationDesc,
-    ledlessKbdInterfaceDesc,
-    ledlessKbdInEndpDesc,
-    ledlessKbdHidDesc,
-    ledlessKbdReportDesc,
+    vcpDeviseDesc,
+    vcpConfigurationDesc,
+    vcpInterfaceDesc,
+    vcpInEndpDesc,
+    vcpHidDesc,
+    vcpReportDesc,
     stringLangId,
     remoteStringVendor,
     remoteKbdStringProduct,

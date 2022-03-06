@@ -682,7 +682,7 @@ U 1 1 61ED3CCD
 P 7300 5100
 F 0 "J2" H 7380 5142 50  0000 L CNN
 F 1 "power_sw" H 7380 5051 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal" H 7300 5100 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 7300 5100 50  0001 C CNN
 F 3 "~" H 7300 5100 50  0001 C CNN
 	1    7300 5100
 	1    0    0    -1  
