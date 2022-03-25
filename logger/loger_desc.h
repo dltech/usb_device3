@@ -2,7 +2,7 @@
 #define H_LOGER_DESC
 /*
  * Part of USB HID vcp STM32 based solution.
- * All descriptors for simplest USB 2.0 HID vcp with D-pad and two buttons
+ * All descriptors for simplest USB 2.0 HID vcp with D-pad and two buttons.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -26,10 +26,10 @@
 #define vcpConfigurationDescSize 9
 #define vcpInterfaceDescSize 9
 #define vcpInEndpDescSize 7
-#define vcpHidDescSize  9
+#define vcpOutEndpDescSize 7
+#define vcpFunctionalSize 14
 #define vcpConfTotalSize    vcpConfigurationDescSize + \
- vcpInterfaceDescSize + vcpInEndpDescSize + vcpHidDescSize
-#define vcpReportDescSize   63//54
+ vcpInterfaceDescSize + vcpInEndpDescSize + vcpOutEndpDescSize + vcpFunctionalSize
 #define vcpDeviceQualifierSize   10
 #define stringLangIdSize 4
 #define vcpStringVendorSize 14
@@ -44,7 +44,7 @@ const uint8_t vcpDeviseDesc[vcpDeviseDescSize] =
     0x00,0x02,  // bcdUSB, usb 2.0
     0x02,       // bDeviceClass, CDC
     0x02,       // bDeviceSubclass, abstract control model
-    0x02,       // bDeviceProtocol, not used
+    0x00,       // bDeviceProtocol, not used
     0x40,       // bMaxPacketSize0, maximum size 64 byte
     0x04,0x83,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
     0x57,0x40,  // idProduct st 0x2c 0x57
@@ -60,7 +60,7 @@ const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
     vcpConfigurationDescSize,       // bLenght
     0x02,       // bDescriptorType, Configuration descriptor
     vcpConfTotalSize, 0x00, // TotalLenght
-    0x02,       // bNumInterfaces
+    0x01,       // bNumInterfaces
     0x01,       // bConfigurationValue
     0x00,       // iConfiguration
     0xa0,       // bmAttributes, self-powered
@@ -68,29 +68,15 @@ const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
 };
 
 // configuration interface (CDC standard obliges)
-const uint8_t vcpInterface0Desc[vcpInterfaceDescSize] =
+const uint8_t vcpInterfaceDesc[vcpInterfaceDescSize] =
 {
     vcpInterfaceDescSize,       // bLenght
     0x04,       // bDescriptorType, Interface descriptor
     0x00,       // bInterfaceNumber
     0x00,       // bAlternateSetting
-    0x01,       // bNumEndpoints
-    0x02,       // bInterfaceClass, Communication interface class
-    0x02,       // bInterfaceSubClass, Abstract control Model
-    0x01,       // bInterfaceProtocol, AT commands
-    0x00        // bInterface
-};
-
-// input/output interface
-const uint8_t vcpInterface1Desc[vcpInterfaceDescSize] =
-{
-    vcpInterfaceDescSize,       // bLenght
-    0x04,       // bDescriptorType, Interface descriptor
-    0x01,       // bInterfaceNumber
-    0x00,       // bAlternateSetting
     0x02,       // bNumEndpoints
     0x02,       // bInterfaceClass, Communication interface class
-    0x00,       // bInterfaceSubClass, not used
+    0x02,       // bInterfaceSubClass, Abstract control Model
     0x00,       // bInterfaceProtocol, not used
     0x00        // bInterface
 };
@@ -115,66 +101,25 @@ const uint8_t vcpOutEndpDesc[vcpEndpDescSize] =
     0x00        // bInterval ignore
 };
 
-const uint8_t vcpConfEndpDesc[vcpEndpDescSize] =
+const uint8_t vcpFunctional[vcpFunctionalSize] =
 {
-    vcpEndpDescSize,       // bLenght
-    0x05,       // bDescriptorType, endpoint descriptor
-    0x83,       // bEndpointAddress, IN endpoint 3
-    0x03,       // bMattributes, Interrupt
-    0x40,0x00,  // MaxPacketSize, 64 bytes
-    0xff        // bInterval ignore
-};
-
-const uint8_t vcpHidDesc[vcpHidDescSize] =
-{
-    vcpHidDescSize,       // bLenght
-    0x21,       // bDescriptorType, HID descriptor
-    0x10,0x01,  // bcdHID, HID spec 1.01
-    0x00,       // country code SU 0x21
-    0x01,       // bNumDescriptors
-    0x22,       // bDescriptorType, report descriptor
-    vcpReportDescSize,0x00  // wDescriptorLenght
-};
-
-// 63 byte variant from standard
-const uint8_t vcpReportDesc[vcpReportDescSize] =
-{
-    0x05, 0x01,         // usage_page(Generic Desctop)
-    0x09, 0x06,         // usage(Keyboard)
-    0xa1, 0x01,         // collection(Application)
-    0x05, 0x07,         //  usage_page(Keyboard)
-    0x19, 0xe0,         //   usage_minimum(Keyboard LeftControl)
-    0x29, 0xe7,         //   usage_maximum(Keyboard Right GUI)
-    0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x01,         //   logical maximum(1)
-    // modifier byte (ctrl, alt, win)
-    0x75, 0x01,         //   report_size(1);  (standard obliges)
-    0x95, 0x08,         //   report_count(8)
-    0x81, 0x02,         //   input(Data,Var,Abs)
-    // reserved byte
-    0x95, 0x01,         //   report_count(1)
-    0x75, 0x08,         //   report_size(8)
-    0x81, 0x01,         //   input(Cnst,Var,Abs)
-    // no leds
-    0x95, 0x01, //   REPORT_COUNT (5)
-	0x75, 0x01, //   REPORT_SIZE (1)
-	0x05, 0x08, //   USAGE_PAGE (LEDs)
-	0x19, 0x01, //   USAGE_MINIMUM (Num Lock)
-	0x29, 0x01, //   USAGE_MAXIMUM (Num Lock)
-	0x91, 0x02, //   OUTPUT (Data,Var,Abs) ; LED report
-	0x95, 0x01, //   REPORT_COUNT (1)
-	0x75, 0x07, //   REPORT_SIZE (3)
-	0x91, 0x01, //   OUTPUT (Cnst,Var,Abs) ; LED report padding
-    // buttons array (6 buttons pressed simulateously)
-    0x95, 0x06,         //   report_count(6)
-    0x75, 0x08,         //   report_size(8)
-    0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x65,         //   logical maximum(101)
-    0x05, 0x07,         //  usage_page(Keyboard)
-    0x19, 0x00,         //   usage_minimum(0)
-    0x29, 0x81,         //   usage_maximum(Keyboard Application)65
-    0x81, 0x00,         //   input(Data,Ary,Abs)
-    0xc0                // end_collection (application)
+    // header functional descriptor
+    5,          // bFunctionLength
+    0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
+    0x00,       // bDescriptorSubtype, header functional
+    0x01,       // bcdCDC, USB CDC standard version (1.01)
+    0x10,
+    // Abstract Control Management Functional Descriptor
+    4,          // bFunctionLength
+    0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
+    0x02,       // bDescriptorSubtype, Abstract control model functional
+    0x02,       // bmCapabilities, support set/get lineCoding
+    // Call Management Functional Descriptor
+    5,          // bFunctionLength
+    0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
+    0x01,       // bDescriptorSubtype, Call management functional
+    0x00,       // bmCapabilities, do not support call maqnagement
+    0x00,       // bDataInterface, optional interface for call management (none)
 };
 
 const uint8_t vcpDeviceQualifier[vcpDeviceQualifierSize] =
@@ -182,8 +127,8 @@ const uint8_t vcpDeviceQualifier[vcpDeviceQualifierSize] =
     vcpDeviceQualifierSize,  // bLenght
     0x06,       // device qualifier type
     0x00,0x02,  // bcdUSB, usb 2.0
-    0x00,       // bDeviceClass,
-    0x00,       // bDeviceSubclass, not used
+    0x02,       // bDeviceClass,
+    0x02,       // bDeviceSubclass,
     0x00,       // bDeviceProtocol
     0x40,       // bMaxPacketSize0, maximum pack size for the other conf
     0x00,       // bNumConfigurations, number of the other speed conf
@@ -217,23 +162,23 @@ const descriptorsTyp remoteDesc = {
     vcpConfigurationDescSize,
     vcpInterfaceDescSize,
     vcpInEndpDescSize,
-    vcpHidDescSize,
+    vcpOutEndpDescSize,
+    vcpFunctionalDescSize,
     vcpConfTotalSize,
-    vcpReportDescSize,
     stringLangIdSize,
-    remoteStringVendorSize,
-    remoteStringProductSize,
-    remoteDeviceQualifierSize,
+    vcpStringVendorSize,
+    vcpStringProductSize,
+    vcpDeviceQualifierSize,
     vcpDeviseDesc,
     vcpConfigurationDesc,
     vcpInterfaceDesc,
     vcpInEndpDesc,
-    vcpHidDesc,
-    vcpReportDesc,
+    vcpOutEndpDesc,
+    vcpFunctionalDesc,
     stringLangId,
-    remoteStringVendor,
-    remoteKbdStringProduct,
-    remoteDeviceQualifier
+    vcpStringVendor,
+    vcpStringProduct,
+    vcpDeviceQualifier
 };
 
 #endif

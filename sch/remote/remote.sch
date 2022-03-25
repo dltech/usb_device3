@@ -568,10 +568,6 @@ Entry Wire Line
 	6300 2950 6400 2850
 NoConn ~ 4450 3800
 NoConn ~ 4450 3900
-NoConn ~ 4450 4000
-NoConn ~ 4450 4100
-Entry Wire Line
-	4100 4500 4200 4400
 Entry Wire Line
 	5800 3700 5900 3800
 NoConn ~ 4450 3100
@@ -850,7 +846,7 @@ IR
 Text Label 5600 4500 0    50   ~ 0
 DP
 NoConn ~ 4450 5000
-Text Label 4250 4400 0    50   ~ 0
+Text Label 4200 4100 0    50   ~ 0
 PWR
 Wire Wire Line
 	5550 3700 5800 3700
@@ -858,10 +854,6 @@ NoConn ~ 5550 3800
 NoConn ~ 4450 3700
 Text Label 6400 5450 0    50   ~ 0
 PWR
-Text Label 4200 4300 0    50   ~ 0
-SWDIO
-Wire Wire Line
-	4450 4300 4200 4300
 $Comp
 L local:STM32F103C8Tx_usb U1
 U 1 1 60B9067D
@@ -874,10 +866,8 @@ F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/da
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 4400 4450 4400
-Wire Wire Line
 	5550 3500 5800 3500
-Text Label 5600 3700 0    50   ~ 0
+Text Label 4200 4000 0    50   ~ 0
 GND
 Text Label 4200 5450 0    50   ~ 0
 GND
@@ -898,15 +888,23 @@ Entry Wire Line
 Entry Wire Line
 	5800 3500 5900 3600
 Entry Wire Line
-	4100 4400 4200 4300
-Entry Wire Line
 	5800 4500 5900 4600
 Wire Wire Line
 	5550 4500 5800 4500
+Wire Wire Line
+	4450 4100 4200 4100
+Entry Wire Line
+	4100 4200 4200 4100
+NoConn ~ 4450 4400
+NoConn ~ 4450 4300
 Wire Bus Line
 	4150 5750 6450 5750
+Entry Wire Line
+	4100 4100 4200 4000
+Wire Wire Line
+	4200 4000 4450 4000
 Wire Bus Line
-	4100 4350 4100 5700
+	4100 4050 4100 5700
 Wire Bus Line
 	6300 2900 6300 5700
 Wire Bus Line
