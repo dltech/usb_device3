@@ -1,7 +1,7 @@
 #ifndef H_USB_HID
 #define H_USB_HID
 /*
- * Part of USB com port
+ * Part of USB VCP on STM32.
  * Here are CDC related request handlers.
  *
  * Copyright 2022 Mikhail Belkin <dltech174@gmail.com>
@@ -28,13 +28,8 @@
 #define SERIAL_STATE            0x20
 
 // this function is just a part of main request handler
-int hidReqHandler(requestTyp *request);
+int cdcReqHandler(requestTyp *request);
 // checks is request of HID type (ret 1) or not (0)
-int isHidReqTyp(requestTyp *request);
-
-// send HID gamepad report
-int sendReport(uint8_t report, int *ms);
-void sendKbdReport(uint8_t *report);
-
+int isCdcReqTyp(requestTyp *request);
 
 #endif

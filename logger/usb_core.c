@@ -17,15 +17,12 @@
  * limitations under the License.
  */
 #include "STM32F103_CMSIS/stm32f103.h"
-#include "rcc.h"
-#include "delay.h"
-#include "regs/usb_device_regs.h"
+#include "../lib/rcc.h"
+#include "../lib/delay.h"
+#include "../lib/regs/usb_device_regs.h"
 #include "usb_st_req.h"
 #include "usb_hid.h"
 #include "usb_core.h"
-//#include "gamepad_port.h"
-
-//#include "remote/remote_desc.h"
 
 volatile usbPropStruct usbProp;
 
@@ -35,8 +32,9 @@ void usbGpioInit(void);
 void usbClockInit(void);
 void usbItInit(void);
 // endpoints init
-void usbHidEndpInit(void);
-void usbReportEndpInit(void);
+void usbControlEndpInit(void);
+void usbInEndpInit(void);
+void usbOutEndpInit(void);
 // usb states
 // peripherial states
 void usbReset(void);
@@ -46,7 +44,8 @@ void usbWkup(void);
 void ctrF(void);
 void controlEpRx(void);
 void controlEpTx(void);
-void interruptEpTx(void);
+void vcpEpRx(void);
+void vcpEpTx(void);
 // request handler
 void reqCopy(requestTyp *request);
 void reqHandler(void);
@@ -108,7 +107,7 @@ void usbCoreInit(const descriptorsTyp *descr)
     USB_DADDR = EF;
 }
 
-void usbHidEndpInit()
+void usbControlEndpInit()
 {
     // buffer init
     USB_BTABLE    = USB_TABLE_ADDR;
@@ -125,18 +124,33 @@ void usbHidEndpInit()
     epTxStatusSet(0, STAT_TX_NAK);
 }
 
-void usbReportEndpInit()
+void usbInEndpInit()
 {
     // endpoint 1 tx buffer
-    USB_ADDR1_TX = EP1_TX_START;
+    USB_ADDR1_RX = EP1_RX_START;
     // endpoint 1 address 1, type interrupt endpoint
-    USB_EP1R = EP_TYPE_INTERRUPT | (1 & EA_MASK);
+    USB_EP1R = EP_TYPE_BULK | (1 & EA_MASK);
     defaultDtogInit(1);
-    epRxStatusSet(1, STAT_RX_DISABLED);
-    epTxStatusSet(1, STAT_TX_NAK);
+    epRxStatusSet(1, STAT_RX_VALID);
+    epTxStatusSet(1, STAT_TX_DISABLED);
     usbProp.epProps[1].isHalt = 0;
     usbProp.isRepCompl = 1;
 }
+
+void usbOutEndpInit()
+{
+    // endpoint 1 tx buffer
+    USB_ADDR2_TX = EP2_TX_START;
+    // endpoint 1 address 1, type interrupt endpoint
+    USB_EP1R = EP_TYPE_BULK | (2 & EA_MASK);
+    defaultDtogInit(1);
+    epRxStatusSet(2, STAT_RX_DISABLED);
+    epTxStatusSet(2, STAT_TX_NAK);
+    // interrupt properties
+    usbProp.epProps[2].isHalt = 0;
+    usbProp.isRepCompl = 1;
+}
+
 
 void usbReset()
 {
@@ -165,8 +179,9 @@ void usbReset()
     USB_CNTR &= ~((uint32_t)(LP_MODE | FSUSP));
     USB_ISTR = 0;
     // init again
-    usbHidEndpInit();
-    usbReportEndpInit();
+    usbControlEndpInit();
+    usbInEndpInit();
+    usbOutEndpInit();
     usbItInit();
     usbProp.deviceState = DEFAULT;
 }
@@ -221,8 +236,11 @@ void ctrF()
     } else if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_TX) ) {
         controlEpTx();
     }
-    if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP1R & CTR_TX) ) {
-        interruptEpTx();
+    if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP1R & CTR_RX) ) {
+        vcpEpRx();
+    }
+    if( ((USB_ISTR & EP_ID_MASK) == 2) && (USB_EP2R & CTR_TX) ) {
+        vcpEpTx();
     }
 }
 
@@ -275,12 +293,20 @@ void controlEpTx()
     controlDtogInit();
 }
 
-void interruptEpTx()
+void vcpEpRx()
 {
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
-    // all right, wait for the next timer interrupt
-    epTxStatusSet(1, STAT_TX_NAK);
+    // ignoring input data in case of loger
+    epRxStatusSet(0, STAT_RX_VALID);
+}
+
+void vcpEpTx()
+{
+    USB_ISTR = 0;
+    USB_EP2R = USB_EP_RESET_CTR_MASK & USB_EP2R;
+    // wait for the next output data
+    epTxStatusSet(2, STAT_TX_NAK);
     usbProp.isRepCompl = 1;
 }
 
@@ -512,6 +538,27 @@ void controlTxDataN(uint8_t *data, int size)
     // txDump[txi++] = 0xff;
     // txDump[txi++] = 0xff;
     // txDump[txi++] = 0xff;
+}
+
+void vcpTx(uint8_t *data, int size)
+{
+    // get the poiner to packet buffer from table
+    uint16_t *input = (uint16_t*)report;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR2_TX*2 + USB_CAN_SRAM_BASE);
+    // put data into buffer
+    for(int i=0 ; i<(size/2) ; ++i) {
+        *bufferPtr = *input;
+        input++;
+        bufferPtr += 2;
+    }
+    // last byte to 16 bit
+    if( (size%2) > 0 ) {
+        *bufferPtr = (uint16_t)report[size-1];
+    }
+    USB_COUNT2_TX = size & COUNT_TX_MASK;
+    usbProp.isRepCompl = 0;
+    // change the endpoint state
+    epTxStatusSet(2, STAT_TX_VALID);
 }
 
 // Concatenation to make descriptors in request readable form

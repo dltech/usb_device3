@@ -1,7 +1,7 @@
 #ifndef H_IR_REMOTE
 #define H_IR_REMOTE
 /*
- * Part of USB HID gamepad STM32 based solution.
+ * Part of USB VCP on STM32.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *

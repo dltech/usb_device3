@@ -1,8 +1,7 @@
 #ifndef H_LOGER_DESC
 #define H_LOGER_DESC
 /*
- * Part of USB HID vcp STM32 based solution.
- * All descriptors for simplest USB 2.0 HID vcp with D-pad and two buttons.
+ * Part of USB VCP on STM32.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *

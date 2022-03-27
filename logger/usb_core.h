@@ -18,19 +18,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "regs/gpio_regs.h"
+#include "../lib/regs/gpio_regs.h"
 #include <inttypes.h>
 
 #define EP0_BUFFER_SIZE         64
-#define EP1_BUFFER_SIZE         8
+#define EP1_BUFFER_SIZE         64
 // buffer table
 #define USB_TABLE_ADDR          0
 #define USB_TABLE_END           (USB_TABLE_ADDR + 0x40)
 #define EP0_TX_START            USB_TABLE_END
 #define EP0_RX_START            (EP0_TX_START + EP0_BUFFER_SIZE)
-#define EP1_TX_START            (EP0_RX_START + EP0_BUFFER_SIZE)
+#define EP1_RX_START            (EP0_RX_START + EP0_BUFFER_SIZE)
+#define EP2_TX_START            (EP1_RX_START + EP1_BUFFER_SIZE)
+
 // endpoints
-#define NUM_OF_EP   2
+#define NUM_OF_EP   3
 #define configValue 0x01
 // pins
 #define USBDM_PIN_INIT          3

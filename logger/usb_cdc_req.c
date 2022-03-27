@@ -1,6 +1,6 @@
 /*
- * Part of USB HID gamepad STM32 based solution.
- * Here are HID related request handlers. There are only 3 in simplest case.
+ * Part of USB VCP on STM32.
+ * here are two basic requests to install parameters of com port.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#include "gamepad_port.h"
 #include "usb_hid.h"
 
 extern volatile usbPropStruct usbProp;
