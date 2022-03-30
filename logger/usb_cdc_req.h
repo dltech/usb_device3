@@ -21,11 +21,37 @@
 #include <inttypes.h>
 #include "usb_core.h"
 
+#define CDC_GET 0x61
+#define CDC_SET 0x21
+
 // bRequest
 #define SET_LINE_CODING         0x20
 #define GET_LINE_CODING         0x21
 #define SET_CONTROL_LINE_STATE  0x22
 #define SERIAL_STATE            0x20
+
+// linecoding parameters
+typedef struct {
+  uint32_t dwDTERate;
+  uint8_t bCharFormat;
+  uint8_t bParityType;
+  uint8_t bDataBits;
+} lineCodingTyp;
+enum {
+  STOP_BIT_1 = 0,
+  STOP_BIT_1P5,
+  STOP_BIT_2
+};
+enum {
+  PARITY_NONE = 0,
+  PARITY_ODD,
+  PARITY_EVEN,
+  PARITY_MARK,
+  PARITY_SPACE
+};
+
+
+
 
 // this function is just a part of main request handler
 int cdcReqHandler(requestTyp *request);
