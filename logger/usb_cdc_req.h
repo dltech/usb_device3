@@ -50,9 +50,6 @@ enum {
   PARITY_SPACE
 };
 
-
-
-
 // this function is just a part of main request handler
 int cdcReqHandler(requestTyp *request);
 // checks is request of HID type (ret 1) or not (0)
