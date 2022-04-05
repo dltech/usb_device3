@@ -157,6 +157,6 @@
 
 #define USART_M(baud)   SYSTEM_CLOCK/16/baud
 #define USART_FR(baud)  ((SYSTEM_CLOCK*10)/16/baud)&DIV_F_MASK
-#define USART_BR(baud)  (USART_M(baud)<<DIV_M_SHIFT)+USART_FR(baud)
+#define USART_BR_CALC(baud)  (USART_M(baud)<<DIV_M_SHIFT)+USART_FR(baud)
 
 #endif

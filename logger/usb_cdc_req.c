@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 #include "usb_cdc_req.h"
+//#include "uart.h"
 
 extern volatile usbPropStruct usbProp;
 volatile lineCodingTyp lineCoding;
@@ -60,5 +61,12 @@ int setLineCoding(requestTyp *request)
     if( (request->bmRequestType != CDC_SET) ) {
         return REQ_ERROR;
     }
-    uartSetLine((lineCodingTyp)bmRequestType->data);
+    lineCoding.dwDTERate = bmRequestType->data[1] + \
+                          (bmRequestType->data[2] << 8 ) + \
+                          (bmRequestType->data[3] << 16) + \
+                          (bmRequestType->data[4] << 24);
+    lineCoding.bCharFormat = bmRequestType->data[5];
+    lineCoding.bParityType = bmRequestType->data[6];
+    lineCoding.bDataBits = bmRequestType->data[7];
+    uartSetLine(&lineCoding);
 }

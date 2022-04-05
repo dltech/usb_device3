@@ -19,5 +19,32 @@
  */
 #include "../lib/regs/usart_regs.h"
 
+// linecoding parameters
+typedef struct {
+  uint32_t dwDTERate;
+  uint8_t bCharFormat;
+  uint8_t bParityType;
+  uint8_t bDataBits;
+} lineCodingTyp;
+enum {
+  LINE_STOP_BIT_1 = 0,
+  LINE_STOP_BIT_1P5,
+  LINE_STOP_BIT_2
+};
+enum {
+  LINE_PARITY_NONE = 0,
+  LINE_PARITY_ODD,
+  LINE_PARITY_EVEN,
+  LINE_PARITY_MARK,
+  LINE_PARITY_SPACE
+};
+
+// port setup
+#define UART_TX 8
+#define UART_RX 9
+// timeout setup
+
+void uartInit(void);
+void uartSetLine(lineCodingTyp *line);
 
 #endif
