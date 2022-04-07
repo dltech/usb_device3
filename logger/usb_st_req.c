@@ -293,8 +293,9 @@ int getDescriptorReqHandler(requestTyp *request)
         case CONFIGURATION_TYP<<8:
             prev = descCat(usbProp.desc->configuration, tmp, 0, usbProp.desc->configurationSize, request->wLength);
             prev = descCat(usbProp.desc->interface, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
-            prev = descCat(usbProp.desc->hid, tmp, prev, usbProp.desc->hidSize, request->wLength);
+            prev = descCat(usbProp.desc->functional, tmp, prev, usbProp.desc->functionalSize, request->wLength);
             prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->inEndpSize, request->wLength);
+            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->outEndpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case STRING_TYP<<8:
@@ -315,18 +316,15 @@ int getDescriptorReqHandler(requestTyp *request)
             return DATA_STAGE;
         case ENDPOINT_TYP<<8:
             prev = descCat(usbProp.desc->inEndp, tmp, 0, usbProp.desc->inEndpSize, request->wLength);
+            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->outEndpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case DEVICE_QUALIFIER_TYP<<8:
             prev = descCat(usbProp.desc->deviceQualifier, tmp, 0, usbProp.desc->deviceQualifierSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
-        case ((uint16_t)HID_TYP)<<8:
-            prev = descCat(usbProp.desc->hid, tmp, 0, usbProp.desc->hidSize, request->wLength);
-            controlTxDataN(tmp, prev);
-            return DATA_STAGE;
-        case ((uint16_t)REPORT_TYP)<<8:
-            prev = descCat(usbProp.desc->report, tmp, 0, usbProp.desc->reportSize, request->wLength);
+        case CS_INTERFACE_TYP<<8:
+            prev = descCat(usbProp.desc->functional, tmp, 0, usbProp.desc->functionalSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
     }

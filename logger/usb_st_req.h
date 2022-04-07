@@ -50,6 +50,8 @@
 #define HID_TYP         0x21
 #define REPORT_TYP      0x22
 #define PHYSICAL_TYP    0x23
+// cdc descriptor types
+#define CS_INTERFACE_TYP    0x24
 // getStatus defs
 // for device
 #define REMOTE_WAKEUP       0x0002

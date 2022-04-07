@@ -11,7 +11,7 @@ void timeoutTimerInit(void);
 void portInit()
 {
     RCC_APB2ENR |= IOPAEN;
-    GPIOA_CRL = CNF_AF_PUSH_PULL(UART_TX) | CNF_AF_PUSH_PULL(UART_RX);
+    GPIOA_CRL = CNF_AF_PUSH_PULL(UART_TX) | CNF_FLOATING(UART_RX);
     GPIOA_ODR = 0;
 }
 

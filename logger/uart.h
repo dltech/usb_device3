@@ -43,6 +43,7 @@ enum {
 #define UART_TX 8
 #define UART_RX 9
 // timeout setup
+#define 
 
 void uartInit(void);
 void uartSetLine(lineCodingTyp *line);
