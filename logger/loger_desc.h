@@ -27,9 +27,9 @@
 #define vcpEndpDescSize 7
 #define vcpFunctionalDescSize 14
 #define vcpConfTotalSize    vcpConfigurationDescSize + \
-        vcpInterfaceDescSize + vcpEndpDescSize*2 + vcpFunctionalDescSize
+        vcpInterfaceDescSize + (vcpEndpDescSize*2) + vcpFunctionalDescSize
 #define vcpDeviceQualifierSize   10
-#define stringLangIdSize 4
+#define vcpStringLangIdSize 4
 #define vcpStringVendorSize 14
 #define vcpStringProductSize 12
 
@@ -44,8 +44,10 @@ const uint8_t vcpDeviseDesc[vcpDeviseDescSize] =
     0x02,       // bDeviceSubclass, abstract control model
     0x00,       // bDeviceProtocol, not used
     0x40,       // bMaxPacketSize0, maximum size 64 byte
-    0x04,0x83,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
-    0x57,0x40,  // idProduct st 0x2c 0x57
+    0x03,0x04,
+    0x01,0x60,
+//    0x83,0x04,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
+//    0x40,0x57,  // idProduct st 0x2c 0x57
     0x00,0x02,  // bcdDevice
     0x01,       // iManufacter
     0x02,       // iProduct
@@ -105,8 +107,8 @@ const uint8_t vcpFunctionalDesc[vcpFunctionalDescSize] =
     5,          // bFunctionLength
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
     0x00,       // bDescriptorSubtype, header functional
-    0x01,       // bcdCDC, USB CDC standard version (1.01)
-    0x10,
+    0x10,       // bcdCDC, USB CDC standard version (1.01)
+    0x01,
     // Abstract Control Management Functional Descriptor
     4,          // bFunctionLength
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
@@ -133,9 +135,9 @@ const uint8_t vcpDeviceQualifier[vcpDeviceQualifierSize] =
     0x00,       // bReserved
 };
 
-const uint8_t stringLangId[stringLangIdSize] =
+const uint8_t vcpStringLangId[vcpStringLangIdSize] =
 {
-    stringLangIdSize,
+    vcpStringLangIdSize,
     0x03,
     0x09,
     0x04
@@ -163,7 +165,7 @@ const descriptorsTyp usbComDesc = {
     vcpEndpDescSize,
     vcpFunctionalDescSize,
     vcpConfTotalSize,
-    stringLangIdSize,
+    vcpStringLangIdSize,
     vcpStringVendorSize,
     vcpStringProductSize,
     vcpDeviceQualifierSize,
@@ -173,7 +175,7 @@ const descriptorsTyp usbComDesc = {
     vcpInEndpDesc,
     vcpOutEndpDesc,
     vcpFunctionalDesc,
-    stringLangId,
+    vcpStringLangId,
     vcpStringVendor,
     vcpStringProduct,
     vcpDeviceQualifier

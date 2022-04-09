@@ -74,8 +74,8 @@ typedef struct {
     const uint16_t interfaceSize;
     const uint16_t inEndpSize;
     const uint16_t outEndpSize;
-    const uint16_t confTotalSize;
     const uint16_t functionalSize;
+    const uint16_t confTotalSize;
     const uint16_t stringLangIdSize;
     const uint16_t stringVendorSize;
     const uint16_t stringProductSize;

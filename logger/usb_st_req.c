@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 #include "usb_core.h"
-//#include "gamepad_desc.h"
+//#include "loger_desc.h"
 #include "usb_st_req.h"
 
 extern volatile usbPropStruct usbProp;

@@ -22,9 +22,12 @@
 #include "usbcom.h"
 #include "loger_desc.h"
 
+volatile int confSize;
+
 void usbComInit()
 {
 //    irInit();
+    confSize = usbComDesc.confTotalSize;
     usbCoreInit(&usbComDesc);
 }
 
