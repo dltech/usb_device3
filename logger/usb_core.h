@@ -108,6 +108,7 @@ typedef struct {
 } usbPropStruct;
 
 // standard request package
+#define REQ_DATA_SIZE 7
 typedef struct
 {
     uint8_t     bmRequestType;
@@ -115,6 +116,7 @@ typedef struct
     uint16_t    wValue;
     uint16_t    wIndex;
     uint16_t    wLength;
+    uint8_t     data[REQ_DATA_SIZE];
 } requestTyp;
 enum reqType {
     REQ_ERROR = -1,

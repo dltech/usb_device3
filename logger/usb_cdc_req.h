@@ -1,5 +1,5 @@
-#ifndef H_USB_HID
-#define H_USB_HID
+#ifndef H_USB_CDC
+#define H_USB_CDC
 /*
  * Part of USB VCP on STM32.
  * Here are CDC related request handlers.
@@ -19,7 +19,6 @@
  * limitations under the License.
  */
 #include <inttypes.h>
-#include "usb_core.h"
 
 #define CDC_GET 0x61
 #define CDC_SET 0x21

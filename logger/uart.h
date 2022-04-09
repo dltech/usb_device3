@@ -17,9 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "../lib/regs/usart_regs.h"
 
 // linecoding parameters
+#define LINECODING_SIZE 7
 typedef struct {
   uint32_t dwDTERate;
   uint8_t bCharFormat;
@@ -43,7 +43,7 @@ enum {
 #define UART_TX 8
 #define UART_RX 9
 // timeout setup
-#define 
+//#define
 
 void uartInit(void);
 void uartSetLine(lineCodingTyp *line);

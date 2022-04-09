@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 #include "usb_cdc_req.h"
-//#include "uart.h"
+#include "uart.h"
 
 extern volatile usbPropStruct usbProp;
 volatile lineCodingTyp lineCoding;
@@ -52,7 +52,15 @@ int getLineCoding(requestTyp *request)
     if( (request->bmRequestType != CDC_GET) ) {
         return REQ_ERROR;
     }
-    controlTxDataN((uint8_t*)lineCoding, request->wLength);
+    uint8_t lineBufer[LINECODING_SIZE];
+    lineBufer[0] = (uint8_t)(lineCoding.dwDTERate);
+    lineBufer[1] = (uint8_t)(lineCoding.dwDTERate << 8);
+    lineBufer[2] = (uint8_t)(lineCoding.dwDTERate << 16);
+    lineBufer[3] = (uint8_t)(lineCoding.dwDTERate << 24);
+    lineBufer[4] = lineCoding.bCharFormat;
+    lineBufer[5] = lineCoding.bParityType;
+    lineBufer[6] = lineCoding.bDataBits;
+    controlTxDataN(lineBufer, LINECODING_SIZE);
     return DATA_STAGE;
 }
 
@@ -61,12 +69,12 @@ int setLineCoding(requestTyp *request)
     if( (request->bmRequestType != CDC_SET) ) {
         return REQ_ERROR;
     }
-    lineCoding.dwDTERate = bmRequestType->data[1] + \
-                          (bmRequestType->data[2] << 8 ) + \
-                          (bmRequestType->data[3] << 16) + \
-                          (bmRequestType->data[4] << 24);
-    lineCoding.bCharFormat = bmRequestType->data[5];
-    lineCoding.bParityType = bmRequestType->data[6];
-    lineCoding.bDataBits = bmRequestType->data[7];
+    lineCoding.dwDTERate   = bmRequestType->data[0] + \
+                            (bmRequestType->data[1] << 8 ) + \
+                            (bmRequestType->data[2] << 16) + \
+                            (bmRequestType->data[3] << 24);
+    lineCoding.bCharFormat = bmRequestType->data[4];
+    lineCoding.bParityType = bmRequestType->data[5];
+    lineCoding.bDataBits   = bmRequestType->data[6];
     uartSetLine(&lineCoding);
 }

@@ -1,7 +1,5 @@
-#ifndef H_REMOTE
-#define H_REMOTE
 /*
- * USB HID gamepad STM32 based solution. Call init, enjoy.
+ * STM32 USB COM example. Call init, enjoy.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -18,6 +16,20 @@
  * limitations under the License.
  */
 
-void remoteInit(void);
+#include "../lib/STM32F103_CMSIS/stm32f103.h"
+#include "usb_core.h"
+//#include "ir_remote.h"
+#include "usbcom.h"
+#include "loger_desc.h"
 
-#endif
+void usbcomInit()
+{
+//    irInit();
+    usbCoreInit(&usbComDesc);
+}
+
+// all usb events handled in interrupt
+void usb_lp_can_rx_Handler()
+{
+    usbCore();
+}

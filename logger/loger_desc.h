@@ -156,7 +156,7 @@ const uint8_t vcpKbdStringProduct[remoteStringProductSize] =
     'l',0,'o',0,'g',0,'e',0,'r',0
 };
 
-const descriptorsTyp remoteDesc = {
+const descriptorsTyp usbComDesc = {
     vcpDeviseDescSize,
     vcpConfigurationDescSize,
     vcpInterfaceDescSize,

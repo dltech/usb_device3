@@ -1,6 +1,6 @@
-#include "loger.h"
+#include "usbcom.h"
 
 int main(void) {
-	remoteInit();
+	usbComInit();
 	while(1);
 }

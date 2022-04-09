@@ -7,11 +7,11 @@ BINDIR = bin
 
 # code is here
 SOURCES = main.c
-SOURCES += ir_remote.c
-SOURCES += remote.c
-SOURCES += $(LIB_DIR)/usb_core.c
-SOURCES += $(LIB_DIR)/usb_hid.c
-SOURCES += $(LIB_DIR)/usb_st_req.c
+#SOURCES += ir_remote.c
+SOURCES += usbcom.c
+SOURCES += usb_core.c
+SOURCES += usb_cdc_req.c
+SOURCES += usb_st_req.c
 SOURCES += $(LIB_DIR)/rcc.c
 SOURCES += $(LIB_DIR)/delay.c
 SOURCES += $(REG_DIR)/usb_device_regs.c

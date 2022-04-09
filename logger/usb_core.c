@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "STM32F103_CMSIS/stm32f103.h"
+#include "../lib/STM32F103_CMSIS/stm32f103.h"
 #include "../lib/rcc.h"
 #include "../lib/delay.h"
 #include "../lib/regs/usb_device_regs.h"
 #include "usb_st_req.h"
-#include "usb_hid.h"
+#include "usb_cdc_req.h"
 #include "usb_core.h"
 
 volatile usbPropStruct usbProp;
@@ -310,7 +310,7 @@ void vcpEpTx()
     usbProp.isRepCompl = 1;
 }
 
-//volatile uint16_t requestss[200];
+volatile uint16_t requestss[200];
 void reqHandler()
 {
     requestTyp request;
@@ -320,17 +320,17 @@ void reqHandler()
 //    epTxStatusSet(0, STAT_TX_NAK);
     // work with request
     reqCopy(&request);
-    // static int i=0;
-    // if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
-    // requestss[i++] = request.bRequest;
-    // if(request.bRequest == 6) requestss[i++] = request.wValue;
-    // if(request.bRequest == 6) requestss[i++] = request.wLength;
-    // if(request.bRequest == 9) requestss[i++] = request.wValue;
-    // if(request.bRequest == 9) requestss[i++] = request.wIndex;
-    // if(request.bRequest == 9) requestss[i++] = request.wLength;
+ static int i=0;
+ if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
+ requestss[i++] = request.bRequest;
+ if(request.bRequest == 6) requestss[i++] = request.wValue;
+ if(request.bRequest == 6) requestss[i++] = request.wLength;
+ if(request.bRequest == 9) requestss[i++] = request.wValue;
+ if(request.bRequest == 9) requestss[i++] = request.wIndex;
+ if(request.bRequest == 9) requestss[i++] = request.wLength;
 
-    if( isHidReqTyp(&request) ) {
-        reqStatus = hidReqHandler(&request);
+    if( isCdcReqTyp(&request) ) {
+        reqStatus = cdcReqHandler(&request);
     } else {
         reqStatus = stReqHandler(&request);
     }
@@ -349,18 +349,18 @@ void reqHandler()
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
-    // requestss[i++] = (uint16_t)usbProp.controlStage;
-    // requestss[i++] = 0xffff;
-    // if(i>200) i = 0;
+ requestss[i++] = (uint16_t)usbProp.controlStage;
+ requestss[i++] = 0xffff;
+ if(i>200) i = 0;
 }
 
 // Сopies request for control endpoint 0 from rx buffer
 void reqCopy(requestTyp *request)
 {
-    union {
+/*    union {
       uint8_t* b;
       uint16_t* w;
-    } pBuf;
+  } pBuf;
     pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
     request->bmRequestType = *pBuf.b++;
     request->bRequest = *pBuf.b++;
@@ -369,7 +369,18 @@ void reqCopy(requestTyp *request)
     pBuf.w++;
     request->wIndex = *pBuf.w++;
     pBuf.w++;
-    request->wLength = *pBuf.w++;
+    request->wLength = *pBuf.w++; */
+    uint8_t *packPtr = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
+    int size = USB_COUNT0_RX & COUNT_RX_MASK;
+    int index = 0;
+    request->bmRequestType = packPtr[0];
+    request->bRequest = packPtr[1];
+    request->wValue = (uint16_t)packPtr[3] + ((uint16_t)packPtr[2] << 8);
+    request->wIndex = (uint16_t)packPtr[5] + ((uint16_t)packPtr[4] << 8);
+    request->wLength = (uint16_t)packPtr[7] + ((uint16_t)packPtr[6] << 8);
+    for( int i=0 ; (i+8 < size) && (i < REQ_DATA_SIZE) ; ++i ) {
+        data[i] = packPtr[i+8];
+    }
 }
 
 void usbCore()
@@ -418,31 +429,31 @@ void reportTx(uint8_t report)
 }
 
 // uint8_t keyyyy[500];
-void reportTxN(uint8_t *report, int size)
-{
-    if(size < 2) return;
-    // static int ii=0;
-    // keyyyy[ii++] = report[2];
-    // if(ii>500) ii=0;
-//    if(usbProp.isRepCompl == 0) return;
-    // get the poiner to packet buffer from table
-    uint16_t *input = (uint16_t*)report;
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
-    // put data into buffer
-    for(int i=0 ; i<(size/2) ; ++i) {
-        *bufferPtr = *input;
-        input++;
-        bufferPtr += 2;
-    }
-    // last byte to 16 bit
-    if( (size%2) > 0 ) {
-        *bufferPtr = (uint16_t)report[size-1];
-    }
-    USB_COUNT1_TX = size & COUNT_TX_MASK;
-    usbProp.isRepCompl = 0;
-    // change the endpoint state
-    epTxStatusSet(1, STAT_TX_VALID);
-}
+// void reportTxN(uint8_t *report, int size)
+// {
+//     if(size < 2) return;
+//     // static int ii=0;
+//     // keyyyy[ii++] = report[2];
+//     // if(ii>500) ii=0;
+// //    if(usbProp.isRepCompl == 0) return;
+//     // get the poiner to packet buffer from table
+//     uint16_t *input = (uint16_t*)report;
+//     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
+//     // put data into buffer
+//     for(int i=0 ; i<(size/2) ; ++i) {
+//         *bufferPtr = *input;
+//         input++;
+//         bufferPtr += 2;
+//     }
+//     // last byte to 16 bit
+//     if( (size%2) > 0 ) {
+//         *bufferPtr = (uint16_t)report[size-1];
+//     }
+//     USB_COUNT1_TX = size & COUNT_TX_MASK;
+//     usbProp.isRepCompl = 0;
+//     // change the endpoint state
+//     epTxStatusSet(1, STAT_TX_VALID);
+// }
 
 // core functions which called by requests
 void setAddr(uint8_t addr)
@@ -514,6 +525,7 @@ void controlTxDataN(uint8_t *data, int size)
         }
         size = EP0_BUFFER_SIZE;
     }
+
     uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_TX*2 + USB_CAN_SRAM_BASE);
     for(int i=0 ; i<(size/2) ; ++i) {
