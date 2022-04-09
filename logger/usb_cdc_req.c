@@ -20,7 +20,7 @@
 #include "uart.h"
 
 extern volatile usbPropStruct usbProp;
-volatile lineCodingTyp lineCoding;
+extern volatile lineCodingTyp lineCoding;
 
 int getLineCoding(requestTyp *request);
 int setLineCoding(requestTyp *request);
@@ -28,9 +28,9 @@ int setLineCoding(requestTyp *request);
 int cdcReqHandler(requestTyp *request)
 {
     switch (request->bRequest) {
-        case GET_REPORT:
+        case GET_LINE_CODING:
             return getLineCoding(request);
-        case SET_REPORT:
+        case SET_LINE_CODING:
             return setLineCoding(request);
         default:
             return REQ_ERROR;
@@ -69,12 +69,14 @@ int setLineCoding(requestTyp *request)
     if( (request->bmRequestType != CDC_SET) ) {
         return REQ_ERROR;
     }
-    lineCoding.dwDTERate   = bmRequestType->data[0] + \
-                            (bmRequestType->data[1] << 8 ) + \
-                            (bmRequestType->data[2] << 16) + \
-                            (bmRequestType->data[3] << 24);
-    lineCoding.bCharFormat = bmRequestType->data[4];
-    lineCoding.bParityType = bmRequestType->data[5];
-    lineCoding.bDataBits   = bmRequestType->data[6];
-    uartSetLine(&lineCoding);
+    lineCodingTyp setupLine;
+    setupLine.dwDTERate   =  (uint32_t)request->data[0] + \
+                            ((uint32_t)request->data[1] << 8 ) + \
+                            ((uint32_t)request->data[2] << 16) + \
+                            ((uint32_t)request->data[3] << 24);
+    setupLine.bCharFormat = request->data[4];
+    setupLine.bParityType = request->data[5];
+    setupLine.bDataBits   = request->data[6];
+    uartSetLine(&setupLine);
+    return NULL_REQ;
 }

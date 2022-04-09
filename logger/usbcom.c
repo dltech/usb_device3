@@ -22,7 +22,7 @@
 #include "usbcom.h"
 #include "loger_desc.h"
 
-void usbcomInit()
+void usbComInit()
 {
 //    irInit();
     usbCoreInit(&usbComDesc);

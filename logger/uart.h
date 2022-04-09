@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <inttypes.h>
 // linecoding parameters
 #define LINECODING_SIZE 7
 typedef struct {

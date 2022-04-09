@@ -357,11 +357,12 @@ void reqHandler()
 // Сopies request for control endpoint 0 from rx buffer
 void reqCopy(requestTyp *request)
 {
-/*    union {
+    union {
       uint8_t* b;
       uint16_t* w;
   } pBuf;
     pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
+    int size = USB_COUNT0_RX & COUNT_RX_MASK;
     request->bmRequestType = *pBuf.b++;
     request->bRequest = *pBuf.b++;
     pBuf.w++;
@@ -369,17 +370,11 @@ void reqCopy(requestTyp *request)
     pBuf.w++;
     request->wIndex = *pBuf.w++;
     pBuf.w++;
-    request->wLength = *pBuf.w++; */
-    uint8_t *packPtr = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
-    int size = USB_COUNT0_RX & COUNT_RX_MASK;
-    int index = 0;
-    request->bmRequestType = packPtr[0];
-    request->bRequest = packPtr[1];
-    request->wValue = (uint16_t)packPtr[3] + ((uint16_t)packPtr[2] << 8);
-    request->wIndex = (uint16_t)packPtr[5] + ((uint16_t)packPtr[4] << 8);
-    request->wLength = (uint16_t)packPtr[7] + ((uint16_t)packPtr[6] << 8);
+    request->wLength = *pBuf.w++;
     for( int i=0 ; (i+8 < size) && (i < REQ_DATA_SIZE) ; ++i ) {
-        data[i] = packPtr[i+8];
+        pBuf.w++;
+        request->data[i++] = *pBuf.b++;
+        request->data[i]   = *pBuf.b++;
     }
 }
 
@@ -415,7 +410,7 @@ void usbCore()
     USB_ISTR = 0;
 }
 
-void reportTx(uint8_t report)
+/*void reportTx(uint8_t report)
 {
 //    if(usbProp.isRepCompl == 0) return;
     // get the poiner to packet buffer from table
@@ -426,7 +421,7 @@ void reportTx(uint8_t report)
     usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(1, STAT_TX_VALID);
-}
+} */
 
 // uint8_t keyyyy[500];
 // void reportTxN(uint8_t *report, int size)
@@ -555,7 +550,7 @@ void controlTxDataN(uint8_t *data, int size)
 void vcpTx(uint8_t *data, int size)
 {
     // get the poiner to packet buffer from table
-    uint16_t *input = (uint16_t*)report;
+    uint16_t *input = (uint16_t*)data;
     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR2_TX*2 + USB_CAN_SRAM_BASE);
     // put data into buffer
     for(int i=0 ; i<(size/2) ; ++i) {
@@ -565,7 +560,7 @@ void vcpTx(uint8_t *data, int size)
     }
     // last byte to 16 bit
     if( (size%2) > 0 ) {
-        *bufferPtr = (uint16_t)report[size-1];
+        *bufferPtr = (uint16_t)data[size-1];
     }
     USB_COUNT2_TX = size & COUNT_TX_MASK;
     usbProp.isRepCompl = 0;

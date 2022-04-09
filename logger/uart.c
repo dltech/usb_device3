@@ -16,11 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "../lib/STM32F103_CMSIS/stm32f103.h"
+#include "../lib/regs/dma_regs.h"
+#include "../lib/regs/gpio_regs.h"
+#include "../lib/regs/tim_regs.h"
+#include "../lib/regs/rcc_regs.h"
+#include "../lib/regs/usart_regs.h"
 #include "../lib/regs/usart_regs.h"
 #include "uart.h"
 
 volatile uint8_t uartRx[64];
 volatile uint8_t uartTx[64];
+volatile lineCodingTyp lineCoding;
 
 void portInit(void);
 void periphInit(void);
@@ -30,7 +37,7 @@ void timeoutTimerInit(void);
 void portInit()
 {
     RCC_APB2ENR |= IOPAEN;
-    GPIOA_CRL = CNF_AF_PUSH_PULL(UART_TX) | CNF_FLOATING(UART_RX);
+    GPIOA_CRH = CNF_AF_PUSH_PULL(0) | CNF_FLOATING(1);
     GPIOA_ODR = 0;
 }
 
@@ -58,8 +65,8 @@ void timeoutTimerInit()
     // Timer interrupt for data Rx timeout
     RCC_APB1ENR |= TIM2EN;
     TIM2_CR1   = (uint32_t) CKD_CK_INT;
-    TIM2_PSC   = (uint32_t) MAXIMAL_PSC;
-    TIM2_ARR   = (uint32_t) POLL_ARR;
+//    TIM2_PSC   = (uint32_t) MAXIMAL_PSC;
+//    TIM2_ARR   = (uint32_t) POLL_ARR;
     TIM2_DIER  = (uint32_t) UIE;
     TIM2_CR1  |= (uint32_t) CEN;
     NVIC_EnableIRQ(TIM2_IRQn);
@@ -91,4 +98,5 @@ void uartSetLine(lineCodingTyp *line)
     if(line->bParityType == LINE_PARITY_ODD)    USART1_CR1 |= PCE | PS;
     if(line->bParityType == LINE_PARITY_EVEN)   USART1_CR1 |= PCE;
     if(line->bDataBits == 9)                    USART1_CR1 |= M;
+    lineCoding = *line;
 }

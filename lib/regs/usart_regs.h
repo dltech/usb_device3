@@ -78,7 +78,7 @@
 // TXE interrupt enable
 #define TXEIE   0x0080
 // Transmission complete interrupt enable
-#define TCIE    0x0040
+#define UTCIE    0x0040
 // RXNE interrupt enable
 #define RXNEIE  0x0020
 // IDLE interrupt enable
@@ -156,7 +156,7 @@
 #define GT_PSC_MSK  0xff
 
 #define USART_M(baud)   SYSTEM_CLOCK/16/baud
-#define USART_FR(baud)  ((SYSTEM_CLOCK*10)/16/baud)&DIV_F_MASK
-#define USART_BR_CALC(baud)  (USART_M(baud)<<DIV_M_SHIFT)+USART_FR(baud)
+#define USART_FR(baud)  (((SYSTEM_CLOCK*10)/16/baud)&DIV_F_MASK)
+#define USART_BR_CALC(baud)  ((USART_M(baud)<<DIV_M_SHIFT)+USART_FR(baud))
 
 #endif

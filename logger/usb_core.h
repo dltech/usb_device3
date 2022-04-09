@@ -73,7 +73,7 @@ typedef struct {
     const uint16_t configurationSize;
     const uint16_t interfaceSize;
     const uint16_t inEndpSize;
-    const uint16_t OutEndpSize;
+    const uint16_t outEndpSize;
     const uint16_t confTotalSize;
     const uint16_t functionalSize;
     const uint16_t stringLangIdSize;
@@ -86,7 +86,6 @@ typedef struct {
     const uint8_t *inEndp;
     const uint8_t *outEndp;
     const uint8_t *functional;
-    const uint8_t *report;
     const uint8_t *stringLangId;
     const uint8_t *stringVendor;
     const uint8_t *stringProduct;

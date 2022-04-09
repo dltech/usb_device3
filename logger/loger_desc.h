@@ -24,11 +24,10 @@
 #define vcpDeviseDescSize 18
 #define vcpConfigurationDescSize 9
 #define vcpInterfaceDescSize 9
-#define vcpInEndpDescSize 7
-#define vcpOutEndpDescSize 7
-#define vcpFunctionalSize 14
+#define vcpEndpDescSize 7
+#define vcpFunctionalDescSize 14
 #define vcpConfTotalSize    vcpConfigurationDescSize + \
- vcpInterfaceDescSize + vcpInEndpDescSize + vcpOutEndpDescSize + vcpFunctionalSize
+        vcpInterfaceDescSize + vcpEndpDescSize*2 + vcpFunctionalDescSize
 #define vcpDeviceQualifierSize   10
 #define stringLangIdSize 4
 #define vcpStringVendorSize 14
@@ -100,7 +99,7 @@ const uint8_t vcpOutEndpDesc[vcpEndpDescSize] =
     0x00        // bInterval ignore
 };
 
-const uint8_t vcpFunctional[vcpFunctionalSize] =
+const uint8_t vcpFunctionalDesc[vcpFunctionalDescSize] =
 {
     // header functional descriptor
     5,          // bFunctionLength
@@ -142,16 +141,16 @@ const uint8_t stringLangId[stringLangIdSize] =
     0x04
 };
 
-const uint8_t vcpStringVendor[remoteStringVendorSize] =
+const uint8_t vcpStringVendor[vcpStringVendorSize] =
 {
-    remoteStringVendorSize,
+    vcpStringVendorSize,
     0x03,
     'd',0,'l',0,'t',0,'e',0,'c',0,'h',0
 };
 
-const uint8_t vcpKbdStringProduct[remoteStringProductSize] =
+const uint8_t vcpStringProduct[vcpStringProductSize] =
 {
-    remoteStringProductSize,
+    vcpStringProductSize,
     0x03,
     'l',0,'o',0,'g',0,'e',0,'r',0
 };
@@ -160,8 +159,8 @@ const descriptorsTyp usbComDesc = {
     vcpDeviseDescSize,
     vcpConfigurationDescSize,
     vcpInterfaceDescSize,
-    vcpInEndpDescSize,
-    vcpOutEndpDescSize,
+    vcpEndpDescSize,
+    vcpEndpDescSize,
     vcpFunctionalDescSize,
     vcpConfTotalSize,
     stringLangIdSize,

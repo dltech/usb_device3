@@ -1,8 +1,8 @@
 #paths
-TARGET = ../result/remote
+TARGET = ../result/logger
 LIB_DIR = ../lib
 REG_DIR	= $(LIB_DIR)/regs
-ODIR = bin/remote
+ODIR = bin/logger
 BINDIR = bin
 
 # code is here
@@ -12,6 +12,7 @@ SOURCES += usbcom.c
 SOURCES += usb_core.c
 SOURCES += usb_cdc_req.c
 SOURCES += usb_st_req.c
+SOURCES += uart.c
 SOURCES += $(LIB_DIR)/rcc.c
 SOURCES += $(LIB_DIR)/delay.c
 SOURCES += $(REG_DIR)/usb_device_regs.c

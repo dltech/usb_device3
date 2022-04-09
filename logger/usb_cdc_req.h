@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 #include <inttypes.h>
+#include "usb_core.h"
 
 #define CDC_GET 0x61
 #define CDC_SET 0x21
