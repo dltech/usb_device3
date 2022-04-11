@@ -25,9 +25,9 @@
 #define vcpConfigurationDescSize 9
 #define vcpInterfaceDescSize 9
 #define vcpEndpDescSize 7
-#define vcpFunctionalDescSize 14
-#define vcpConfTotalSize    vcpConfigurationDescSize + \
-        vcpInterfaceDescSize + (vcpEndpDescSize*2) + vcpFunctionalDescSize
+#define vcpFunctionalDescSize 19
+#define vcpConfTotalSize  vcpConfigurationDescSize + \
+        (vcpInterfaceDescSize*2) + (vcpEndpDescSize*3) + vcpFunctionalDescSize
 #define vcpDeviceQualifierSize   10
 #define vcpStringLangIdSize 4
 #define vcpStringVendorSize 14
@@ -44,10 +44,10 @@ const uint8_t vcpDeviseDesc[vcpDeviseDescSize] =
     0x02,       // bDeviceSubclass, abstract control model
     0x00,       // bDeviceProtocol, not used
     0x40,       // bMaxPacketSize0, maximum size 64 byte
-    0x03,0x04,
-    0x01,0x60,
-//    0x83,0x04,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
-//    0x40,0x57,  // idProduct st 0x2c 0x57
+//    0x03,0x04, //ftdi vids pids
+//    0x01,0x60,
+    0x83,0x04,  // idVendor, SiLabs 0xc4 0x10 st 0x83 0x04
+    0x40,0x57,  // idProduct st 0x2c 0x57
     0x00,0x02,  // bcdDevice
     0x01,       // iManufacter
     0x02,       // iProduct
@@ -60,7 +60,7 @@ const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
     vcpConfigurationDescSize,       // bLenght
     0x02,       // bDescriptorType, Configuration descriptor
     vcpConfTotalSize, 0x00, // TotalLenght
-    0x01,       // bNumInterfaces
+    0x02,       // bNumInterfaces
     0x01,       // bConfigurationValue
     0x00,       // iConfiguration
     0xa0,       // bmAttributes, self-powered
@@ -68,24 +68,48 @@ const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
 };
 
 // configuration interface (CDC standard obliges)
-const uint8_t vcpInterfaceDesc[vcpInterfaceDescSize] =
+const uint8_t vcpInterface1Desc[vcpInterfaceDescSize] =
 {
     vcpInterfaceDescSize,       // bLenght
     0x04,       // bDescriptorType, Interface descriptor
     0x00,       // bInterfaceNumber
     0x00,       // bAlternateSetting
-    0x02,       // bNumEndpoints
+    0x01,       // bNumEndpoints
     0x02,       // bInterfaceClass, Communication interface class
     0x02,       // bInterfaceSubClass, Abstract control Model
     0x00,       // bInterfaceProtocol, not used
     0x00        // bInterface
 };
 
+// data interface (interface of UART)
+const uint8_t vcpInterface2Desc[vcpInterfaceDescSize] =
+{
+    vcpInterfaceDescSize,       // bLenght
+    0x04,       // bDescriptorType, Interface descriptor
+    0x01,       // bInterfaceNumber
+    0x00,       // bAlternateSetting
+    0x02,       // bNumEndpoints
+    0x0a,
+    0x00,
+    0x00,       // bInterfaceProtocol, not used
+    0x00        // bInterface
+};
+
+const uint8_t vcpCtrlEndpDesc[vcpEndpDescSize] =
+{
+    vcpEndpDescSize,       // bLenght
+    0x05,       // bDescriptorType, endpoint descriptor
+    0x83,       // bEndpointAddress, IN endpoint 3
+    0x03,       // bMattributes, interrupt endpoint
+    0x01,0x00,  // MaxPacketSize, 1 byte
+    0x99        // bInterval huge
+};
+
 const uint8_t vcpInEndpDesc[vcpEndpDescSize] =
 {
     vcpEndpDescSize,       // bLenght
     0x05,       // bDescriptorType, endpoint descriptor
-    0x81,       // bEndpointAddress, IN endpoint 1
+    0x82,       // bEndpointAddress, IN endpoint 2
     0x02,       // bMattributes, bulk
     0x40,0x00,  // MaxPacketSize, 64 bytes
     0x00        // bInterval ignore
@@ -95,7 +119,7 @@ const uint8_t vcpOutEndpDesc[vcpEndpDescSize] =
 {
     vcpEndpDescSize,       // bLenght
     0x05,       // bDescriptorType, endpoint descriptor
-    0x02,       // bEndpointAddress, IN endpoint 1
+    0x01,       // bEndpointAddress, OUT endpoint 1
     0x02,       // bMattributes, bulk
     0x40,0x00,  // MaxPacketSize, 64 bytes
     0x00        // bInterval ignore
@@ -107,13 +131,19 @@ const uint8_t vcpFunctionalDesc[vcpFunctionalDescSize] =
     5,          // bFunctionLength
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
     0x00,       // bDescriptorSubtype, header functional
-    0x10,       // bcdCDC, USB CDC standard version (1.01)
+    0x20,       // bcdCDC, USB CDC standard version (1.2)
     0x01,
     // Abstract Control Management Functional Descriptor
     4,          // bFunctionLength
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
     0x02,       // bDescriptorSubtype, Abstract control model functional
     0x02,       // bmCapabilities, support set/get lineCoding
+    // Union Descriptor Functional Descriptor
+    5,          // bFunctionLength
+    0x24,       // bDescriptorType CS_INTERFACE
+    0x06,       // Union descriptor subtype
+    0x00,       // Interface number of control
+    0x01,       // Interface number of data class
     // Call Management Functional Descriptor
     5,          // bFunctionLength
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
@@ -162,7 +192,6 @@ const descriptorsTyp usbComDesc = {
     vcpConfigurationDescSize,
     vcpInterfaceDescSize,
     vcpEndpDescSize,
-    vcpEndpDescSize,
     vcpFunctionalDescSize,
     vcpConfTotalSize,
     vcpStringLangIdSize,
@@ -171,7 +200,9 @@ const descriptorsTyp usbComDesc = {
     vcpDeviceQualifierSize,
     vcpDeviseDesc,
     vcpConfigurationDesc,
-    vcpInterfaceDesc,
+    vcpInterface1Desc,
+    vcpInterface2Desc,
+    vcpCtrlEndpDesc,
     vcpInEndpDesc,
     vcpOutEndpDesc,
     vcpFunctionalDesc,

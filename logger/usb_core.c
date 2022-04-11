@@ -35,6 +35,7 @@ void usbItInit(void);
 void usbControlEndpInit(void);
 void usbInEndpInit(void);
 void usbOutEndpInit(void);
+void usbStupidEndpInit(void);
 // usb states
 // peripherial states
 void usbReset(void);
@@ -46,6 +47,7 @@ void controlEpRx(void);
 void controlEpTx(void);
 void vcpEpRx(void);
 void vcpEpTx(void);
+void stupidEpHandler(void);
 // request handler
 void reqCopy(requestTyp *request);
 void reqHandler(void);
@@ -103,6 +105,7 @@ void usbCoreInit(const descriptorsTyp *descr)
     usbProp.desc = descr;
     usbProp.isBoot = 1;
     usbProp.overflow = 0;
+    usbProp.iFace = 0;
     usbItInit();
     USB_DADDR = EF;
 }
@@ -124,7 +127,7 @@ void usbControlEndpInit()
     epTxStatusSet(0, STAT_TX_NAK);
 }
 
-void usbInEndpInit()
+void usbOutEndpInit()
 {
     // endpoint 1 tx buffer
     USB_ADDR1_RX = EP1_RX_START;
@@ -134,23 +137,33 @@ void usbInEndpInit()
     epRxStatusSet(1, STAT_RX_VALID);
     epTxStatusSet(1, STAT_TX_DISABLED);
     usbProp.epProps[1].isHalt = 0;
-    usbProp.isRepCompl = 1;
 }
 
-void usbOutEndpInit()
+void usbInEndpInit()
 {
     // endpoint 1 tx buffer
     USB_ADDR2_TX = EP2_TX_START;
     // endpoint 1 address 1, type interrupt endpoint
-    USB_EP1R = EP_TYPE_BULK | (2 & EA_MASK);
+    USB_EP2R = EP_TYPE_BULK | (2 & EA_MASK);
     defaultDtogInit(1);
     epRxStatusSet(2, STAT_RX_DISABLED);
     epTxStatusSet(2, STAT_TX_NAK);
     // interrupt properties
     usbProp.epProps[2].isHalt = 0;
-    usbProp.isRepCompl = 1;
 }
 
+void usbStupidEndpInit()
+{
+    // endpoint 1 tx buffer
+    USB_ADDR3_TX = EP3_TX_START;
+    // endpoint 1 address 1, type interrupt endpoint
+    USB_EP3R = EP_TYPE_INTERRUPT | (3 & EA_MASK);
+    defaultDtogInit(1);
+    epRxStatusSet(3, STAT_RX_DISABLED);
+    epTxStatusSet(3, STAT_TX_NAK);
+    // interrupt properties
+    usbProp.epProps[3].isHalt = 0;
+}
 
 void usbReset()
 {
@@ -242,6 +255,9 @@ void ctrF()
     if( ((USB_ISTR & EP_ID_MASK) == 2) && (USB_EP2R & CTR_TX) ) {
         vcpEpTx();
     }
+    if( ((USB_ISTR & EP_ID_MASK) == 3) && (USB_EP2R & CTR_TX) ) {
+        stupidEpHandler();
+    }
 }
 
 void controlEpRx()
@@ -271,9 +287,9 @@ void controlEpTx()
     // case of multipackage response (in my case 2 packages are possible)
     if(usbProp.overflow > 0) {
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
-        epRxStatusSet(0, STAT_RX_VALID);
-        epTxStatusSet(0, STAT_TX_NAK);
-        controlDtogInit();
+//        epRxStatusSet(0, STAT_RX_VALID);
+//        epTxStatusSet(0, STAT_TX_NAK);
+//        controlDtogInit();
 
         controlTxDataN((uint8_t*)usbProp.mBuffer, usbProp.overflow);
         usbProp.overflow = 0;
@@ -293,12 +309,20 @@ void controlEpTx()
     controlDtogInit();
 }
 
+int innSize;
+uint8_t innData[64];
 void vcpEpRx()
 {
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
+
+    // loopback
+//    uint8_t data[64];
+    innSize = vcpRx(innData,64);
+    for(int i=0 ; i<16 ; ++i) innData[i]=0xaa;
+    vcpTx(innData,16);
     // ignoring input data in case of loger
-    epRxStatusSet(0, STAT_RX_VALID);
+    epRxStatusSet(1, STAT_RX_VALID);
 }
 
 void vcpEpTx()
@@ -307,7 +331,14 @@ void vcpEpTx()
     USB_EP2R = USB_EP_RESET_CTR_MASK & USB_EP2R;
     // wait for the next output data
     epTxStatusSet(2, STAT_TX_NAK);
-    usbProp.isRepCompl = 1;
+//    usbProp.isRepCompl = 1;
+}
+
+void stupidEpHandler()
+{
+    USB_ISTR = 0;
+    USB_EP3R = USB_EP_RESET_CTR_MASK & USB_EP3R;
+    epRxStatusSet(3, STAT_RX_VALID);
 }
 
 volatile uint16_t requestss[200];
@@ -358,9 +389,9 @@ void reqHandler()
 void reqCopy(requestTyp *request)
 {
     union {
-      uint8_t* b;
-      uint16_t* w;
-  } pBuf;
+        uint8_t* b;
+        uint16_t* w;
+    } pBuf;
     pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
     int size = USB_COUNT0_RX & COUNT_RX_MASK;
     request->bmRequestType = *pBuf.b++;
@@ -409,46 +440,6 @@ void usbCore()
     }
     USB_ISTR = 0;
 }
-
-/*void reportTx(uint8_t report)
-{
-//    if(usbProp.isRepCompl == 0) return;
-    // get the poiner to packet buffer from table
-    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
-    // put data into buffer
-    *bufferPtr =  ((uint16_t)report);
-    USB_COUNT1_TX = 1 & COUNT_TX_MASK;
-    usbProp.isRepCompl = 0;
-    // change the endpoint state
-    epTxStatusSet(1, STAT_TX_VALID);
-} */
-
-// uint8_t keyyyy[500];
-// void reportTxN(uint8_t *report, int size)
-// {
-//     if(size < 2) return;
-//     // static int ii=0;
-//     // keyyyy[ii++] = report[2];
-//     // if(ii>500) ii=0;
-// //    if(usbProp.isRepCompl == 0) return;
-//     // get the poiner to packet buffer from table
-//     uint16_t *input = (uint16_t*)report;
-//     uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_TX*2 + USB_CAN_SRAM_BASE);
-//     // put data into buffer
-//     for(int i=0 ; i<(size/2) ; ++i) {
-//         *bufferPtr = *input;
-//         input++;
-//         bufferPtr += 2;
-//     }
-//     // last byte to 16 bit
-//     if( (size%2) > 0 ) {
-//         *bufferPtr = (uint16_t)report[size-1];
-//     }
-//     USB_COUNT1_TX = size & COUNT_TX_MASK;
-//     usbProp.isRepCompl = 0;
-//     // change the endpoint state
-//     epTxStatusSet(1, STAT_TX_VALID);
-// }
 
 // core functions which called by requests
 void setAddr(uint8_t addr)
@@ -507,7 +498,7 @@ void controlTxData2(uint16_t data)
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
-// volatile uint8_t txDump[2000];
+volatile uint8_t txDump[2000];
 void controlTxDataN(uint8_t *data, int size)
 {
     if(size <= 2) return;
@@ -519,6 +510,8 @@ void controlTxDataN(uint8_t *data, int size)
             usbProp.mBuffer[i] = data[i+EP0_BUFFER_SIZE];
         }
         size = EP0_BUFFER_SIZE;
+    } else {
+        usbProp.overflow = 0;
     }
 
     uint16_t *input = (uint16_t*)data;
@@ -533,18 +526,18 @@ void controlTxDataN(uint8_t *data, int size)
         *bufferPtr = (uint16_t)data[size-1];
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
-    controlDtogInit();
-    epRxStatusSet(0, STAT_RX_VALID);
+//    controlDtogInit();
+//    epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
-    // static int txi=0;
-    // txDump[txi++] = (uint8_t)size;
-    // for(int i=0 ; i<size ; ++i) {
-    //     txDump[i+txi] = data[i];
-    // }
-    // txi += size;
-    // txDump[txi++] = 0xff;
-    // txDump[txi++] = 0xff;
-    // txDump[txi++] = 0xff;
+
+    static int txi=0;
+    txDump[txi++] = (uint8_t)size;
+    for(int i=0 ; i<size ; ++i) {
+        txDump[txi++] = data[i];
+    }
+    txDump[txi++] = 0xff;
+    txDump[txi++] = 0xff;
+    txDump[txi++] = 0xff;
 }
 
 void vcpTx(uint8_t *data, int size)
@@ -566,6 +559,24 @@ void vcpTx(uint8_t *data, int size)
     usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(2, STAT_TX_VALID);
+}
+
+int vcpRx(uint8_t *data, int size)
+{
+    uint16_t *dataPtr = (uint16_t*)data;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR1_RX*2 + USB_CAN_SRAM_BASE);
+    int inSize = USB_COUNT1_RX & COUNT_RX_MASK;
+    if(size < inSize) inSize = size;
+    for(int i=0 ; i<(inSize/2) ; ++i) {
+        *dataPtr = *bufferPtr;
+        dataPtr++;
+        bufferPtr += 2;
+    }
+    // last byte to 16 bit
+    if( (inSize%2) > 0 ) {
+        data[inSize-1] = (uint8_t)*bufferPtr;
+    }
+    return inSize;
 }
 
 // Concatenation to make descriptors in request readable form

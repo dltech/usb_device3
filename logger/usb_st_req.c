@@ -182,10 +182,11 @@ int getConfigurationReqHandler(requestTyp *request)
 // default null interface
 int setInterfaceReqHandler(requestTyp *request)
 {
-    if( ((request->wValue != 0) && (request->wIndex != 0)) || \
+    if( ((request->wValue > 1) && (request->wIndex != 0)) || \
         (usbProp.deviceState != CONFIGURED) ) {
         return REQ_ERROR;
     }
+    usbProp.iFace = (uint8_t)request->wValue;
     return NULL_REQ;
 }
 
@@ -198,11 +199,10 @@ int getInterfaceReqHandler(requestTyp *request)
     // main case which returns the null interface
     switch ( usbProp.deviceState ) {
         case DEFAULT:
-            return REQ_ERROR;
         case ADDRESS:
             return REQ_ERROR;
         case CONFIGURED:
-            controlTxData1(0);
+            controlTxData1(usbProp.iFace);
             return DATA_STAGE;
     }
     return REQ_ERROR;
@@ -292,10 +292,12 @@ int getDescriptorReqHandler(requestTyp *request)
             return DATA_STAGE;
         case CONFIGURATION_TYP<<8:
             prev = descCat(usbProp.desc->configuration, tmp, 0, usbProp.desc->configurationSize, request->wLength);
-            prev = descCat(usbProp.desc->interface, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->interface1, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->ctrlEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
+            prev = descCat(usbProp.desc->interface2, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
+            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
             prev = descCat(usbProp.desc->functional, tmp, prev, usbProp.desc->functionalSize, request->wLength);
-            prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->inEndpSize, request->wLength);
-            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->outEndpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case STRING_TYP<<8:
@@ -311,12 +313,14 @@ int getDescriptorReqHandler(requestTyp *request)
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case INTERFACE_TYP<<8:
-            prev = descCat(usbProp.desc->interface, tmp, 0, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->interface1, tmp, 0, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->interface2, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case ENDPOINT_TYP<<8:
-            prev = descCat(usbProp.desc->inEndp, tmp, 0, usbProp.desc->inEndpSize, request->wLength);
-            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->outEndpSize, request->wLength);
+            prev = descCat(usbProp.desc->ctrlEndp, tmp, 0, usbProp.desc->endpSize, request->wLength);
+            prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
+            prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case DEVICE_QUALIFIER_TYP<<8:

@@ -23,6 +23,7 @@
 
 #define EP0_BUFFER_SIZE         64
 #define EP1_BUFFER_SIZE         64
+#define EP2_BUFFER_SIZE         64
 // buffer table
 #define USB_TABLE_ADDR          0
 #define USB_TABLE_END           (USB_TABLE_ADDR + 0x40)
@@ -30,9 +31,10 @@
 #define EP0_RX_START            (EP0_TX_START + EP0_BUFFER_SIZE)
 #define EP1_RX_START            (EP0_RX_START + EP0_BUFFER_SIZE)
 #define EP2_TX_START            (EP1_RX_START + EP1_BUFFER_SIZE)
+#define EP3_TX_START            (EP2_TX_START + EP2_BUFFER_SIZE)
 
 // endpoints
-#define NUM_OF_EP   3
+#define NUM_OF_EP   4
 #define configValue 0x01
 // pins
 #define USBDM_PIN_INIT          3
@@ -72,8 +74,7 @@ typedef struct {
     const uint16_t deviseSize;
     const uint16_t configurationSize;
     const uint16_t interfaceSize;
-    const uint16_t inEndpSize;
-    const uint16_t outEndpSize;
+    const uint16_t endpSize;
     const uint16_t functionalSize;
     const uint16_t confTotalSize;
     const uint16_t stringLangIdSize;
@@ -82,7 +83,9 @@ typedef struct {
     const uint16_t deviceQualifierSize;
     const uint8_t *devise;
     const uint8_t *configuration;
-    const uint8_t *interface;
+    const uint8_t *interface1;
+    const uint8_t *interface2;
+    const uint8_t *ctrlEndp;
     const uint8_t *inEndp;
     const uint8_t *outEndp;
     const uint8_t *functional;
@@ -102,6 +105,7 @@ typedef struct {
     uint8_t address;
     uint8_t isBoot;
     const descriptorsTyp *desc;
+    uint8_t iFace;
     uint8_t mBuffer[EP0_BUFFER_SIZE];
     int overflow;
 } usbPropStruct;
@@ -137,7 +141,8 @@ void controlTxData1(uint8_t data);
 void controlTxData2(uint16_t data);
 void controlTxDataN(uint8_t *data, int size);
 // output data handler
-void vcpTx(uint8_t *report, int size);
+void vcpTx(uint8_t *data, int size);
+int vcpRx(uint8_t *data, int size);
 
 // descriptor concatenator (a part of GetDescr request)
 int descCat(const uint8_t *in, uint8_t *out, int prev, uint16_t size, uint16_t mainLen);
