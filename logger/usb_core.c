@@ -131,6 +131,8 @@ void usbOutEndpInit()
 {
     // endpoint 1 tx buffer
     USB_ADDR1_RX = EP1_RX_START;
+    USB_COUNT1_RX = BL_SIZE_32B | \
+                    (((EP1_BUFFER_SIZE/32) << NUM_BLOCK_OFFS) & NUM_BLOCK_MASK);
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP1R = EP_TYPE_BULK | (1 & EA_MASK);
     defaultDtogInit(1);
@@ -243,6 +245,7 @@ void usbWkup()
     USB_CNTR |= RESETM;
 }
 
+volatile int rxCnt, txCnt;
 void ctrF()
 {
     if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_RX) ) {
@@ -252,9 +255,11 @@ void ctrF()
     }
     if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP1R & CTR_RX) ) {
         vcpEpRx();
+        ++rxCnt;
     }
     if( ((USB_ISTR & EP_ID_MASK) == 2) && (USB_EP2R & CTR_TX) ) {
         vcpEpTx();
+        ++txCnt;
     }
     if( ((USB_ISTR & EP_ID_MASK) == 3) && (USB_EP3R & CTR_TX) ) {
         stupidEpHandler();
@@ -310,18 +315,17 @@ void controlEpTx()
     controlDtogInit();
 }
 
-int innSize;
-uint8_t innData[64];
 void vcpEpRx()
 {
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
 
     // loopback
-//    uint8_t data[64];
-    innSize = vcpRx(innData,64);
-    for(int i=0 ; i<16 ; ++i) innData[i]=0xaa;
-    vcpTx(innData,16);
+    uint8_t data[64];
+    int size = vcpRx(data,64);
+    for(int i=0 ; i<size ; ++i) ++data[i];
+    vcpTx(data,size);
+
     // ignoring input data in case of loger
     epRxStatusSet(1, STAT_RX_VALID);
 }
