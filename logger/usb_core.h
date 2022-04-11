@@ -61,6 +61,7 @@ enum reqStage {
     CONTROL_SETUP = 0,
     CONTROL_DATA,
     CONTROL_STATUS,
+    CONTROL_DATA_OUT,
     CONTROL_ERROR
 };
 
@@ -119,12 +120,12 @@ typedef struct
     uint16_t    wValue;
     uint16_t    wIndex;
     uint16_t    wLength;
-    uint8_t     data[REQ_DATA_SIZE];
 } requestTyp;
 enum reqType {
     REQ_ERROR = -1,
     NULL_REQ = 0,
     DATA_STAGE = 1,
+    DATA_OUT_STAGE,
     NOT_ST_REQ,
 };
 

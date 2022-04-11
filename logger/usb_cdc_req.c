@@ -69,14 +69,5 @@ int setLineCoding(requestTyp *request)
     if( (request->bmRequestType != CDC_SET) ) {
         return REQ_ERROR;
     }
-    lineCodingTyp setupLine;
-    setupLine.dwDTERate   =  (uint32_t)request->data[0] + \
-                            ((uint32_t)request->data[1] << 8 ) + \
-                            ((uint32_t)request->data[2] << 16) + \
-                            ((uint32_t)request->data[3] << 24);
-    setupLine.bCharFormat = request->data[4];
-    setupLine.bParityType = request->data[5];
-    setupLine.bDataBits   = request->data[6];
-    uartSetLine(&setupLine);
-    return NULL_REQ;
+    return DATA_OUT_STAGE;
 }

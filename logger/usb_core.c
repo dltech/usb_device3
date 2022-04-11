@@ -22,6 +22,7 @@
 #include "../lib/regs/usb_device_regs.h"
 #include "usb_st_req.h"
 #include "usb_cdc_req.h"
+#include "uart.h"
 #include "usb_core.h"
 
 volatile usbPropStruct usbProp;
@@ -51,6 +52,9 @@ void stupidEpHandler(void);
 // request handler
 void reqCopy(requestTyp *request);
 void reqHandler(void);
+// rxTx functions
+int controlRx(uint8_t *data, int size);
+
 
 void usbGpioInit()
 {
@@ -245,7 +249,6 @@ void usbWkup()
     USB_CNTR |= RESETM;
 }
 
-volatile int rxCnt, txCnt;
 void ctrF()
 {
     if( ((USB_ISTR & EP_ID_MASK) == 0) && (USB_EP0R & CTR_RX) ) {
@@ -255,11 +258,9 @@ void ctrF()
     }
     if( ((USB_ISTR & EP_ID_MASK) == 1) && (USB_EP1R & CTR_RX) ) {
         vcpEpRx();
-        ++rxCnt;
     }
     if( ((USB_ISTR & EP_ID_MASK) == 2) && (USB_EP2R & CTR_TX) ) {
         vcpEpTx();
-        ++txCnt;
     }
     if( ((USB_ISTR & EP_ID_MASK) == 3) && (USB_EP3R & CTR_TX) ) {
         stupidEpHandler();
@@ -270,6 +271,24 @@ void controlEpRx()
 {
     USB_ISTR = 0;
     // in case of setup packet is received call request handler
+    if( usbProp.controlStage == CONTROL_DATA_OUT ) {
+        uint8_t data[REQ_DATA_SIZE];
+        controlRx(data, REQ_DATA_SIZE);
+        lineCodingTyp setupLine;
+        setupLine.dwDTERate   =  (uint32_t)data[0] + \
+                                ((uint32_t)data[1] << 8 ) + \
+                                ((uint32_t)data[2] << 16) + \
+                                ((uint32_t)data[3] << 24);
+        setupLine.bCharFormat = data[4];
+        setupLine.bParityType = data[5];
+        setupLine.bDataBits   = data[6];
+        uartSetLine(&setupLine);
+        usbProp.controlStage = CONTROL_SETUP;
+        epRxStatusSet(0, STAT_RX_STALL);
+        epTxStatusSet(0, STAT_TX_STALL);
+        controlDtogInit();
+        return;
+    }
     if(USB_EP0R & SETUP) {
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
         usbProp.controlStage = CONTROL_SETUP;
@@ -277,7 +296,6 @@ void controlEpRx()
     }
 }
 
-volatile int controlAckn = 0;
 void controlEpTx()
 {
     USB_ISTR = 0;
@@ -288,15 +306,9 @@ void controlEpTx()
         controlTxData0();
         return;
     }
-    ++controlAckn;
-
     // case of multipackage response (in my case 2 packages are possible)
     if(usbProp.overflow > 0) {
         USB_EP0R = USB_EP_RESET_CTR_MASK & USB_EP0R;
-//        epRxStatusSet(0, STAT_RX_VALID);
-//        epTxStatusSet(0, STAT_TX_NAK);
-//        controlDtogInit();
-
         controlTxDataN((uint8_t*)usbProp.mBuffer, usbProp.overflow);
         usbProp.overflow = 0;
         return;
@@ -356,6 +368,8 @@ void reqHandler()
     // work with request
     reqCopy(&request);
  static int i=0;
+ if(request.bRequest == 0x20) requestss[i++] = request.bmRequestType;
+ if(request.bRequest == 0x22) requestss[i++] = request.bmRequestType;
  if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
  requestss[i++] = request.bRequest;
  if(request.bRequest == 6) requestss[i++] = request.wValue;
@@ -368,6 +382,11 @@ void reqHandler()
         reqStatus = cdcReqHandler(&request);
     } else {
         reqStatus = stReqHandler(&request);
+    }
+    if( reqStatus == DATA_OUT_STAGE ) {
+        epRxStatusSet(0, STAT_RX_VALID);
+        epTxStatusSet(0, STAT_TX_NAK);
+        usbProp.controlStage = CONTROL_DATA_OUT;
     }
     if( reqStatus == DATA_STAGE ) {
         usbProp.controlStage = CONTROL_DATA;
@@ -397,7 +416,6 @@ void reqCopy(requestTyp *request)
         uint16_t* w;
     } pBuf;
     pBuf.b = (uint8_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
-    int size = USB_COUNT0_RX & COUNT_RX_MASK;
     request->bmRequestType = *pBuf.b++;
     request->bRequest = *pBuf.b++;
     pBuf.w++;
@@ -406,11 +424,6 @@ void reqCopy(requestTyp *request)
     request->wIndex = *pBuf.w++;
     pBuf.w++;
     request->wLength = *pBuf.w++;
-    for( int i=0 ; (i+8 < size) && (i < REQ_DATA_SIZE) ; ++i ) {
-        pBuf.w++;
-        request->data[i++] = *pBuf.b++;
-        request->data[i]   = *pBuf.b++;
-    }
 }
 
 void usbCore()
@@ -470,6 +483,24 @@ int epHaltClear(int ep)
     return 0;
 }
 
+int controlRx(uint8_t *data, int size)
+{
+    uint16_t *dataPtr = (uint16_t*)data;
+    uint16_t *bufferPtr = (uint16_t*)(USB_ADDR0_RX*2 + USB_CAN_SRAM_BASE);
+    int inSize = USB_COUNT0_RX & COUNT_RX_MASK;
+    if(size < inSize) inSize = size;
+    for(int i=0 ; i<(inSize/2) ; ++i) {
+        *dataPtr = *bufferPtr;
+        dataPtr++;
+        bufferPtr += 2;
+    }
+    // last byte to 16 bit
+    if( (inSize%2) > 0 ) {
+        data[inSize-1] = (uint8_t)*bufferPtr;
+    }
+    return inSize;
+}
+
 // method overloading imitation for control endpoint tx functions
 void controlTxData0()
 {
@@ -502,7 +533,6 @@ void controlTxData2(uint16_t data)
     epTxStatusSet(0, STAT_TX_VALID);
 }
 
-volatile uint8_t txDump[2000];
 void controlTxDataN(uint8_t *data, int size)
 {
     if(size <= 2) return;
@@ -530,18 +560,8 @@ void controlTxDataN(uint8_t *data, int size)
         *bufferPtr = (uint16_t)data[size-1];
     }
     USB_COUNT0_TX = size & COUNT_TX_MASK;
-//    controlDtogInit();
-//    epRxStatusSet(0, STAT_RX_VALID);
+    epRxStatusSet(0, STAT_RX_VALID);
     epTxStatusSet(0, STAT_TX_VALID);
-
-    static int txi=0;
-    txDump[txi++] = (uint8_t)size;
-    for(int i=0 ; i<size ; ++i) {
-        txDump[txi++] = data[i];
-    }
-    txDump[txi++] = 0xff;
-    txDump[txi++] = 0xff;
-    txDump[txi++] = 0xff;
 }
 
 void vcpTx(uint8_t *data, int size)
