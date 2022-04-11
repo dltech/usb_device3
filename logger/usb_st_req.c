@@ -293,11 +293,11 @@ int getDescriptorReqHandler(requestTyp *request)
         case CONFIGURATION_TYP<<8:
             prev = descCat(usbProp.desc->configuration, tmp, 0, usbProp.desc->configurationSize, request->wLength);
             prev = descCat(usbProp.desc->interface1, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
+            prev = descCat(usbProp.desc->functional, tmp, prev, usbProp.desc->functionalSize, request->wLength);
             prev = descCat(usbProp.desc->ctrlEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
             prev = descCat(usbProp.desc->interface2, tmp, prev, usbProp.desc->interfaceSize, request->wLength);
             prev = descCat(usbProp.desc->inEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
             prev = descCat(usbProp.desc->outEndp, tmp, prev, usbProp.desc->endpSize, request->wLength);
-            prev = descCat(usbProp.desc->functional, tmp, prev, usbProp.desc->functionalSize, request->wLength);
             controlTxDataN(tmp, prev);
             return DATA_STAGE;
         case STRING_TYP<<8:

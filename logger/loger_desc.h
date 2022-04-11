@@ -42,7 +42,7 @@ const uint8_t vcpDeviseDesc[vcpDeviseDescSize] =
     0x00,0x02,  // bcdUSB, usb 2.0
     0x02,       // bDeviceClass, CDC
     0x02,       // bDeviceSubclass, abstract control model
-    0x00,       // bDeviceProtocol, not used
+    0x00,       // bDeviceProtocol, not used 02
     0x40,       // bMaxPacketSize0, maximum size 64 byte
 //    0x03,0x04, //ftdi vids pids
 //    0x01,0x60,
@@ -63,7 +63,7 @@ const uint8_t vcpConfigurationDesc[vcpConfigurationDescSize] =
     0x02,       // bNumInterfaces
     0x01,       // bConfigurationValue
     0x00,       // iConfiguration
-    0xa0,       // bmAttributes, self-powered
+    0xa0,       // bmAttributes, self-powered c0
     0x32        // maxPower, 100mA
 };
 
@@ -77,7 +77,7 @@ const uint8_t vcpInterface1Desc[vcpInterfaceDescSize] =
     0x01,       // bNumEndpoints
     0x02,       // bInterfaceClass, Communication interface class
     0x02,       // bInterfaceSubClass, Abstract control Model
-    0x00,       // bInterfaceProtocol, not used
+    0x00,       // bInterfaceProtocol, not used 01
     0x00        // bInterface
 };
 
@@ -102,7 +102,7 @@ const uint8_t vcpCtrlEndpDesc[vcpEndpDescSize] =
     0x83,       // bEndpointAddress, IN endpoint 3
     0x03,       // bMattributes, interrupt endpoint
     0x01,0x00,  // MaxPacketSize, 1 byte
-    0x99        // bInterval huge
+    0xff        // bInterval huge ff
 };
 
 const uint8_t vcpInEndpDesc[vcpEndpDescSize] =
@@ -149,7 +149,7 @@ const uint8_t vcpFunctionalDesc[vcpFunctionalDescSize] =
     0x24,       // bDescriptorType, CS_INTERFACE constant is functional descr type
     0x01,       // bDescriptorSubtype, Call management functional
     0x00,       // bmCapabilities, do not support call maqnagement
-    0x00,       // bDataInterface, optional interface for call management (none)
+    0x00,       // bDataInterface, optional interface for call management (none) 01
 };
 
 const uint8_t vcpDeviceQualifier[vcpDeviceQualifierSize] =

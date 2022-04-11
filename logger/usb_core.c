@@ -145,7 +145,7 @@ void usbInEndpInit()
     USB_ADDR2_TX = EP2_TX_START;
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP2R = EP_TYPE_BULK | (2 & EA_MASK);
-    defaultDtogInit(1);
+    defaultDtogInit(2);
     epRxStatusSet(2, STAT_RX_DISABLED);
     epTxStatusSet(2, STAT_TX_NAK);
     // interrupt properties
@@ -158,7 +158,7 @@ void usbStupidEndpInit()
     USB_ADDR3_TX = EP3_TX_START;
     // endpoint 1 address 1, type interrupt endpoint
     USB_EP3R = EP_TYPE_INTERRUPT | (3 & EA_MASK);
-    defaultDtogInit(1);
+    defaultDtogInit(3);
     epRxStatusSet(3, STAT_RX_DISABLED);
     epTxStatusSet(3, STAT_TX_NAK);
     // interrupt properties
@@ -195,6 +195,7 @@ void usbReset()
     usbControlEndpInit();
     usbInEndpInit();
     usbOutEndpInit();
+    usbStupidEndpInit();
     usbItInit();
     usbProp.deviceState = DEFAULT;
 }
@@ -255,7 +256,7 @@ void ctrF()
     if( ((USB_ISTR & EP_ID_MASK) == 2) && (USB_EP2R & CTR_TX) ) {
         vcpEpTx();
     }
-    if( ((USB_ISTR & EP_ID_MASK) == 3) && (USB_EP2R & CTR_TX) ) {
+    if( ((USB_ISTR & EP_ID_MASK) == 3) && (USB_EP3R & CTR_TX) ) {
         stupidEpHandler();
     }
 }
@@ -331,14 +332,13 @@ void vcpEpTx()
     USB_EP2R = USB_EP_RESET_CTR_MASK & USB_EP2R;
     // wait for the next output data
     epTxStatusSet(2, STAT_TX_NAK);
-//    usbProp.isRepCompl = 1;
 }
 
 void stupidEpHandler()
 {
     USB_ISTR = 0;
     USB_EP3R = USB_EP_RESET_CTR_MASK & USB_EP3R;
-    epRxStatusSet(3, STAT_RX_VALID);
+    epRxStatusSet(3, STAT_TX_NAK);
 }
 
 volatile uint16_t requestss[200];
@@ -556,7 +556,6 @@ void vcpTx(uint8_t *data, int size)
         *bufferPtr = (uint16_t)data[size-1];
     }
     USB_COUNT2_TX = size & COUNT_TX_MASK;
-    usbProp.isRepCompl = 0;
     // change the endpoint state
     epTxStatusSet(2, STAT_TX_VALID);
 }
