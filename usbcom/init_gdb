@@ -1,0 +1,4 @@
+set print elements 0
+target remote localhost:5555
+load result/logger.elf
+continue
