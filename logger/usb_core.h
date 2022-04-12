@@ -1,7 +1,7 @@
 #ifndef H_USB_CORE
 #define H_USB_CORE
 /*
- * Part of USB HID gamepad STM32 based solution.
+ * Part of USB VCP.
  * Here are all USB low-level functions.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>

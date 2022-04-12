@@ -22,8 +22,8 @@
 
 /* Status register */
 #define USART1_SR   MMIO32(USART1_BASE + 0x00)
-#define USART2_SR   MMIO32(USART1_BASE + 0x00)
-#define USART3_SR   MMIO32(USART1_BASE + 0x00)
+#define USART2_SR   MMIO32(USART2_BASE + 0x00)
+#define USART3_SR   MMIO32(USART3_BASE + 0x00)
 // CTS flag
 #define CTS  0x0200
 // LIN break detection flag
@@ -156,7 +156,7 @@
 #define GT_PSC_MSK  0xff
 
 #define USART_M(baud)   SYSTEM_CLOCK/16/baud
-#define USART_FR(baud)  (((SYSTEM_CLOCK*10)/16/baud)&DIV_F_MASK)
+#define USART_FR(baud)  (((((((SYSTEM_CLOCK/16)*100)/baud)%100)*16)/100)&DIV_F_MASK)
 #define USART_BR_CALC(baud)  ((USART_M(baud)<<DIV_M_SHIFT)+USART_FR(baud))
 
 #endif

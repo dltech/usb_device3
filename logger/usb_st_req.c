@@ -1,5 +1,5 @@
 /*
- * Part of USB HID gamepad STM32 based solution.
+ * Part of USB VCP.
  * All standard USB2.0 requests are implemented here.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
@@ -62,11 +62,9 @@ int stReqHandler(requestTyp *request)
 }
 
 /* Request handlers */
-int statusD = 0;
-int requesto = 0;
+
 int getStatusReqHandler(requestTyp *request)
 {
-    statusD = 0;
     // error check
     if( (request->wValue != 0) || (request->wLength != 2) ) {
         return REQ_ERROR;
@@ -77,7 +75,6 @@ int getStatusReqHandler(requestTyp *request)
     if( (request->wIndex >= NUM_OF_EP) && (request->bRequest == ENDPOINT_GET) ) {
         return REQ_ERROR;
     }
-    statusD = 1;
     // request handler
     switch( request->bRequest ) {
         case DEVICE_GET:
@@ -97,8 +94,6 @@ int getStatusReqHandler(requestTyp *request)
             }
             return DATA_STAGE;
     }
-    requesto = request->bRequest;
-    statusD = 2;
     return REQ_ERROR;
 }
 
@@ -121,8 +116,6 @@ int setAddressReqHandler(requestTyp *request)
     }
     return REQ_ERROR;
 }
-
-int confDebug=0;
 
 int setConfigurationReqHandler(requestTyp *request)
 {

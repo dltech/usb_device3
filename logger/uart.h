@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 #include <inttypes.h>
+#include "../lib/STM32F103_CMSIS/stm32f103.h"
+
 // linecoding parameters
 #define LINECODING_SIZE 7
 typedef struct {
@@ -43,9 +45,14 @@ enum {
 #define UART_TX 8
 #define UART_RX 9
 // timeout setup
-//#define
+#define PSC_400BAUD     SYSTEM_CLOCK/4000
+#define TOUT_CALC(baud) baud/100
+// count of bytes
+#define RX_SIZE 16
+#define TX_SIZE 64
 
 void uartInit(void);
 void uartSetLine(lineCodingTyp *line);
+void uartTx(uint8_t *data, int size);
 
 #endif

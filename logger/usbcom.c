@@ -18,7 +18,7 @@
 
 #include "../lib/STM32F103_CMSIS/stm32f103.h"
 #include "usb_core.h"
-//#include "ir_remote.h"
+#include "uart.h"
 #include "usbcom.h"
 #include "loger_desc.h"
 
@@ -26,7 +26,7 @@ volatile int confSize;
 
 void usbComInit()
 {
-//    irInit();
+    uartInit();
     confSize = usbComDesc.confTotalSize;
     usbCoreInit(&usbComDesc);
 }

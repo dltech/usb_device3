@@ -1,5 +1,5 @@
 /*
- * Part of USB HID gamepad STM32 based solution.
+ * Part of USB VCP.
  * Here are all USB low-level functions.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
@@ -275,9 +275,9 @@ void controlEpRx()
         uint8_t data[REQ_DATA_SIZE];
         controlRx(data, REQ_DATA_SIZE);
         lineCodingTyp setupLine;
-        setupLine.dwDTERate   =  (uint32_t)data[0] + \
-                                ((uint32_t)data[1] << 8 ) + \
-                                ((uint32_t)data[2] << 16) + \
+        setupLine.dwDTERate   =  (uint32_t)data[0] +
+                                ((uint32_t)data[1] << 8 ) +
+                                ((uint32_t)data[2] << 16) +
                                 ((uint32_t)data[3] << 24);
         setupLine.bCharFormat = data[4];
         setupLine.bParityType = data[5];
@@ -331,13 +331,12 @@ void vcpEpRx()
 {
     USB_ISTR = 0;
     USB_EP1R = USB_EP_RESET_CTR_MASK & USB_EP1R;
-
     // loopback
+    // for(int i=0 ; i<size ; ++i) ++data[i];
+    // vcpTx(data,size);
     uint8_t data[64];
     int size = vcpRx(data,64);
-    for(int i=0 ; i<size ; ++i) ++data[i];
-    vcpTx(data,size);
-
+    uartTx(data, size);
     // ignoring input data in case of loger
     epRxStatusSet(1, STAT_RX_VALID);
 }
@@ -367,16 +366,16 @@ void reqHandler()
 //    epTxStatusSet(0, STAT_TX_NAK);
     // work with request
     reqCopy(&request);
- static int i=0;
- if(request.bRequest == 0x20) requestss[i++] = request.bmRequestType;
- if(request.bRequest == 0x22) requestss[i++] = request.bmRequestType;
- if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
- requestss[i++] = request.bRequest;
- if(request.bRequest == 6) requestss[i++] = request.wValue;
- if(request.bRequest == 6) requestss[i++] = request.wLength;
- if(request.bRequest == 9) requestss[i++] = request.wValue;
- if(request.bRequest == 9) requestss[i++] = request.wIndex;
- if(request.bRequest == 9) requestss[i++] = request.wLength;
+ // static int i=0;
+ // if(request.bRequest == 0x20) requestss[i++] = request.bmRequestType;
+ // if(request.bRequest == 0x22) requestss[i++] = request.bmRequestType;
+ // if(request.bRequest == 9) requestss[i++] = request.bmRequestType;
+ // requestss[i++] = request.bRequest;
+ // if(request.bRequest == 6) requestss[i++] = request.wValue;
+ // if(request.bRequest == 6) requestss[i++] = request.wLength;
+ // if(request.bRequest == 9) requestss[i++] = request.wValue;
+ // if(request.bRequest == 9) requestss[i++] = request.wIndex;
+ // if(request.bRequest == 9) requestss[i++] = request.wLength;
 
     if( isCdcReqTyp(&request) ) {
         reqStatus = cdcReqHandler(&request);
@@ -403,9 +402,9 @@ void reqHandler()
         usbProp.controlStage = CONTROL_STATUS;
         controlTxData0();
     }
- requestss[i++] = (uint16_t)usbProp.controlStage;
- requestss[i++] = 0xffff;
- if(i>200) i = 0;
+ // requestss[i++] = (uint16_t)usbProp.controlStage;
+ // requestss[i++] = 0xffff;
+ // if(i>200) i = 0;
 }
 
 // Сopies request for control endpoint 0 from rx buffer

@@ -1,7 +1,7 @@
 #ifndef H_USB_ST_REQ
 #define H_USB_ST_REQ
 /*
- * Part of USB HID gamepad STM32 based solution.
+ * Part of USB VCP.
  * Just call reqHandler in your USB interrupt.
  *
  * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
