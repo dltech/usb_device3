@@ -1,8 +1,8 @@
 #paths
-TARGET = ../result/logger
+TARGET = ../result/usbcom
 LIB_DIR = ../lib
 REG_DIR	= $(LIB_DIR)/regs
-ODIR = bin/logger
+ODIR = bin/usbcom
 BINDIR = bin
 
 # code is here
