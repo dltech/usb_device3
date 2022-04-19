@@ -134,7 +134,7 @@ const uint8_t ledlessKbdReportDesc[ledlessKbdReportDescSize] =
     0x95, 0x06,         //   report_count(6)
     0x75, 0x08,         //   report_size(8)
     0x15, 0x00,         //   logical minimum(0)
-    0x25, 0x65,         //   logical maximum(101)
+    0x25, 0x82,         //   logical maximum(101)
     0x05, 0x07,         //  usage_page(Keyboard)
     0x19, 0x00,         //   usage_minimum(0)
     0x29, 0x81,         //   usage_maximum(Keyboard Application)65

@@ -15,37 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "ir_decoder.h"
 
-int     necDecode(uint8_t data, uint8_t  addr);
-int samsungDecode(uint8_t data, uint16_t addr);
+uint8_t  necDecode(uint8_t data, uint8_t  addr);
+uint16_t samsungDecode(uint8_t data, uint16_t addr);
 
-int detect(uint8_t data, uint16_t addr)
+uint16_t detect(uint8_t data, uint16_t addr)
 {
-    int ret = 0;
-    ret = necDecode(data, (uint8_t)addr);
+    uint16_t ret = 0;
+//    ret = necDecode(data, (uint8_t)addr);
     ret = samsungDecode(data, addr);
     return ret;
 }
 
-int necDecode(uint8_t data, uint8_t inAddr)
+uint8_t necDecode(uint8_t data, uint8_t inAddr)
 {
     static int bitCnt = 0;
     static uint8_t prev = 1;
-    static bool isStart = false;
+    static uint8_t isStart = 0;
     static int oneCnt = 0;
     static int nullCnt = 0;
     static uint32_t word = 0;
-    uint8_t addr;
+//    uint8_t addr;
     uint8_t command;
     // detect start bit
     if((prev == 0) && (data == 1) && (nullCnt > 20)) {
-        isStart = true;
+        isStart = 1;
         bitCnt = 0;
         word = 0;
     }
     // detect one
     if((prev == 1) && (data == 0) && (isStart > 0) && (oneCnt > 7) && (oneCnt < 11)) {
-        word += 1<<bitCnt;
+        word += (uint32_t)(1<<bitCnt);
         ++bitCnt;
     }
     // detect null
@@ -55,7 +56,7 @@ int necDecode(uint8_t data, uint8_t inAddr)
     // decode command
     if((bitCnt >= 32) && ((word & 0xff) == (~(word >> 8) & 0xff)) && \
       ((word >> 16 & 0xff) == (~(word >> 24) & 0xff)) && ((inAddr == 0xff) || (inAddr == (uint8_t)word))) {
-        addr = (uint8_t)word;
+//        addr = (uint8_t)word;
         command = (uint8_t)(word >> 16);
         isStart = 0;
         bitCnt = 0;
@@ -74,17 +75,18 @@ int necDecode(uint8_t data, uint8_t inAddr)
     if(data == 0) ++nullCnt;
     else nullCnt = 0;
     prev = data;
+    return 0xff;
 }
 
-int samsungDecode(uint8_t data, uint16_t inAddr);
+uint16_t samsungDecode(uint8_t data, uint16_t inAddr)
 {
     static uint8_t prev = 1;
-    static uint8_t isStart = false;
+    static uint8_t isStart = 0;
     static int oneCnt = 0;
     static int nullCnt = 0;
     static int bitCnt = 0;
     static uint32_t word = 0;
-    uint16_t addr;
+//    uint16_t addr;
     uint16_t command;
     // detect start bit
     if((prev == 0) && (data == 1) && (nullCnt > 20) && (nullCnt < 25)) {
@@ -94,7 +96,7 @@ int samsungDecode(uint8_t data, uint16_t inAddr);
     }
     // detect one
     if((prev == 1) && (data == 0) && (isStart > 0) && (oneCnt > 7) && (oneCnt < 11)) {
-        word += 1<<bitCnt;
+        word += (uint32_t)1<<bitCnt;
         ++bitCnt;
     }
     // detect null
@@ -103,10 +105,10 @@ int samsungDecode(uint8_t data, uint16_t inAddr);
     }
     // decode command
     if( (bitCnt >= 32) && (isStart > 0) && ((inAddr == 0xffff) || (inAddr == (uint16_t)word))) {
-        addr = (uint16_t)word;
+//        addr = (uint16_t)word;
         command = (uint16_t)(word >> 16);
         bitCnt = 0;
-        isStart = false;
+        isStart = 0;
         word = 0;
         return command;
     }
@@ -121,4 +123,5 @@ int samsungDecode(uint8_t data, uint16_t inAddr);
     if(data == 0) ++nullCnt;
     else nullCnt = 0;
     prev = data;
+    return 0xffff;
 }

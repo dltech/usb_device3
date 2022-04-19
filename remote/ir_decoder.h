@@ -17,8 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "inttypes.h"
 
 // detects ir codes by using consecutive port polls
-int detect(uint8_t data, uint16_t addr);
+uint16_t detect(uint8_t data, uint16_t addr);
 
 #endif

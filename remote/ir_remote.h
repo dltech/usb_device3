@@ -38,6 +38,9 @@
 #define IR_PORT     GPIOA_IDR
 #define IR_PIN      GPIO0
 #define IR_PIN_INIT 0U
+#define ON_PORT     GPIOB_ODR
+#define ON_PIN      GPIO6
+#define ON_PIN_INIT 6U
 
 // ir codes
 typedef struct {
@@ -45,7 +48,8 @@ typedef struct {
     uint8_t keyboardCode;
     uint8_t tabCode;
 } codeTyp;
-#define NUM_CODES   16
+#define NUM_CODES   30
+#define ONCODE  0xdf02
 
 // call this to init receiving of IR codes
 void irInit(void);

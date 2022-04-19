@@ -1,0 +1,60 @@
+Коды кнопок с их расположением
+SAMSUNG
+fd02      df20
+
+fb04 fa05 f906
+f708 f609 f50a
+f30c f20d f10e
+e21d ee11 d24b
+
+de21 8a75 db24
+
+dd22 d32c ed12 e11e
+     d22d ef10
+
+e718 ea15 e619 e51a
+
+eb14      e01f
+     d02f
+827d a35c 817e
+     d629
+
+c53a d12e fe01 cf30
+
+MICROLAB
+10    06
+
+09 1d 1f
+19 1b 11
+17 12 16
+54 18 04
+
+   4c
+15 40 0d
+   00
+
+02 1e 1c
+
+4d 0a 0c
+05 0e 1a 
+
+
+keycodes of modifier
+Bit
+Key
+0
+LEFT CTRL
+1
+LEFT SHIFT
+2
+LEFT ALT
+3
+LEFT GUI
+4
+RIGHT CTRL
+5
+RIGHT SHIFT
+6
+RIGHT ALT
+7
+RIGHT GUI
