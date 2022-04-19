@@ -596,17 +596,6 @@ F 3 "" H 8750 2300 50  0001 C CNN
 	1    8650 2550
 	1    0    0    -1  
 $EndComp
-$Comp
-L Interface_Optical:TSOP17xx U3
-U 1 1 61EC21C1
-P 7500 4450
-F 0 "U3" H 7750 4750 50  0000 C CNN
-F 1 "TSOP17xx" H 7300 4750 50  0000 C CNN
-F 2 "OptoDevice:Vishay_CAST-3Pin" H 7450 4075 50  0001 C CNN
-F 3 "http://www.micropik.com/PDF/tsop17xx.pdf" H 8150 4750 50  0001 C CNN
-	1    7500 4450
-	-1   0    0    -1  
-$EndComp
 Wire Wire Line
 	7400 3250 7400 3300
 Wire Wire Line
@@ -897,12 +886,23 @@ Entry Wire Line
 	4100 4200 4200 4100
 NoConn ~ 4450 4400
 NoConn ~ 4450 4300
-Wire Bus Line
-	4150 5750 6450 5750
 Entry Wire Line
 	4100 4100 4200 4000
 Wire Wire Line
 	4200 4000 4450 4000
+Wire Bus Line
+	4150 5750 6450 5750
+$Comp
+L Interface_Optical:TSOP41xx U3
+U 1 1 625F74B2
+P 7500 4450
+F 0 "U3" H 7034 4500 50  0000 R CNN
+F 1 "TSOP41xx" H 7034 4409 50  0000 R CNN
+F 2 "OptoDevice:Vishay_MOLD-3Pin" H 7450 4075 50  0001 C CNN
+F 3 "http://www.vishay.com/docs/82460/tsop45.pdf" H 8150 4750 50  0001 C CNN
+	1    7500 4450
+	-1   0    0    -1  
+$EndComp
 Wire Bus Line
 	4100 4050 4100 5700
 Wire Bus Line

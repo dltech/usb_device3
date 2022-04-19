@@ -80,11 +80,11 @@ X VI 3 300 0 100 L 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_+3.3V-power
+# sch-rescue_+3.3V-power-sch-rescue
 #
-DEF sch-rescue_+3.3V-power #PWR 0 0 Y Y 1 F P
+DEF sch-rescue_+3.3V-power-sch-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "sch-rescue_+3.3V-power" 0 140 50 H V C CNN
+F1 "sch-rescue_+3.3V-power-sch-rescue" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -95,11 +95,11 @@ X +3V3 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_+5V-power
+# sch-rescue_+5V-power-sch-rescue
 #
-DEF sch-rescue_+5V-power #PWR 0 0 Y Y 1 F P
+DEF sch-rescue_+5V-power-sch-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "sch-rescue_+5V-power" 0 140 50 H V C CNN
+F1 "sch-rescue_+5V-power-sch-rescue" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -110,11 +110,11 @@ X +5V 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_C-device
+# sch-rescue_C-device-sch-rescue
 #
-DEF sch-rescue_C-device C 0 10 N Y 1 F N
+DEF sch-rescue_C-device-sch-rescue C 0 10 N Y 1 F N
 F0 "C" 25 100 50 H V L CNN
-F1 "sch-rescue_C-device" 25 -100 50 H V L CNN
+F1 "sch-rescue_C-device-sch-rescue" 25 -100 50 H V L CNN
 F2 "" 38 -150 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -128,11 +128,11 @@ X ~ 2 0 -150 110 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x03-Connector
+# sch-rescue_Conn_01x03-Connector-sch-rescue
 #
-DEF sch-rescue_Conn_01x03-Connector J 0 40 Y N 1 F N
+DEF sch-rescue_Conn_01x03-Connector-sch-rescue J 0 40 Y N 1 F N
 F0 "J" 0 200 50 H V C CNN
-F1 "sch-rescue_Conn_01x03-Connector" 0 -200 50 H V C CNN
+F1 "sch-rescue_Conn_01x03-Connector-sch-rescue" 0 -200 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -154,11 +154,11 @@ X Pin_3 3 -200 -100 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x04-Connector
+# sch-rescue_Conn_01x04-Connector-sch-rescue
 #
-DEF sch-rescue_Conn_01x04-Connector J 0 40 Y N 1 F N
+DEF sch-rescue_Conn_01x04-Connector-sch-rescue J 0 40 Y N 1 F N
 F0 "J" 0 200 50 H V C CNN
-F1 "sch-rescue_Conn_01x04-Connector" 0 -300 50 H V C CNN
+F1 "sch-rescue_Conn_01x04-Connector-sch-rescue" 0 -300 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -182,11 +182,11 @@ X Pin_4 4 -200 -200 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x07-Connector
+# sch-rescue_Conn_01x07-Connector-sch-rescue
 #
-DEF sch-rescue_Conn_01x07-Connector J 0 40 Y N 1 F N
+DEF sch-rescue_Conn_01x07-Connector-sch-rescue J 0 40 Y N 1 F N
 F0 "J" 0 400 50 H V C CNN
-F1 "sch-rescue_Conn_01x07-Connector" 0 -400 50 H V C CNN
+F1 "sch-rescue_Conn_01x07-Connector-sch-rescue" 0 -400 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -216,11 +216,11 @@ X Pin_7 7 -200 -300 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Conn_01x09-Connector
+# sch-rescue_Conn_01x09-Connector-sch-rescue
 #
-DEF sch-rescue_Conn_01x09-Connector J 0 40 Y N 1 F N
+DEF sch-rescue_Conn_01x09-Connector-sch-rescue J 0 40 Y N 1 F N
 F0 "J" 0 500 50 H V C CNN
-F1 "sch-rescue_Conn_01x09-Connector" 0 -500 50 H V C CNN
+F1 "sch-rescue_Conn_01x09-Connector-sch-rescue" 0 -500 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -254,11 +254,11 @@ X Pin_9 9 -200 -400 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_Crystal-device
+# sch-rescue_Crystal-device-sch-rescue
 #
-DEF sch-rescue_Crystal-device Y 0 40 N N 1 F N
+DEF sch-rescue_Crystal-device-sch-rescue Y 0 40 N N 1 F N
 F0 "Y" 0 150 50 H V C CNN
-F1 "sch-rescue_Crystal-device" 0 -150 50 H V C CNN
+F1 "sch-rescue_Crystal-device-sch-rescue" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -275,11 +275,11 @@ X 2 2 150 0 50 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_GND-power
+# sch-rescue_GND-power-sch-rescue
 #
-DEF sch-rescue_GND-power #PWR 0 0 Y Y 1 F P
+DEF sch-rescue_GND-power-sch-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "sch-rescue_GND-power" 0 -150 50 H V C CNN
+F1 "sch-rescue_GND-power-sch-rescue" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -288,11 +288,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_R-device
+# sch-rescue_R-device-sch-rescue
 #
-DEF sch-rescue_R-device R 0 0 N Y 1 F N
+DEF sch-rescue_R-device-sch-rescue R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "sch-rescue_R-device" 0 0 50 V V C CNN
+F1 "sch-rescue_R-device-sch-rescue" 0 0 50 V V C CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -306,11 +306,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# sch-rescue_SW_Push-Switch
+# sch-rescue_SW_Push-Switch-sch-rescue
 #
-DEF sch-rescue_SW_Push-Switch SW 0 40 N N 1 F N
+DEF sch-rescue_SW_Push-Switch-sch-rescue SW 0 40 N N 1 F N
 F0 "SW" 50 100 50 H V L CNN
-F1 "sch-rescue_SW_Push-Switch" 0 -60 50 H V C CNN
+F1 "sch-rescue_SW_Push-Switch-sch-rescue" 0 -60 50 H V C CNN
 F2 "" 0 200 50 H I C CNN
 F3 "" 0 200 50 H I C CNN
 DRAW

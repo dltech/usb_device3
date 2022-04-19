@@ -14,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L sch-rescue:R-device R3
+L sch-rescue:R-device-sch-rescue R3
 U 1 1 60B98022
 P 6950 3500
 F 0 "R3" H 6800 3550 50  0000 L CNN
@@ -25,7 +25,7 @@ F 3 "" H 6950 3500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+5V-power #PWR0101
+L sch-rescue:+5V-power-sch-rescue #PWR0101
 U 1 1 60BA6D79
 P 7050 3250
 F 0 "#PWR0101" H 7050 3100 50  0001 C CNN
@@ -36,7 +36,7 @@ F 3 "" H 7050 3250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:Crystal-device Y1
+L sch-rescue:Crystal-device-sch-rescue Y1
 U 1 1 60BB7B29
 P 4200 2850
 F 0 "Y1" H 4250 3000 50  0000 C CNN
@@ -47,7 +47,7 @@ F 3 "" H 4200 2850 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L sch-rescue:C-device C1
+L sch-rescue:C-device-sch-rescue C1
 U 1 1 60BBCAE9
 P 3900 2700
 F 0 "C1" H 3900 2800 50  0000 L CNN
@@ -58,7 +58,7 @@ F 3 "" H 3900 2700 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L sch-rescue:C-device C2
+L sch-rescue:C-device-sch-rescue C2
 U 1 1 60BBD52B
 P 3900 3000
 F 0 "C2" H 3900 3100 50  0000 L CNN
@@ -87,7 +87,7 @@ Wire Wire Line
 	4200 3000 4050 3000
 Connection ~ 4200 3000
 $Comp
-L sch-rescue:GND-power #PWR0103
+L sch-rescue:GND-power-sch-rescue #PWR0103
 U 1 1 60BC5327
 P 3650 3050
 F 0 "#PWR0103" H 3650 2800 50  0001 C CNN
@@ -107,7 +107,7 @@ Wire Wire Line
 	3650 2700 3650 3000
 Connection ~ 3650 3000
 $Comp
-L sch-rescue:C-device C5
+L sch-rescue:C-device-sch-rescue C5
 U 1 1 60BCC99C
 P 5800 2850
 F 0 "C5" H 5800 2950 50  0000 L CNN
@@ -118,7 +118,7 @@ F 3 "" H 5800 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0104
+L sch-rescue:GND-power-sch-rescue #PWR0104
 U 1 1 60BCEBAF
 P 5800 3050
 F 0 "#PWR0104" H 5800 2800 50  0001 C CNN
@@ -129,7 +129,7 @@ F 3 "" H 5800 3050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+3.3V-power #PWR0105
+L sch-rescue:+3.3V-power-sch-rescue #PWR0105
 U 1 1 60BCF857
 P 5800 2650
 F 0 "#PWR0105" H 5800 2500 50  0001 C CNN
@@ -140,7 +140,7 @@ F 3 "" H 5800 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:C-device C6
+L sch-rescue:C-device-sch-rescue C6
 U 1 1 60BD3987
 P 6050 2850
 F 0 "C6" H 6050 2950 50  0000 L CNN
@@ -151,7 +151,7 @@ F 3 "" H 6050 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0106
+L sch-rescue:GND-power-sch-rescue #PWR0106
 U 1 1 60BD398D
 P 6050 3050
 F 0 "#PWR0106" H 6050 2800 50  0001 C CNN
@@ -162,7 +162,7 @@ F 3 "" H 6050 3050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+3.3V-power #PWR0107
+L sch-rescue:+3.3V-power-sch-rescue #PWR0107
 U 1 1 60BD3993
 P 6050 2650
 F 0 "#PWR0107" H 6050 2500 50  0001 C CNN
@@ -173,7 +173,7 @@ F 3 "" H 6050 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:C-device C7
+L sch-rescue:C-device-sch-rescue C7
 U 1 1 60BD4708
 P 6300 2850
 F 0 "C7" H 6300 2950 50  0000 L CNN
@@ -184,7 +184,7 @@ F 3 "" H 6300 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0108
+L sch-rescue:GND-power-sch-rescue #PWR0108
 U 1 1 60BD470E
 P 6300 3050
 F 0 "#PWR0108" H 6300 2800 50  0001 C CNN
@@ -195,7 +195,7 @@ F 3 "" H 6300 3050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+3.3V-power #PWR0109
+L sch-rescue:+3.3V-power-sch-rescue #PWR0109
 U 1 1 60BD4714
 P 6300 2650
 F 0 "#PWR0109" H 6300 2500 50  0001 C CNN
@@ -206,7 +206,7 @@ F 3 "" H 6300 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:C-device C9
+L sch-rescue:C-device-sch-rescue C9
 U 1 1 60BD5497
 P 6550 2850
 F 0 "C9" H 6550 2950 50  0000 L CNN
@@ -217,7 +217,7 @@ F 3 "" H 6550 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0110
+L sch-rescue:GND-power-sch-rescue #PWR0110
 U 1 1 60BD549D
 P 6550 3050
 F 0 "#PWR0110" H 6550 2800 50  0001 C CNN
@@ -228,7 +228,7 @@ F 3 "" H 6550 3050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+3.3V-power #PWR0111
+L sch-rescue:+3.3V-power-sch-rescue #PWR0111
 U 1 1 60BD54A3
 P 6550 2650
 F 0 "#PWR0111" H 6550 2500 50  0001 C CNN
@@ -255,7 +255,7 @@ Wire Wire Line
 Wire Wire Line
 	6300 2650 6300 2700
 $Comp
-L sch-rescue:+3.3V-power #PWR0112
+L sch-rescue:+3.3V-power-sch-rescue #PWR0112
 U 1 1 60BE41C5
 P 5100 1700
 F 0 "#PWR0112" H 5100 1550 50  0001 C CNN
@@ -285,7 +285,7 @@ Wire Wire Line
 	5100 1750 5100 1700
 Connection ~ 5100 1750
 $Comp
-L sch-rescue:GND-power #PWR0113
+L sch-rescue:GND-power-sch-rescue #PWR0113
 U 1 1 60BE8B74
 P 5100 5500
 F 0 "#PWR0113" H 5100 5250 50  0001 C CNN
@@ -315,7 +315,7 @@ Connection ~ 4900 5450
 Wire Wire Line
 	4900 5450 5000 5450
 $Comp
-L sch-rescue:GND-power #PWR0114
+L sch-rescue:GND-power-sch-rescue #PWR0114
 U 1 1 60BFBFA2
 P 7050 3950
 F 0 "#PWR0114" H 7050 3700 50  0001 C CNN
@@ -326,7 +326,7 @@ F 3 "" H 7050 3950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0115
+L sch-rescue:GND-power-sch-rescue #PWR0115
 U 1 1 60C02E98
 P 4000 2400
 F 0 "#PWR0115" H 4000 2150 50  0001 C CNN
@@ -337,7 +337,7 @@ F 3 "" H 4000 2400 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L sch-rescue:C-device C3
+L sch-rescue:C-device-sch-rescue C3
 U 1 1 60C06DEC
 P 4200 2200
 F 0 "C3" H 4200 2300 50  0000 L CNN
@@ -348,7 +348,7 @@ F 3 "" H 4200 2200 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L sch-rescue:GND-power #PWR0116
+L sch-rescue:GND-power-sch-rescue #PWR0116
 U 1 1 60C0A725
 P 4000 2200
 F 0 "#PWR0116" H 4000 1950 50  0001 C CNN
@@ -365,7 +365,7 @@ Wire Wire Line
 Wire Wire Line
 	4000 2400 4450 2400
 $Comp
-L sch-rescue:+3.3V-power #PWR0117
+L sch-rescue:+3.3V-power-sch-rescue #PWR0117
 U 1 1 60C17286
 P 4400 2550
 F 0 "#PWR0117" H 4400 2400 50  0001 C CNN
@@ -417,7 +417,7 @@ Entry Bus Bus
 Entry Bus Bus
 	5900 5650 6000 5750
 $Comp
-L sch-rescue:Conn_01x09-Connector J2
+L sch-rescue:Conn_01x09-Connector-sch-rescue J2
 U 1 1 60C72175
 P 7300 5150
 F 0 "J2" H 7380 5192 50  0000 L CNN
@@ -450,7 +450,7 @@ JOY6
 Text Label 6400 5450 0    50   ~ 0
 JOY7
 $Comp
-L sch-rescue:GND-power #PWR0118
+L sch-rescue:GND-power-sch-rescue #PWR0118
 U 1 1 60CB8790
 P 7050 5600
 F 0 "#PWR0118" H 7050 5350 50  0001 C CNN
@@ -482,7 +482,7 @@ Connection ~ 5700 1750
 Wire Wire Line
 	5700 1750 5700 1700
 $Comp
-L sch-rescue:+3.3V-power #PWR0119
+L sch-rescue:+3.3V-power-sch-rescue #PWR0119
 U 1 1 60BDEA7C
 P 5700 1700
 F 0 "#PWR0119" H 5700 1550 50  0001 C CNN
@@ -493,7 +493,7 @@ F 3 "" H 5700 1700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:+5V-power #PWR0120
+L sch-rescue:+5V-power-sch-rescue #PWR0120
 U 1 1 60BDCB44
 P 7150 1700
 F 0 "#PWR0120" H 7150 1550 50  0001 C CNN
@@ -523,7 +523,7 @@ Wire Wire Line
 Wire Wire Line
 	5700 2050 5700 2100
 $Comp
-L sch-rescue:GND-power #PWR0121
+L sch-rescue:GND-power-sch-rescue #PWR0121
 U 1 1 60BA3E87
 P 6650 2150
 F 0 "#PWR0121" H 6650 1900 50  0001 C CNN
@@ -541,7 +541,7 @@ Wire Wire Line
 Wire Wire Line
 	5750 1750 5700 1750
 $Comp
-L sch-rescue:C-device C8
+L sch-rescue:C-device-sch-rescue C8
 U 1 1 60B9D265
 P 6400 1900
 F 0 "C8" H 6400 2000 50  0000 L CNN
@@ -552,7 +552,7 @@ F 3 "" H 6400 1900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:C-device C10
+L sch-rescue:C-device-sch-rescue C10
 U 1 1 60B9CD1A
 P 6650 1900
 F 0 "C10" H 6650 2000 50  0000 L CNN
@@ -563,7 +563,7 @@ F 3 "" H 6650 1900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:C-device C4
+L sch-rescue:C-device-sch-rescue C4
 U 1 1 60B9CA4E
 P 5700 1900
 F 0 "C4" H 5700 2000 50  0000 L CNN
@@ -576,7 +576,7 @@ $EndComp
 Entry Bus Bus
 	6300 5650 6400 5750
 $Comp
-L sch-rescue:R-device R2
+L sch-rescue:R-device-sch-rescue R2
 U 1 1 60BAF8CE
 P 6700 3800
 F 0 "R2" V 6800 3750 50  0000 L CNN
@@ -587,7 +587,7 @@ F 3 "" H 6700 3800 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L sch-rescue:Conn_01x03-Connector J1
+L sch-rescue:Conn_01x03-Connector-sch-rescue J1
 U 1 1 60BDE5E6
 P 7300 4300
 F 0 "J1" H 7380 4342 50  0000 L CNN
@@ -606,7 +606,7 @@ Entry Wire Line
 Entry Wire Line
 	6300 4500 6400 4400
 $Comp
-L sch-rescue:GND-power #PWR0122
+L sch-rescue:GND-power-sch-rescue #PWR0122
 U 1 1 60BEBAA9
 P 7050 4450
 F 0 "#PWR0122" H 7050 4200 50  0001 C CNN
@@ -633,7 +633,7 @@ Wire Wire Line
 Wire Wire Line
 	5800 4800 5550 4800
 $Comp
-L sch-rescue:R-device R4
+L sch-rescue:R-device-sch-rescue R4
 U 1 1 60BAA748
 P 6950 1750
 F 0 "R4" V 6850 1700 50  0000 L CNN
@@ -651,7 +651,7 @@ Wire Wire Line
 Wire Wire Line
 	7100 1750 7150 1750
 $Comp
-L sch-rescue:Conn_01x04-Connector J3
+L sch-rescue:Conn_01x04-Connector-sch-rescue J3
 U 1 1 60BD2978
 P 7300 3700
 F 0 "J3" H 7380 3692 50  0000 L CNN
@@ -712,7 +712,7 @@ NoConn ~ 5550 3500
 Entry Wire Line
 	6300 3800 6400 3700
 $Comp
-L sch-rescue:R-device R1
+L sch-rescue:R-device-sch-rescue R1
 U 1 1 60BAF3EA
 P 6700 3700
 F 0 "R1" V 6600 3650 50  0000 L CNN
@@ -774,7 +774,7 @@ NoConn ~ 4450 3100
 NoConn ~ 4450 3200
 NoConn ~ 4450 3300
 $Comp
-L sch-rescue:GND-power #PWR0123
+L sch-rescue:GND-power-sch-rescue #PWR0123
 U 1 1 60D66AD7
 P 4300 5050
 F 0 "#PWR0123" H 4300 4800 50  0001 C CNN
@@ -791,7 +791,7 @@ Wire Wire Line
 NoConn ~ 4450 4900
 NoConn ~ 5550 5000
 $Comp
-L sch-rescue:Conn_01x07-Connector J4
+L sch-rescue:Conn_01x07-Connector-sch-rescue J4
 U 1 1 60E21F7B
 P 8200 5250
 F 0 "J4" H 8350 5250 50  0000 C CNN
@@ -802,7 +802,7 @@ F 3 "~" H 8200 5250 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW6
+L sch-rescue:SW_Push-Switch-sch-rescue SW6
 U 1 1 60E2AE97
 P 9000 5700
 F 0 "SW6" H 8800 5750 50  0000 C CNN
@@ -813,7 +813,7 @@ F 3 "" H 9000 5900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW5
+L sch-rescue:SW_Push-Switch-sch-rescue SW5
 U 1 1 60E2BB79
 P 9000 5550
 F 0 "SW5" H 8800 5600 50  0000 C CNN
@@ -824,7 +824,7 @@ F 3 "" H 9000 5750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW4
+L sch-rescue:SW_Push-Switch-sch-rescue SW4
 U 1 1 60E2DB4C
 P 9000 5400
 F 0 "SW4" H 8800 5450 50  0000 C CNN
@@ -835,7 +835,7 @@ F 3 "" H 9000 5600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW3
+L sch-rescue:SW_Push-Switch-sch-rescue SW3
 U 1 1 60E2DDFE
 P 9000 5250
 F 0 "SW3" H 8800 5300 50  0000 C CNN
@@ -846,7 +846,7 @@ F 3 "" H 9000 5450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW2
+L sch-rescue:SW_Push-Switch-sch-rescue SW2
 U 1 1 60E2E03E
 P 9000 5100
 F 0 "SW2" H 8800 5150 50  0000 C CNN
@@ -857,7 +857,7 @@ F 3 "" H 9000 5300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L sch-rescue:SW_Push-Switch SW1
+L sch-rescue:SW_Push-Switch-sch-rescue SW1
 U 1 1 60E2E395
 P 9000 4950
 F 0 "SW1" H 8800 5000 50  0000 C CNN
@@ -948,7 +948,7 @@ $EndComp
 Wire Wire Line
 	7050 3250 7050 3600
 $Comp
-L sch-rescue:+3.3V-power #PWR0102
+L sch-rescue:+3.3V-power-sch-rescue #PWR0102
 U 1 1 6105D4FC
 P 6950 3250
 F 0 "#PWR0102" H 6950 3100 50  0001 C CNN
