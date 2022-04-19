@@ -8,6 +8,7 @@ BINDIR = bin
 # code is here
 SOURCES = main.c
 SOURCES += ir_remote.c
+SOURCES += ir_decode.C
 SOURCES += remote.c
 SOURCES += $(LIB_DIR)/usb_core.c
 SOURCES += $(LIB_DIR)/usb_hid.c

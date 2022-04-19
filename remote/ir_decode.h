@@ -1,5 +1,7 @@
+#ifndef H_IR_DECODE
+#define H_IR_DECODE
 /*
- * USB HID gamepad STM32 based solution. Call init, enjoy.
+ *  Part of USB HID IR adapter. Detects IR codes from two codings.
  *
  * Copyright 2022 Mikhail Belkin <dltech174@gmail.com>
  *
@@ -16,20 +18,7 @@
  * limitations under the License.
  */
 
-#include "stm32f103.h"
-#include "usb_core.h"
-#include "ir_remote.h"
-#include "remote.h"
-#include "remote_desc.h"
+// detects ir codes by using consecutive port polls
+int detect(uint8_t data, uint16_t addr);
 
-void remoteInit()
-{
-    irInit();
-    usbCoreInit(&remoteDesc);
-}
-
-// all usb events handled in interrupt
-void usb_lp_can_rx_Handler()
-{
-    usbCore();
-}
+#endif

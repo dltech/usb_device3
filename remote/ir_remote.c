@@ -3,7 +3,7 @@
  * periodical poll. Runs code recognition and sends a report with a symbol
  * according to a table.
  *
- * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
+ * Copyright 2022 Mikhail Belkin <dltech174@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,17 @@
 
 #include "stm32f103.h"
 #include "rcc.h"
-#include "dma_regs.h"
 #include "tim_regs.h"
 #include "usb_hid.h"
+#include "ir_decode.h"
 #include "ir_remote.h"
 
-// A little of global variables, in order to keep data between interrupt calls
-volatile uint32_t irFrame[SEQUENCE_LEN];
-volatile remotePropStruct remoteProp;
+volatile codeTyp codeTable[NUM_CODES];
 
 void gpioInit(void);
-void periodicPortPollTimerInit(void);
-void periodicPortPollDmaInit(void);
-void sendReportIrqInit(void);
-void remotePropInit(void);
-
-
-// wakeup from suspend mode by pressed button (not used)
-//void wkupByPress(void);
+void pollPortIrqInit(void);
+void codeTableInit(void);
+uint8_t findCode(uint16_t irCode);
 
 void gpioInit()
 {
@@ -47,110 +40,61 @@ void gpioInit()
     GPIOA_ODR = 0;//IR_PIN;
 }
 
-
-// setting up timer of IR receiver periodical reading
-void periodicPortPollTimerInit()
-{
-    RCC_APB1ENR |= TIM2EN;
-    TIM2_CR1   = (uint32_t) CKD_CK_INT;
-    TIM2_PSC   = (uint32_t) POLL_PSC;
-    TIM2_ARR   = (uint32_t) 1;
-    TIM2_DIER  = (uint32_t) UDE;
-    TIM2_CR1  |= (uint32_t) CEN;
-//    NVIC_EnableIRQ(TIM2_IRQn);
-//    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
-    TIM2_SR    = 0;
-    TIM2_EGR  |= (uint32_t) UG;
-}
-
-// dma circular read of port with cyclical save in array
-void periodicPortPollDmaInit()
-{
-    RCC_AHBENR |= DMA1EN;
-    DMA1_CPAR2  = (uint32_t) &IR_PORT;
-    DMA1_CMAR2  = (uint32_t) irFrame;
-    DMA1_CNDTR2 = (uint32_t) SEQUENCE_LEN;
-    DMA1_CCR2   = MINC | MSIZE_32BIT | PSIZE_32BIT | PL_LOW | CIRC | DMA_EN;
-}
-
 // setting up timer interrupt for sending a report
-void sendReportIrqInit()
+void pollPortIrqInit()
 {
     RCC_APB1ENR |= TIM3EN;
     TIM3_CR1   = (uint32_t) CKD_CK_INT;
-    TIM3_PSC   = (uint32_t) MAXIMAL_PSC;
-    TIM3_ARR   = (uint32_t) DECODE_RATE_ARR;
+    TIM3_PSC   = (uint32_t) POLL_PSC;
+    TIM3_ARR   = (uint32_t) 1;//
     TIM3_DIER  = (uint32_t) UIE;
     TIM3_CR1  |= (uint32_t) CEN;
+    TIM3_SR    = 0;
+    TIM3_EGR  |= (uint32_t) UG;
     NVIC_EnableIRQ(TIM3_IRQn);
 //    nvic_set_priority(NVIC_TIM2_IRQ, 0x00);
-    TIM3_SR    = 0;
-    TIM2_EGR  |= (uint32_t) UG;
-    TIM3_EGR  |= (uint32_t) UG;
 }
 
 // initialisation of a IR remote (it's address and it's button codes)
-void remotePropInit()
+void codeTableInit()
 {
-    remoteProp.address = 0;
-    remoteProp.codeTable[100] = 0x5d;
-    remoteProp.codeTable[200] = 0x57;
-    remoteProp.isKeyPressed = 0;
+    codeTable[0].irCode = 0;
+    codeTable[0].keyboardCode = 0;
+    codeTable[1].irCode = 0;
+    codeTable[1].keyboardCode = 0;
+    codeTable[2].irCode = 0;
+    codeTable[2].keyboardCode = 0;
+    codeTable[3].irCode = 0;
+    codeTable[3].keyboardCode = 0;
+    codeTable[4].irCode = 0;
+    codeTable[4].keyboardCode = 0;
+    codeTable[5].irCode = 0;
+    codeTable[5].keyboardCode = 0;
 }
 
-uint32_t readrate = 0;
 // main init
 void irInit()
 {
     gpioInit();
-    periodicPortPollTimerInit();
-    periodicPortPollDmaInit();
-    sendReportIrqInit();
-    remotePropInit();
-    readrate = TIM2_PSC;
+    pollPortIrqInit();
+    codeTableInit();
 }
 
-volatile uint8_t frameDump[SEQUENCE_LEN];
-uint32_t readCnt;
+int findCode(uint16_t irCodeIn)
+{
+    for(int i=0 ; i<NUM_CODES ; ++i)
+    {
+        if(codeTable[i].irCode == irCodeIn) return i;
+    }
+    return 0;
+}
+
 void TIM3_Handler()
 {
-    ++readCnt;
-    uint8_t report[KBD_REPORT_SIZE] = {0};
-    static int repCnt = 0;
-    static int sendCnt = 0;
-    ++repCnt;
-    if( remoteProp.isKeyPressed == 1 ) {
-        sendKbdReport(report);
-        remoteProp.isKeyPressed = 0;
-    }
-    if( (remoteProp.isKeyPressed == 0) && (repCnt>10) && (sendCnt < 10)) {
-        sendCnt++;
-        report[KBD_SYMBOL_POINTER] = 0x04;
-        sendKbdReport(report);
-        remoteProp.isKeyPressed = 1;
-        repCnt = 0;
-    }
-    int nulls = 0;
-    for(int i=0 ; i<SEQUENCE_LEN ; ++i) {
-        if(irFrame[i] == 0) ++nulls;
-        if(nulls > 10) break;
-    }
-    if(nulls > 10) {
-        for(int i=0 ; i<SEQUENCE_LEN ; ++i) {
-            frameDump[i] = (uint8_t)(irFrame[i] & IR_PIN);
-        }
-    }
+    uint16_t code = detect((uint8_t)(IR_PORT & IR_PIN), 0xffff);
+    uint8_t report[8];
+    report[0] = codeTable[findCode(code)].tabCode;
+    report[3] = codeTable[findCode(code)].keyboardCode;
+    sendKbdReport(report);
     TIM3_SR = 0;
 }
-
-//void wkupByPress()
-//{
-//    static uint8_t prevReport = 0;
-//    if( gamepadPar.isSusp == 0 ) {
-//        return;
-//    }
-//    if(gamepadPar.report != prevReport) {
-//        usbWakeup();
-//    }
-//    prevReport = gamepadPar.report;
-//}

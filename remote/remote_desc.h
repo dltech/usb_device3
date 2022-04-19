@@ -2,9 +2,9 @@
 #define H_REMOTE_DESC
 /*
  * Part of USB HID ledlessKbd STM32 based solution.
- * All descriptors for simplest USB 2.0 HID ledlessKbd with D-pad and two buttons
+ * All descriptors for simplest USB 2.0 HID ledlessKbd
  *
- * Copyright 2021 Mikhail Belkin <dltech174@gmail.com>
+ * Copyright 2022 Mikhail Belkin <dltech174@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
