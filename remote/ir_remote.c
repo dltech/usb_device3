@@ -120,7 +120,7 @@ int findCode(uint16_t irCodeIn)
     {
         if(codeTable[i].irCode == irCodeIn) return i;
     }
-    return 0;
+    return NUM_CODES -1;
 }
 
 void TIM3_Handler()

@@ -49,7 +49,7 @@ typedef struct {
     uint8_t tabCode;
 } codeTyp;
 #define NUM_CODES   30
-#define ONCODE  0xdf02
+#define ONCODE  0xfd02
 
 // call this to init receiving of IR codes
 void irInit(void);
